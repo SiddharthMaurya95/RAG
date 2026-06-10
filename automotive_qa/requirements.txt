@@ -1,0 +1,10 @@
+streamlit
+pandas
+openpyxl
+faiss-cpu
+sentence-transformers
+plotly
+reportlab
+python-docx
+spacy
+numpy
