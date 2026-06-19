@@ -4,22 +4,13 @@ import sqlite3
 import subprocess
 import requests
 
-def create_folders():
+def create_folders(project_root):
     """Create directory structure for the application."""
     dirs = [
-        "data",
-        "data/inbox",
-        "models",
-        "etl",
-        "nlp",
-        "rag",
-        "analytics",
-        "viz",
-        "reports",
-        "llm",
-        "core",
-        "auth",
-        "app"
+        os.path.join(project_root, "data"),
+        os.path.join(project_root, "data", "inbox"),
+        os.path.join(project_root, "models"),
+        os.path.join(project_root, "reports_cache")
     ]
     for d in dirs:
         os.makedirs(d, exist_ok=True)
@@ -58,43 +49,13 @@ def download_spacy_model():
         print(f"Failed to download spaCy model: {e}")
         print("Proceeding - NLP processor will fall back to regex-based extraction.")
 
-def download_qwen_model(model_dir):
-    """Downloads the Qwen 2.5-7B GGUF model from Hugging Face if not present."""
-    model_name = "qwen2.5-7b-instruct-q4_k_m.gguf"
-    dest_path = os.path.join(model_dir, model_name)
-    url = f"https://huggingface.co/Qwen/Qwen2.5-7B-Instruct-GGUF/resolve/main/{model_name}"
-    
-    if os.path.exists(dest_path):
-        print(f"Model already exists at: {dest_path}")
-        return
-        
-    print(f"Downloading model {model_name} (approx. 4.7 GB). This may take several minutes...")
-    try:
-        response = requests.get(url, stream=True)
-        response.raise_for_status()
-        total_size = int(response.headers.get('content-length', 0))
-        block_size = 1024 * 1024 # 1 MB chunks
-        
-        downloaded = 0
-        with open(dest_path, 'wb') as f:
-            for data in response.iter_content(block_size):
-                f.write(data)
-                downloaded += len(data)
-                if total_size > 0:
-                    percent = (downloaded / total_size) * 100
-                    sys.stdout.write(f"\rProgress: {percent:.2f}% ({downloaded // (1024*1024)}MB / {total_size // (1024*1024)}MB)")
-                    sys.stdout.flush()
-        print("\nModel downloaded successfully.")
-    except Exception as e:
-        print(f"\nError downloading model: {e}")
-        print(f"Please manually download the model from {url} and place it in the '{model_dir}' folder.")
-        # Do not raise exception here, let the setup continue
 
-def run_initial_etl(excel_source, db_path):
+
+def run_initial_etl(excel_source, db_path, project_root):
     """Ingests the initial Excel data sheet and builds the vector database index."""
     print("Starting initial ETL Ingestion...")
     # Add project root to sys.path so we can import modules
-    sys.path.append(os.getcwd())
+    sys.path.append(project_root)
     
     from etl.pipeline import ingest_excel
     from rag.document_builder import build_document_text
@@ -154,24 +115,23 @@ def run_initial_etl(excel_source, db_path):
     print("Initial ETL and FAISS index setup complete.")
 
 if __name__ == "__main__":
-    db_path = "data/automotive.db"
-    schema_path = "schema.sql"
-    model_dir = "models"
+    # Get absolute path to the directory containing setup.py (automotive_qa)
+    project_root = os.path.dirname(os.path.abspath(__file__))
+    repo_root = os.path.dirname(project_root)
     
-    # Check if ftir_dummy.xlsx exists in root (we copied it there)
-    excel_source = "../ftir_dummy.xlsx"
+    db_path = os.path.join(project_root, "data", "automotive.db")
+    schema_path = os.path.join(project_root, "schema.sql")
+    model_dir = os.path.join(project_root, "models")
+    
+    # Check if ftir_dummy.xlsx exists in repository root or package folder
+    excel_source = os.path.join(repo_root, "ftir_dummy.xlsx")
     if not os.path.exists(excel_source):
-        # Check inside the current dir too
-        excel_source = "ftir_dummy.xlsx"
-        if not os.path.exists(excel_source):
-            # Check one more parent folder
-            excel_source = "../../ftir_dummy.xlsx"
+        excel_source = os.path.join(project_root, "ftir_dummy.xlsx")
             
     print(f"Detected excel source path: {excel_source}")
     
-    create_folders()
+    create_folders(project_root)
     init_database(db_path, schema_path)
     download_spacy_model()
-    download_qwen_model(model_dir)
-    run_initial_etl(excel_source, db_path)
+    run_initial_etl(excel_source, db_path, project_root)
     print("Project setup completed successfully!")
