@@ -57,9 +57,9 @@ class NLPProcessor:
             from spacy.pipeline import EntityRuler
             # Try loading English small model
             self.nlp = spacy.load("en_core_web_sm")
-        except OSError:
-            # Fallback if model not downloaded
-            print("spaCy model 'en_core_web_sm' not found, running regex-only NER.")
+        except Exception as e:
+            # Fallback if model not downloaded or spacy is not installed
+            print(f"spaCy could not be loaded ({e}), running regex-only NER.")
             return
 
         # Add custom EntityRuler
