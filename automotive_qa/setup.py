@@ -36,18 +36,18 @@ def init_database(db_path, schema_path):
     finally:
         conn.close()
 
-def download_spacy_model():
-    """Downloads the English small spaCy model."""
-    print("Downloading spaCy model 'en_core_web_sm'...")
-    try:
-        subprocess.run(
-            [sys.executable, "-m", "spacy", "download", "en_core_web_sm"],
-            check=True
-        )
-        print("spaCy model downloaded successfully.")
-    except Exception as e:
-        print(f"Failed to download spaCy model: {e}")
-        print("Proceeding - NLP processor will fall back to regex-based extraction.")
+# def download_spacy_model():
+#     """Downloads the English small spaCy model."""
+#     print("Downloading spaCy model 'en_core_web_sm'...")
+#     try:
+#         subprocess.run(
+#             [sys.executable, "-m", "spacy", "download", "en_core_web_sm"],
+#             check=True
+#         )
+#         print("spaCy model downloaded successfully.")
+#     except Exception as e:
+#         print(f"Failed to download spaCy model: {e}")
+#         print("Proceeding - NLP processor will fall back to regex-based extraction.")
 
 
 
@@ -132,6 +132,6 @@ if __name__ == "__main__":
     
     create_folders(project_root)
     init_database(db_path, schema_path)
-    download_spacy_model()
+    # download_spacy_model()
     run_initial_etl(excel_source, db_path, project_root)
     print("Project setup completed successfully!")

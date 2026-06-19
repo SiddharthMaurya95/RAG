@@ -9,10 +9,11 @@ venv.zip
 # Local models
 automotive_qa/models/
 
-# Database files
-*.db
-automotive_qa/data/automotive.db
-data/
+# Ignore root data folder
+/data/
+
+# Ignore files in inbox
+/automotive_qa/data/inbox/
 
 # Cache, reports, and local assets
 automotive_qa/reports_cache/
