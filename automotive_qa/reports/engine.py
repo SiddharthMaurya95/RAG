@@ -550,21 +550,43 @@ class ReportEngine:
                 if df is not None and not df.empty:
                     story.append(Paragraph("<b>Query Results Table:</b>", assistant_body_style))
                     
-                    headers = [Paragraph(f"<b>{col}</b>", table_hdr_style_from_pdf()) for col in df.columns]
+                    # Prevent crash on extremely wide or large tables in PDF
+                    max_cols = 7
+                    max_rows = 30
+                    too_wide = len(df.columns) > max_cols
+                    too_long = len(df) > max_rows
+                    
+                    display_df = df
+                    if too_wide:
+                        display_df = display_df.iloc[:, :max_cols]
+                    if too_long:
+                        display_df = display_df.head(max_rows)
+                        
+                    headers = [Paragraph(f"<b>{col}</b>", table_hdr_style_from_pdf()) for col in display_df.columns]
                     data = [headers]
-                    for _, row in df.iterrows():
+                    for _, row in display_df.iterrows():
                         data.append([Paragraph(html_escape(str(val)), table_text_style_from_pdf()) for val in row])
                     
-                    col_widths = [504 / len(df.columns)] * len(df.columns)
+                    col_widths = [504 / len(display_df.columns)] * len(display_df.columns)
                     df_table = Table(data, colWidths=col_widths)
                     df_table.setStyle(TableStyle([
                         ('BACKGROUND', (0,0), (-1,0), colors.HexColor('#0d9488')), # Teal header
                         ('VALIGN', (0,0), (-1,-1), 'TOP'),
                         ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor('#cbd5e1')),
                         ('ROWBACKGROUNDS', (0,1), (-1,-1), [colors.white, colors.HexColor('#f8fafc')]),
-                        ('PADDING', (0,0), (-1,-1), 5),
+                        ('PADDING', (0,0), (-1,-1), 4),
                     ]))
                     story.append(df_table)
+                    
+                    if too_wide or too_long:
+                        warning_text = "<i>Note: Table truncated in PDF for readability. "
+                        if too_wide:
+                            warning_text += f"Showing first {max_cols} of {len(df.columns)} columns. "
+                        if too_long:
+                            warning_text += f"Showing first {max_rows} of {len(df)} rows. "
+                        warning_text += "</i>"
+                        story.append(Paragraph(warning_text, citation_body_style))
+                        
                     story.append(Spacer(1, 8))
                     
                 # Chart Visuals
