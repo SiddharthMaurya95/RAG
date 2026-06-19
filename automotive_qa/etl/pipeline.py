@@ -108,102 +108,99 @@ def ingest_excel(excel_path, db_path, llm_client=None):
     
     print(f"Loaded {len(df)} rows from Excel.")
     
+    # Normalize all string values and handle NaNs using a lambda expression
+    clean_val = lambda x: str(x).strip() if not pd.isna(x) else None
+    for col in df.columns:
+        df[col] = df[col].apply(clean_val)
+        
+    # Ensure all required database fields exist in the DataFrame (initialize missing ones to None)
+    required_cols = [
+        'SBPR No', 'FTIR No', 'FTIR Report Date', 'Reply Date', 'Status', 'FC-OK', 
+        'Product MODEL Code', 'Sales Model Code', 'Segmentation', 'VIN', 'Engine No', 
+        'Transmission No', 'Date Registered', 'Date of Incident', 'Using Time (km)', 
+        'Reported Company', 'Issued Company', 'Outbreak Country', 'Manufacturer Factory', 
+        'Subject', 'C Measure', 'Customer Complaint', 'Trouble Code (Complaint)', 
+        'Trouble Code Defect', 'Checked Contents', 'Checked Results', 'Repair Status', 
+        'Repair Contents', 'Problem Solved', 'Action Judgement', 'Causal Parts No (Drawing Parts No)', 
+        'Causal Parts Name', 'Supplier of Causal Parts', 'Production Base', 
+        'Parts Availability', 'File Name', 'Quality'
+    ]
+    for col in required_cols:
+        if col not in df.columns:
+            df[col] = None
+
+    # Handle fallbacks for missing customer complaints using lambda
+    df['Customer Complaint'] = df.apply(
+        lambda r: r['Subject'] if not r['Customer Complaint'] and r['Subject'] else r['Customer Complaint'], 
+        axis=1
+    )
+    
+    # Parse trouble code from subject if empty using lambda/regex
+    parse_tc = lambda r: re.search(r'\b([PBCU]\d{4})\b', r['Subject'], re.IGNORECASE).group(1).upper() if (not r['Trouble Code (Complaint)'] and r['Subject'] and re.search(r'\b([PBCU]\d{4})\b', r['Subject'], re.IGNORECASE)) else r['Trouble Code (Complaint)']
+    df['Trouble Code (Complaint)'] = df.apply(parse_tc, axis=1)
+
+    # Compute row hashes
+    df['row_hash'] = df.apply(
+        lambda r: hashlib.md5(f"{r['FTIR No'] or ''}|{r['Subject'] or ''}|{r['Customer Complaint'] or ''}".encode('utf-8')).hexdigest(),
+        axis=1
+    )
+    
+    # Standardize dates
+    df['FTIR Report Date'] = df['FTIR Report Date'].apply(parse_date)
+    df['Reply Date'] = df['Reply Date'].apply(parse_date)
+    df['Date Registered'] = df['Date Registered'].apply(parse_date)
+    df['Date of Incident'] = df['Date of Incident'].apply(parse_date)
+    
+    # Computed columns
+    df['using_km_int'] = df['Using Time (km)'].apply(clean_km)
+    
+    # Year/month extraction
+    df['extracted_ym'] = df['FTIR Report Date'].apply(extract_year_month)
+    df['report_year'] = df['extracted_ym'].apply(lambda x: x[0])
+    df['report_month'] = df['extracted_ym'].apply(lambda x: x[1])
+    
+    # Compute resolved and sbpr flags using lambdas
+    df['is_resolved'] = df['Problem Solved'].apply(lambda val: 1 if val and str(val).lower() in ('resolved', 'solved') else 0)
+    df['has_sbpr'] = df['SBPR No'].apply(lambda val: 1 if val and str(val).lower() not in ('nan', '') else 0)
+    
+    # Connect to DB and fetch existing hashes and FTIRs to filter duplicates in batch
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     
+    cursor.execute("SELECT row_hash, ftir_no FROM records")
+    existing_rows = cursor.fetchall()
+    existing_hashes = {r[0] for r in existing_rows if r[0]}
+    existing_ftirs = {str(r[1]).strip() for r in existing_rows if r[1]}
+    
+    # Filter out duplicate records
+    df_new = df[~df['row_hash'].isin(existing_hashes) & ~df['FTIR No'].isin(existing_ftirs)]
+    
+    print(f"Filtered duplicates: {len(df_new)} new records to insert.")
+    
     new_records = []
     
-    for idx, row in df.iterrows():
-        # Clean FTIR No
-        ftir_no_raw = row.get('FTIR No')
-        ftir_no = str(ftir_no_raw).strip() if not pd.isna(ftir_no_raw) else ''
-        
-        # Compute row hash
-        row_hash = calculate_row_hash(row)
-        
-        # Check if row_hash or ftir_no already exists
-        cursor.execute("SELECT id FROM records WHERE row_hash = ? OR ftir_no = ?", (row_hash, ftir_no))
-        if cursor.fetchone():
-            # Duplicate, skip
-            continue
-        
-        # Parse fields
-        sbpr_no = str(row.get('SBPR No', '')).strip() if not pd.isna(row.get('SBPR No')) else None
-        ftir_report_date = parse_date(row.get('FTIR Report Date'))
-        reply_date = parse_date(row.get('Reply Date'))
-        status = str(row.get('Status', '')).strip() if not pd.isna(row.get('Status')) else None
-        fc_ok = str(row.get('FC-OK', '')).strip() if not pd.isna(row.get('FC-OK')) else None
-        product_model_code = str(row.get('Product MODEL Code', '')).strip() if not pd.isna(row.get('Product MODEL Code')) else None
-        sales_model_code = str(row.get('Sales Model Code', '')).strip() if not pd.isna(row.get('Sales Model Code')) else None
-        segmentation = str(row.get('Segmentation', '')).strip() if not pd.isna(row.get('Segmentation')) else None
-        vin = str(row.get('VIN', '')).strip() if not pd.isna(row.get('VIN')) else None
-        engine_no = str(row.get('Engine No', '')).strip() if not pd.isna(row.get('Engine No')) else None
-        transmission_no = str(row.get('Transmission No', '')).strip() if not pd.isna(row.get('Transmission No')) else None
-        date_registered = parse_date(row.get('Date Registered'))
-        date_of_incident = parse_date(row.get('Date of Incident'))
-        using_time_km = str(row.get('Using Time (km)', '')).strip() if not pd.isna(row.get('Using Time (km)')) else None
-        reported_company = str(row.get('Reported Company', '')).strip() if not pd.isna(row.get('Reported Company')) else None
-        issued_company = str(row.get('Issued Company', '')).strip() if not pd.isna(row.get('Issued Company')) else None
-        outbreak_country = str(row.get('Outbreak Country', '')).strip() if not pd.isna(row.get('Outbreak Country')) else None
-        manufacturer_factory = str(row.get('Manufacturer Factory', '')).strip() if not pd.isna(row.get('Manufacturer Factory')) else None
-        subject = str(row.get('Subject', '')).strip() if not pd.isna(row.get('Subject')) else None
-        c_measure = str(row.get('C Measure', '')).strip() if not pd.isna(row.get('C Measure')) else None
-        customer_complaint = str(row.get('Customer Complaint', '')).strip() if not pd.isna(row.get('Customer Complaint')) else None
-        trouble_code_complaint = str(row.get('Trouble Code (Complaint)', '')).strip() if not pd.isna(row.get('Trouble Code (Complaint)')) else None
-        
-        # Fallbacks for missing columns in raw sheets
-        if (not customer_complaint or customer_complaint.lower() == 'nan') and subject:
-            customer_complaint = subject
-            
-        if not trouble_code_complaint and subject:
-            # Parse trouble code from subject text using regex
-            match = re.search(r'\b([PBCU]\d{4})\b', subject, re.IGNORECASE)
-            if match:
-                trouble_code_complaint = match.group(1).upper()
-                
-        trouble_code_defect = str(row.get('Trouble Code Defect', '')).strip() if not pd.isna(row.get('Trouble Code Defect')) else None
-        checked_contents = str(row.get('Checked Contents', '')).strip() if not pd.isna(row.get('Checked Contents')) else None
-        checked_results = str(row.get('Checked Results', '')).strip() if not pd.isna(row.get('Checked Results')) else None
-        repair_status = str(row.get('Repair Status', '')).strip() if not pd.isna(row.get('Repair Status')) else None
-        repair_contents = str(row.get('Repair Contents', '')).strip() if not pd.isna(row.get('Repair Contents')) else None
-        problem_solved = str(row.get('Problem Solved', '')).strip() if not pd.isna(row.get('Problem Solved')) else None
-        action_judgement = str(row.get('Action Judgement', '')).strip() if not pd.isna(row.get('Action Judgement')) else None
-        causal_parts_no = str(row.get('Causal Parts No (Drawing Parts No)', '')).strip() if not pd.isna(row.get('Causal Parts No (Drawing Parts No)')) else None
-        causal_parts_name = str(row.get('Causal Parts Name', '')).strip() if not pd.isna(row.get('Causal Parts Name')) else None
-        supplier_of_causal_parts = str(row.get('Supplier of Causal Parts', '')).strip() if not pd.isna(row.get('Supplier of Causal Parts')) else None
-        production_base = str(row.get('Production Base', '')).strip() if not pd.isna(row.get('Production Base')) else None
-        parts_availability = str(row.get('Parts Availability', '')).strip() if not pd.isna(row.get('Parts Availability')) else None
-        file_name = str(row.get('File Name', '')).strip() if not pd.isna(row.get('File Name')) else None
-        quality = str(row.get('Quality', '')).strip() if not pd.isna(row.get('Quality')) else None
-        
-        # Computed columns
-        using_km_int = clean_km(using_time_km)
-        report_year, report_month = extract_year_month(ftir_report_date)
-        is_resolved = 1 if (problem_solved and problem_solved.lower() in ('resolved', 'solved')) else 0
-        has_sbpr = 1 if (sbpr_no and sbpr_no.lower() not in ('nan', '')) else 0
-        
-        # Generate summary (use LLM if client is provided, otherwise fallback to heuristic)
+    # Insert new records
+    for idx, row in df_new.iterrows():
+        # Generate summary
         summary = None
         if llm_client:
             try:
-                # Format request for 2 sentence summary
                 prompt = (
                     f"Summarize the following vehicle quality record in exactly 2 sentences. "
                     f"Highlight the issue and the repair action.\n"
-                    f"Subject: {subject}\n"
-                    f"Checked Results: {checked_results}\n"
-                    f"Repair: {repair_contents}\n"
-                    f"Causal Part: {causal_parts_name}\n"
+                    f"Subject: {row['Subject']}\n"
+                    f"Checked Results: {row['Checked Results']}\n"
+                    f"Repair: {row['Repair Contents']}\n"
+                    f"Causal Part: {row['Causal Parts Name']}\n"
                     f"Summary:"
                 )
                 summary = llm_client.generate_summary(prompt)
             except Exception as ex:
-                print(f"LLM Summary failed for {ftir_no}, falling back to heuristic: {ex}")
+                print(f"LLM Summary failed for {row['FTIR No']}, falling back to heuristic: {ex}")
                 
         if not summary:
             summary = generate_heuristic_summary(row)
             
-        # Write to DB
         cursor.execute("""
             INSERT INTO records (
                 sbpr_no, ftir_no, ftir_report_date, reply_date, status, fc_ok, 
@@ -218,31 +215,30 @@ def ingest_excel(excel_path, db_path, llm_client=None):
                 report_year, report_month, is_resolved, has_sbpr, summary
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, (
-            sbpr_no, ftir_no, ftir_report_date, reply_date, status, fc_ok,
-            product_model_code, sales_model_code, segmentation, vin, engine_no,
-            transmission_no, date_registered, date_of_incident, using_time_km,
-            reported_company, issued_company, outbreak_country, manufacturer_factory,
-            subject, c_measure, customer_complaint, trouble_code_complaint,
-            trouble_code_defect, checked_contents, checked_results, repair_status,
-            repair_contents, problem_solved, action_judgement, causal_parts_no,
-            causal_parts_name, supplier_of_causal_parts, production_base,
-            parts_availability, file_name, quality, row_hash, using_km_int,
-            report_year, report_month, is_resolved, has_sbpr, summary
+            row['SBPR No'], row['FTIR No'], row['FTIR Report Date'], row['Reply Date'], row['Status'], row['FC-OK'],
+            row['Product MODEL Code'], row['Sales Model Code'], row['Segmentation'], row['VIN'], row['Engine No'],
+            row['Transmission No'], row['Date Registered'], row['Date of Incident'], row['Using Time (km)'],
+            row['Reported Company'], row['Issued Company'], row['Outbreak Country'], row['Manufacturer Factory'],
+            row['Subject'], row['C Measure'], row['Customer Complaint'], row['Trouble Code (Complaint)'],
+            row['Trouble Code Defect'], row['Checked Contents'], row['Checked Results'], row['Repair Status'],
+            row['Repair Contents'], row['Problem Solved'], row['Action Judgement'], row['Causal Parts No (Drawing Parts No)'],
+            row['Causal Parts Name'], row['Supplier of Causal Parts'], row['Production Base'],
+            row['Parts Availability'], row['File Name'], row['Quality'], row['row_hash'], row['using_km_int'],
+            row['report_year'], row['report_month'], row['is_resolved'], row['has_sbpr'], summary
         ))
         
-        # Get inserted row id and values for returning
         row_id = cursor.lastrowid
         new_records.append({
             'id': row_id,
-            'ftir_no': ftir_no,
-            'outbreak_country': outbreak_country,
-            'product_model_code': product_model_code,
-            'segmentation': segmentation,
-            'trouble_code_complaint': trouble_code_complaint,
-            'subject': subject,
-            'checked_results': checked_results,
-            'repair_contents': repair_contents,
-            'causal_parts_name': causal_parts_name,
+            'ftir_no': row['FTIR No'],
+            'outbreak_country': row['Outbreak Country'],
+            'product_model_code': row['Product MODEL Code'],
+            'segmentation': row['Segmentation'],
+            'trouble_code_complaint': row['Trouble Code (Complaint)'],
+            'subject': row['Subject'],
+            'checked_results': row['Checked Results'],
+            'repair_contents': row['Repair Contents'],
+            'causal_parts_name': row['Causal Parts Name'],
             'summary': summary
         })
         
