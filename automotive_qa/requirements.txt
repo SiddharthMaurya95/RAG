@@ -8,3 +8,5 @@ reportlab
 python-docx
 spacy
 numpy
+SQLAlchemy
+

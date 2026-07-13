@@ -1,75 +1,520 @@
 import os
-from llama_cpp import Llama
+import json
+import urllib.request
+import urllib.error
+import sys
+from core.logger import get_logger
+from core.custom_exception import CustomException
+
+logger = get_logger(__name__)
+
+# Set default API keys in environment if not already set or empty
+if not os.environ.get("GEMINI_API_KEY"):
+    pass
+if not os.environ.get("GROQ_API_KEY"):
+    pass
+
+# Try to import llama_cpp, but don't crash if it is not installed or fails to load DLLs
+try:
+    from llama_cpp import Llama
+    LLAMA_CPP_AVAILABLE = True
+    LLAMA_CPP_ERROR = None
+except Exception as e:
+    LLAMA_CPP_AVAILABLE = False
+    LLAMA_CPP_ERROR = str(e)
 
 class LocalLLMClient:
-    def __init__(self, model_path="models/Phi-3-mini-4k-instruct-q4.gguf"):
+    def __init__(self, model_path="models/Qwen2.5-7B-Instruct-Q4_K_M.gguf"):
         self.model_path = model_path
         self.llm = None
 
     def load_model(self):
         """Loads the GGUF model into VRAM/RAM if not already loaded."""
-        if self.llm is None:
-            if not os.path.exists(self.model_path):
-                raise FileNotFoundError(
-                    f"Local GGUF model not found at {self.model_path}. "
-                    f"Please verify it was downloaded successfully."
+        try:
+            if not LLAMA_CPP_AVAILABLE:
+                raise RuntimeError(
+                    f"llama_cpp is not available or failed to load on this system: {LLAMA_CPP_ERROR}. "
+                    f"Please ensure C++ build tools are installed or configure the Groq API key."
                 )
-            
-            # Load Llama with CUDA GPU acceleration
-            self.llm = Llama(
-                model_path=self.model_path,
-                n_ctx=14096,         # Context discipline: 4096 max tokens (Phi-3 native)
-                n_gpu_layers=-1,    # Offload all layers to GPU (n_gpu_layers=-1)
-                use_mlock=True,     # Pin model in RAM/VRAM
-                verbose=False       # Keep terminal output clean
-            )
-            print(f"Llama GGUF model loaded from {self.model_path} with GPU offloading.")
-        return self.llm
+            if self.llm is None:
+                if not os.path.exists(self.model_path):
+                    raise FileNotFoundError(
+                        f"Local GGUF model not found at {self.model_path}. "
+                        f"Please verify it was downloaded successfully."
+                    )
+
+                # Configure GPU offload (20 layers) to leave VRAM headroom and prevent memory corruption on 4GB GPUs
+                self.llm = Llama(
+                    model_path=self.model_path,
+                    n_ctx=4096,          # Model native context limit
+                    n_gpu_layers=-1,     # Offload all layers to GPU
+                    use_mlock=False,
+                    verbose=False
+                )
+                logger.info(f"Local GGUF model loaded from {self.model_path} on GPU.")
+            return self.llm
+        except Exception as e:
+            logger.error(f"Failed to load local GGUF model: {e}")
+            raise CustomException(e, sys)
 
     def generate_summary(self, prompt, max_tokens=150):
         """Generates a synchronous summary (used in ingestion/ETL)."""
-        self.load_model()
-        response = self.llm(
-            prompt,
-            max_tokens=max_tokens,
-            temperature=0.1,
-            stop=["\n", "Summary:", "Issue:"],
-            echo=False
-        )
-        text = response["choices"][0]["text"].strip()
-        return text
+        try:
+            self.load_model()
+            is_qwen = "qwen" in self.model_path.lower()
+            if is_qwen:
+                prompt = prompt.replace("<|system|>", "<|im_start|>system")
+                prompt = prompt.replace("<|user|>", "<|im_start|>user")
+                prompt = prompt.replace("<|assistant|>", "<|im_start|>assistant")
+                prompt = prompt.replace("<|end|>", "<|im_end|>")
+                if len(prompt) > 14000:
+                    prompt = prompt[:14000] + "\n<|im_end|>\n<|im_start|>assistant\n"
+                stop_tokens = ["\n", "Summary:", "Issue:", "<|im_end|>", "<|im_start|>"]
+            else:
+                if len(prompt) > 14000:
+                    prompt = prompt[:14000] + "\n<|end|>\n<|assistant|>\n"
+                stop_tokens = ["\n", "Summary:", "Issue:", "<|end|>", "<|user|>"]
+
+            response = self.llm(
+                prompt,
+                max_tokens=max_tokens,
+                temperature=0.1,
+                stop=stop_tokens,
+                echo=False
+            )
+            text = response["choices"][0]["text"].strip()
+            return text
+        except Exception as e:
+            logger.error(f"Local LLM summary generation failed: {e}")
+            raise CustomException(e, sys)
 
     def generate_chat_stream(self, messages):
         """
         Generates a streaming response for Streamlit chat.
         Yields tokens/chunks as they are generated by the model.
         """
-        self.load_model()
+        try:
+            self.load_model()
+
+            # Chat template (ignoring previous chat history to speed up inference)
+            filtered_messages = []
+            for msg in messages[:-1]:
+                if msg["role"] == "system":
+                    filtered_messages.append(msg)
+            if messages:
+                filtered_messages.append(messages[-1])
+
+            is_qwen = "qwen" in self.model_path.lower()
+            prompt_parts = []
+            for msg in filtered_messages:
+                role = msg["role"]
+                content = msg["content"]
+                
+                # Truncate extremely long user content to fit within context safety limits
+                if role == "user" and len(content) > 10000:
+                    content = content[:10000] + "\n\n*(Context truncated to prevent context window overflow)*"
+                    
+                if is_qwen:
+                    if role == "system":
+                        prompt_parts.append(f"<|im_start|>system\n{content}<|im_end|>\n")
+                    elif role == "user":
+                        prompt_parts.append(f"<|im_start|>user\n{content}<|im_end|>\n")
+                    elif role == "assistant":
+                        prompt_parts.append(f"<|im_start|>assistant\n{content}<|im_end|>\n")
+                else:
+                    if role == "system":
+                        prompt_parts.append(f"<|system|>\n{content}<|end|>\n")
+                    elif role == "user":
+                        prompt_parts.append(f"<|user|>\n{content}<|end|>\n")
+                    elif role == "assistant":
+                        prompt_parts.append(f"<|assistant|>\n{content}<|end|>\n")
+            
+            if is_qwen:
+                prompt_parts.append("<|im_start|>assistant\n")
+            else:
+                prompt_parts.append("<|assistant|>\n")
+            prompt = "".join(prompt_parts)
+
+            # Safety: estimate token count (~4 chars per token)
+            estimated_tokens = len(prompt) // 4
+            model_ctx = 4096
+            if estimated_tokens > model_ctx - 600:
+                print(f"WARNING: Estimated prompt tokens ({estimated_tokens}) near context limit ({model_ctx}). Truncating prompt.")
+                # Keep the tail end of the prompt where user/assistant messages reside
+                prompt = prompt[-12000:]
+                if is_qwen:
+                    if "<|im_start|>system" not in prompt:
+                        prompt = "<|im_start|>system\nYou are a helpful automotive engineering assistant.<|im_end|>\n" + prompt
+                else:
+                    if "<|system|>" not in prompt:
+                        prompt = "<|system|>\nYou are a helpful automotive engineering assistant.<|end|>\n" + prompt
+
+            # Call the raw completion endpoint with streaming
+            stop_tokens = ["<|im_end|>", "<|im_start|>"] if is_qwen else ["<|end|>", "<|user|>", "<|system|>"]
+            chat_completion = self.llm(
+                prompt,
+                max_tokens=512,
+                temperature=0.0,
+                stream=True,
+                stop=stop_tokens
+            )
+
+            for chunk in chat_completion:
+                choice = chunk["choices"][0]
+                if "text" in choice:
+                    yield choice["text"]
+        except Exception as e:
+            logger.error(f"Local LLM chat stream generation failed: {e}")
+            raise CustomException(e, sys)
+
+
+class GeminiLLMClient:
+    def __init__(self, api_key=None, model="gemini-3.5-flash"):
+        self.api_key = api_key or os.environ.get("GEMINI_API_KEY")
+        self.model = model
+
+    def set_api_key(self, api_key):
+        self.api_key = api_key
+
+    def generate_summary(self, prompt, max_tokens=150):
+        if not self.api_key:
+            raise ValueError("Gemini API Key is not set.")
         
-        # Manually format messages for Phi-3 native chat template
-        prompt_parts = []
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{self.model}:generateContent?key={self.api_key}"
+        payload = {
+            "contents": [
+                {
+                    "role": "user",
+                    "parts": [{"text": prompt}]
+                }
+            ],
+            "generationConfig": {
+                "temperature": 0.0,
+                "maxOutputTokens": max_tokens,
+                "thinkingConfig": {
+                    "thinkingBudget": 0
+                }
+            }
+        }
+        
+        req = urllib.request.Request(
+            url,
+            data=json.dumps(payload).encode("utf-8"),
+            headers={"Content-Type": "application/json"},
+            method="POST"
+        )
+        
+        import time
+        max_retries = 3
+        backoff = 2.0
+        for attempt in range(max_retries):
+            try:
+                with urllib.request.urlopen(req) as response:
+                    res_data = json.loads(response.read().decode("utf-8"))
+                    candidates = res_data.get("candidates", [])
+                    if candidates:
+                        content = candidates[0].get("content", {})
+                        parts = content.get("parts", [])
+                        if parts:
+                            return parts[0].get("text", "").strip()
+                    return ""
+            except urllib.error.HTTPError as e:
+                if e.code == 429 and attempt < max_retries - 1:
+                    print(f"Gemini API rate limited (429). Retrying in {backoff}s...")
+                    time.sleep(backoff)
+                    backoff *= 2.0
+                    continue
+                print(f"Error calling Gemini API: {e}")
+                raise e
+            except Exception as e:
+                print(f"Error calling Gemini API: {e}")
+                raise e
+
+    def generate_chat_stream(self, messages):
+        if not self.api_key:
+            raise ValueError("Gemini API Key is not set.")
+        
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{self.model}:streamGenerateContent?alt=sse&key={self.api_key}"
+        
+        contents = []
+        system_instruction_parts = []
+        
         for msg in messages:
             role = msg["role"]
             content = msg["content"]
             if role == "system":
-                prompt_parts.append(f"<|system|>\n{content}<|end|>")
+                system_instruction_parts.append({"text": content})
             elif role == "user":
-                prompt_parts.append(f"<|user|>\n{content}<|end|>")
+                contents.append({"role": "user", "parts": [{"text": content}]})
             elif role == "assistant":
-                prompt_parts.append(f"<|assistant|>\n{content}<|end|>")
-        prompt_parts.append("<|assistant|>\n")
-        prompt = "\n".join(prompt_parts)
+                contents.append({"role": "model", "parts": [{"text": content}]})
         
-        # Call the raw completion endpoint with streaming
-        chat_completion = self.llm(
-            prompt,
-            max_tokens=300,        # Max output tokens limit
-            temperature=0.1,       # Low temperature for factual output
-            stream=True,
-            stop=["<|end|>", "<|user|>", "<|system|>"]
+        payload = {
+            "contents": contents,
+            "generationConfig": {
+                "temperature": 0.0,
+                "maxOutputTokens": 1024,
+                "thinkingConfig": {
+                    "thinkingBudget": 1024
+                }
+            }
+        }
+        
+        if system_instruction_parts:
+            payload["systemInstruction"] = {"parts": system_instruction_parts}
+            
+        req = urllib.request.Request(
+            url,
+            data=json.dumps(payload).encode("utf-8"),
+            headers={"Content-Type": "application/json"},
+            method="POST"
         )
         
-        for chunk in chat_completion:
-            choice = chunk["choices"][0]
-            if "text" in choice:
-                yield choice["text"]
+        import time
+        max_retries = 3
+        backoff = 2.0
+        response = None
+        for attempt in range(max_retries):
+            try:
+                response = urllib.request.urlopen(req)
+                break
+            except urllib.error.HTTPError as e:
+                if e.code == 429 and attempt < max_retries - 1:
+                    print(f"Gemini API rate limited (429) on stream. Retrying in {backoff}s...")
+                    time.sleep(backoff)
+                    backoff *= 2.0
+                    continue
+                print(f"Error in Gemini streaming API request: {e}")
+                raise e
+            except Exception as e:
+                print(f"Error in Gemini streaming API request: {e}")
+                raise e
+                
+        try:
+            with response:
+                for chunk in response:
+                    line = chunk.decode("utf-8")
+                    if line.startswith("data:"):
+                        data_str = line[5:].strip()
+                        if not data_str:
+                            continue
+                        try:
+                            chunk_data = json.loads(data_str)
+                            text = chunk_data["candidates"][0]["content"]["parts"][0].get("text", "")
+                            if text:
+                                yield text
+                        except Exception:
+                            pass
+        except Exception as e:
+            print(f"Error in Gemini streaming API: {e}")
+            raise e
+
+
+class GroqLLMClient:
+    def __init__(self, api_key=None, model="llama-3.3-70b-versatile"):
+        self.api_key = api_key or os.environ.get("GROQ_API_KEY")
+        self.model = model
+
+    def set_api_key(self, api_key):
+        self.api_key = api_key
+
+    def generate_summary(self, prompt, max_tokens=150):
+        if not self.api_key:
+            raise ValueError("Groq API Key is not set.")
+        
+        url = "https://api.groq.com/openai/v1/chat/completions"
+        payload = {
+            "model": self.model,
+            "messages": [
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ],
+            "temperature": 0.0,
+            "max_tokens": max_tokens
+        }
+        
+        req = urllib.request.Request(
+            url,
+            data=json.dumps(payload).encode("utf-8"),
+            headers={
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {self.api_key}",
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+            },
+            method="POST"
+        )
+        
+        try:
+            with urllib.request.urlopen(req) as response:
+                res_data = json.loads(response.read().decode("utf-8"))
+                text = res_data["choices"][0]["message"]["content"]
+                return text.strip()
+        except Exception as e:
+            print(f"Error calling Groq API: {e}")
+            raise e
+
+    def generate_chat_stream(self, messages):
+        if not self.api_key:
+            raise ValueError("Groq API Key is not set.")
+        
+        url = "https://api.groq.com/openai/v1/chat/completions"
+        
+        formatted_messages = []
+        for msg in messages:
+            formatted_messages.append({
+                "role": msg["role"],
+                "content": msg["content"]
+            })
+            
+        payload = {
+            "model": self.model,
+            "messages": formatted_messages,
+            "temperature": 0.0,
+            "max_tokens": 1024,
+            "stream": True
+        }
+        
+        req = urllib.request.Request(
+            url,
+            data=json.dumps(payload).encode("utf-8"),
+            headers={
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {self.api_key}",
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+            },
+            method="POST"
+        )
+        
+        try:
+            with urllib.request.urlopen(req) as response:
+                for chunk in response:
+                    line = chunk.decode("utf-8").strip()
+                    if line.startswith("data:"):
+                        data_str = line[5:].strip()
+                        if data_str == "[DONE]":
+                            break
+                        if not data_str:
+                            continue
+                        try:
+                            chunk_data = json.loads(data_str)
+                            text = chunk_data["choices"][0]["delta"].get("content", "")
+                            if text:
+                                yield text
+                        except Exception:
+                            pass
+        except Exception as e:
+            print(f"Error in Groq streaming API: {e}")
+            raise e
+
+
+class LLMClient:
+    def __init__(self, model_path="models/Qwen2.5-7B-Instruct-Q4_K_M.gguf"):
+        self.model_path = model_path
+        self.local_client = None
+        self.groq_client = None
+        self._groq_key = None
+
+    def load_model(self):
+        """Loads local model only if Groq is offline. Returns self for call compatibility."""
+        if self.get_provider() == "local":
+            if not self.local_client:
+                self.local_client = LocalLLMClient(model_path=self.model_path)
+            self.local_client.load_model()
+        return self
+
+    def set_api_key(self, api_key):
+        self.set_groq_key(api_key)
+
+    def set_gemini_key(self, api_key):
+        # Deprecated: Ignored for pure Groq config
+        pass
+
+    def set_groq_key(self, api_key):
+        self._groq_key = api_key
+        if api_key:
+            if not self.groq_client:
+                self.groq_client = GroqLLMClient(api_key=api_key)
+            else:
+                self.groq_client.set_api_key(api_key)
+        else:
+            if self.groq_client:
+                self.groq_client.set_api_key(None)
+
+    def get_provider(self, task="chat"):
+        return "local"
+
+    def __call__(self, prompt, max_tokens=256, temperature=0.0, stop=None, echo=False, stream=False):
+        """Allows LLMClient to be called directly, routing to Groq or Local GGUF."""
+        provider = self.get_provider()
+        
+        if provider == "groq":
+            try:
+                if not self.groq_client:
+                    key = getattr(self, "_groq_key", None) or os.environ.get("GROQ_API_KEY")
+                    self.groq_client = GroqLLMClient(api_key=key)
+                cleaned_prompt = prompt
+                for tag in ["<|system|>", "<|user|>", "<|assistant|>", "<|end|>"]:
+                    cleaned_prompt = cleaned_prompt.replace(tag, "")
+                cleaned_prompt = cleaned_prompt.strip()
+                text = self.groq_client.generate_summary(cleaned_prompt, max_tokens)
+                return {"choices": [{"text": text}]}
+            except Exception as e:
+                print(f"Groq API call failed: {e}. Falling back to local model.")
+                
+        # Local GGUF Fallback
+        if not self.local_client:
+            self.local_client = LocalLLMClient(model_path=self.model_path)
+        llm = self.local_client.load_model()
+        return llm(
+            prompt,
+            max_tokens=max_tokens,
+            temperature=temperature,
+            stop=stop,
+            echo=echo,
+            stream=stream
+        )
+
+    def generate_summary(self, prompt, max_tokens=150):
+        provider = self.get_provider()
+        
+        if provider == "groq":
+            try:
+                if not self.groq_client:
+                    key = getattr(self, "_groq_key", None) or os.environ.get("GROQ_API_KEY")
+                    self.groq_client = GroqLLMClient(api_key=key)
+                return self.groq_client.generate_summary(prompt, max_tokens)
+            except Exception as e:
+                print(f"Groq summary API call failed: {e}. Falling back to local model.")
+
+        # Local GGUF Fallback
+        if not self.local_client:
+            self.local_client = LocalLLMClient(model_path=self.model_path)
+        return self.local_client.generate_summary(prompt, max_tokens)
+
+    def generate_chat_stream(self, messages):
+        provider = self.get_provider()
+        
+        if provider == "groq":
+            try:
+                if not self.groq_client:
+                    key = getattr(self, "_groq_key", None) or os.environ.get("GROQ_API_KEY")
+                    self.groq_client = GroqLLMClient(api_key=key)
+                
+                gen = self.groq_client.generate_chat_stream(messages)
+                while True:
+                    try:
+                        chunk = next(gen)
+                        yield chunk
+                    except StopIteration:
+                        break
+                return
+            except Exception as e:
+                print(f"Groq streaming API call failed: {e}. Falling back to local model.")
+
+        # Local GGUF Fallback
+        if not self.local_client:
+            self.local_client = LocalLLMClient(model_path=self.model_path)
+        yield from self.local_client.generate_chat_stream(messages)
+

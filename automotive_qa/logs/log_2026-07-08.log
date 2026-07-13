@@ -1,0 +1,126 @@
+2026-07-08 15:48:48,915 - __main__ - INFO - Application Started
+2026-07-08 15:48:49,115 - __main__ - INFO - Application Started
+2026-07-08 15:50:04,710 - __main__ - INFO - Application Started
+2026-07-08 15:50:04,891 - __main__ - INFO - Application Started
+2026-07-08 15:50:06,230 - __main__ - INFO - Application Started
+2026-07-08 15:50:06,413 - __main__ - INFO - Application Started
+2026-07-08 15:55:41,455 - __main__ - INFO - Application Started
+2026-07-08 15:55:41,649 - __main__ - INFO - Application Started
+2026-07-08 15:55:49,528 - __main__ - INFO - Application Started
+2026-07-08 15:55:49,718 - __main__ - INFO - Application Started
+2026-07-08 15:55:51,723 - __main__ - INFO - Application Started
+2026-07-08 15:55:51,915 - __main__ - INFO - Application Started
+2026-07-08 15:55:53,469 - __main__ - INFO - Application Started
+2026-07-08 15:55:53,677 - __main__ - INFO - Application Started
+2026-07-08 15:55:58,512 - __main__ - INFO - Application Started
+2026-07-08 15:55:58,707 - __main__ - INFO - Application Started
+2026-07-08 15:56:00,360 - __main__ - INFO - Application Started
+2026-07-08 15:56:00,550 - __main__ - INFO - Application Started
+2026-07-08 15:56:05,016 - __main__ - INFO - Application Started
+2026-07-08 15:56:05,211 - __main__ - INFO - Application Started
+2026-07-08 15:57:01,280 - __main__ - INFO - Application Started
+2026-07-08 15:57:01,487 - __main__ - INFO - Application Started
+2026-07-08 15:57:02,921 - __main__ - INFO - Application Started
+2026-07-08 15:57:03,116 - __main__ - INFO - Application Started
+2026-07-08 16:01:37,920 - __main__ - INFO - Application Started
+2026-07-08 16:01:38,128 - __main__ - INFO - Application Started
+2026-07-08 16:05:05,777 - __main__ - INFO - Application Started
+2026-07-08 16:05:58,792 - __main__ - INFO - Application Started
+2026-07-08 16:09:09,933 - __main__ - INFO - Application Started
+2026-07-08 16:10:00,084 - __main__ - INFO - Application Started
+2026-07-08 16:20:33,923 - __main__ - INFO - Application Started
+2026-07-08 16:20:34,141 - __main__ - INFO - Application Started
+2026-07-08 16:20:34,263 - __main__ - ERROR - Top-level application error: AnalyticsEngine.get_monthly_failure_trend() got an unexpected keyword argument 'country'
+2026-07-08 16:22:22,557 - __main__ - INFO - Application Started
+2026-07-08 16:22:27,260 - llm.client - INFO - Local GGUF model loaded from C:\Users\maury\OneDrive\Documents\Internship\RAG\automotive_qa\models\Qwen2.5-7B-Instruct-Q4_K_M.gguf on GPU.
+2026-07-08 16:22:30,294 - __main__ - INFO - Application Started
+2026-07-08 16:22:30,688 - __main__ - INFO - Application Started
+2026-07-08 16:22:36,826 - __main__ - INFO - Application Started
+2026-07-08 16:22:36,922 - __main__ - INFO - Application Started
+2026-07-08 16:22:47,456 - __main__ - INFO - Application Started
+2026-07-08 16:22:57,197 - __main__ - INFO - Application Started
+2026-07-08 16:23:01,119 - __main__ - INFO - Application Started
+2026-07-08 16:23:43,277 - __main__ - INFO - Application Started
+2026-07-08 16:24:20,046 - __main__ - INFO - Application Started
+2026-07-08 16:24:47,483 - __main__ - INFO - Application Started
+2026-07-08 16:24:47,585 - __main__ - INFO - Application Started
+2026-07-08 16:24:49,992 - __main__ - INFO - Application Started
+2026-07-08 16:24:50,088 - __main__ - INFO - Application Started
+2026-07-08 16:24:55,107 - __main__ - INFO - Application Started
+2026-07-08 16:24:55,205 - __main__ - INFO - Application Started
+2026-07-08 16:24:57,420 - __main__ - INFO - Application Started
+2026-07-08 16:24:57,519 - __main__ - INFO - Application Started
+2026-07-08 16:25:05,515 - __main__ - INFO - Application Started
+2026-07-08 16:25:10,145 - __main__ - INFO - Application Started
+2026-07-08 16:25:12,693 - __main__ - INFO - Application Started
+2026-07-08 16:25:15,762 - __main__ - INFO - Application Started
+2026-07-08 16:25:20,247 - __main__ - INFO - Application Started
+2026-07-08 16:25:45,146 - __main__ - INFO - Application Started
+2026-07-08 16:25:45,254 - __main__ - INFO - Application Started
+2026-07-08 16:27:35,160 - __main__ - INFO - Application Started
+2026-07-08 16:27:35,263 - __main__ - INFO - Application Started
+2026-07-08 16:27:36,424 - __main__ - INFO - Application Started
+2026-07-08 16:27:36,541 - __main__ - INFO - Application Started
+2026-07-08 16:27:38,387 - __main__ - INFO - Application Started
+2026-07-08 16:27:38,551 - __main__ - INFO - Application Started
+2026-07-08 16:27:40,890 - __main__ - INFO - Application Started
+2026-07-08 16:27:40,997 - __main__ - INFO - Application Started
+2026-07-08 16:30:05,371 - __main__ - INFO - Application Started
+2026-07-08 16:30:05,493 - __main__ - INFO - Application Started
+2026-07-08 16:30:11,196 - __main__ - INFO - Application Started
+2026-07-08 16:30:11,311 - __main__ - INFO - Application Started
+2026-07-08 16:30:56,324 - __main__ - INFO - Application Started
+2026-07-08 16:30:56,472 - __main__ - INFO - Application Started
+2026-07-08 16:49:50,434 - __main__ - INFO - Application Started
+2026-07-08 16:50:04,198 - analytics.intent_classifier - INFO - Intent classification complete with confidence 0.3
+2026-07-08 16:50:22,428 - analytics.engine - INFO - Successfully executed LLM SQL query.
+2026-07-08 16:51:10,257 - __main__ - INFO - Application Started
+2026-07-08 16:54:17,476 - __main__ - INFO - Application Started
+2026-07-08 16:54:17,700 - __main__ - INFO - Application Started
+2026-07-08 16:54:19,353 - __main__ - INFO - Application Started
+2026-07-08 16:54:19,548 - __main__ - INFO - Application Started
+2026-07-08 16:54:21,524 - __main__ - INFO - Application Started
+2026-07-08 16:54:21,717 - __main__ - INFO - Application Started
+2026-07-08 16:54:22,829 - __main__ - INFO - Application Started
+2026-07-08 16:54:23,059 - __main__ - INFO - Application Started
+2026-07-08 16:57:14,363 - __main__ - INFO - Application Started
+2026-07-08 17:01:35,578 - __main__ - INFO - Application Started
+2026-07-08 17:01:36,373 - __main__ - INFO - Application Started
+2026-07-08 17:01:38,120 - __main__ - INFO - Application Started
+2026-07-08 17:01:47,342 - analytics.intent_classifier - INFO - Intent classification complete with confidence 0.3
+2026-07-08 17:02:05,568 - analytics.engine - INFO - Successfully executed LLM SQL query.
+2026-07-08 17:02:54,733 - __main__ - INFO - Application Started
+2026-07-08 17:06:31,825 - __main__ - INFO - Application Started
+2026-07-08 17:26:36,613 - __main__ - INFO - Application Started
+2026-07-08 17:26:38,710 - __main__ - INFO - Application Started
+2026-07-08 17:26:45,364 - __main__ - INFO - Application Started
+2026-07-08 17:31:41,310 - __main__ - INFO - Application Started
+2026-07-08 17:31:45,531 - llm.client - INFO - Local GGUF model loaded from C:\Users\maury\OneDrive\Documents\Internship\RAG\automotive_qa\models\Qwen2.5-7B-Instruct-Q4_K_M.gguf on GPU.
+2026-07-08 17:32:02,301 - __main__ - INFO - Application Started
+2026-07-08 17:32:02,912 - __main__ - INFO - Application Started
+2026-07-08 17:34:01,301 - __main__ - INFO - Application Started
+2026-07-08 17:34:11,723 - analytics.intent_classifier - INFO - Intent classification complete with confidence 0.5
+2026-07-08 17:34:32,454 - analytics.engine - INFO - Successfully executed LLM SQL query.
+2026-07-08 17:35:03,417 - __main__ - INFO - Application Started
+2026-07-08 17:35:22,268 - __main__ - INFO - Application Started
+2026-07-08 17:35:23,044 - __main__ - INFO - Application Started
+2026-07-08 17:35:37,325 - __main__ - INFO - Application Started
+2026-07-08 17:35:46,589 - analytics.intent_classifier - INFO - Intent classification complete with confidence 0.8
+2026-07-08 17:36:11,340 - analytics.engine - INFO - Successfully executed LLM SQL query.
+2026-07-08 17:36:36,160 - __main__ - INFO - Application Started
+2026-07-08 17:36:40,256 - __main__ - INFO - Application Started
+2026-07-08 17:36:41,091 - __main__ - INFO - Application Started
+2026-07-08 18:02:58,880 - __main__ - INFO - Application Started
+2026-07-08 18:05:24,212 - __main__ - INFO - Application Started
+2026-07-08 18:06:20,844 - __main__ - INFO - Application Started
+2026-07-08 18:06:38,700 - __main__ - INFO - Application Started
+2026-07-08 18:06:42,889 - llm.client - INFO - Local GGUF model loaded from C:\Users\maury\OneDrive\Documents\Internship\RAG\automotive_qa\models\Qwen2.5-7B-Instruct-Q4_K_M.gguf on GPU.
+2026-07-08 18:06:46,120 - __main__ - INFO - Application Started
+2026-07-08 18:06:46,997 - __main__ - INFO - Application Started
+2026-07-08 18:08:00,829 - __main__ - INFO - Application Started
+2026-07-08 18:08:10,041 - __main__ - INFO - Application Started
+2026-07-08 18:08:39,202 - __main__ - INFO - Application Started
+2026-07-08 18:08:47,463 - __main__ - INFO - Application Started
+2026-07-08 18:09:21,613 - __main__ - INFO - Application Started
+2026-07-08 18:09:24,824 - __main__ - INFO - Application Started
+2026-07-08 18:09:24,929 - __main__ - INFO - Application Started

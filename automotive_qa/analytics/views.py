@@ -5,8 +5,10 @@ def refresh_materialized_views(db_path):
     """
     Clears and rebuilds all simulated materialized views from the raw 'records' table.
     """
-    conn = sqlite3.connect(db_path)
+    from core.database import get_engine
+    conn = get_engine(db_path).raw_connection()
     cursor = conn.cursor()
+
     try:
         # Start transaction
         cursor.execute("BEGIN TRANSACTION;")
@@ -57,23 +59,6 @@ def refresh_materialized_views(db_path):
                 COUNT(*) as record_count
             FROM records
             GROUP BY quality;
-        """)
-
-        # 5. Refresh mv_escalations (Quality = 'Poor' AND unresolved problem)
-        cursor.execute("DELETE FROM mv_escalations;")
-        cursor.execute("""
-            INSERT INTO mv_escalations (id, ftir_no, subject, reported_company, outbreak_country, trouble_code_complaint, quality, problem_solved)
-            SELECT 
-                id, 
-                ftir_no, 
-                subject, 
-                reported_company, 
-                outbreak_country, 
-                trouble_code_complaint, 
-                quality, 
-                problem_solved
-            FROM records
-            WHERE LOWER(quality) = 'poor' AND is_resolved = 0;
         """)
 
         conn.commit()

@@ -2,6 +2,12 @@ import os
 import sys
 import sqlite3
 import threading
+
+# Ensure project root is in sys.path for relative imports
+project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if project_root not in sys.path:
+    sys.path.append(project_root)
+
 import streamlit as st
 
 # Configure Windows DLL search directories for NVIDIA CUDA packages
@@ -85,14 +91,22 @@ def get_embedder(index_path="data/faiss_index.bin", metadata_path="data/vector_m
     return embedder
 
 @st.cache_resource
-def get_llm(model_path="models/Phi-3-mini-4k-instruct-q4.gguf"):
+def get_llm(model_path="models/Qwen2.5-7B-Instruct-Q4_K_M.gguf"):
     """
-    Loads and caches the Phi-3 GGUF model in memory.
-    Offloads all layers to the CUDA GPU (n_gpu_layers=-1).
+    Loads and caches the unified LLMClient in memory.
     """
     model_path = get_model_path(model_path)
-    from llm.client import LocalLLMClient
-    client = LocalLLMClient(model_path=model_path)
+    from llm.client import LLMClient
+    client = LLMClient(model_path=model_path)
     client.load_model()
     return client
+
+@st.cache_resource
+def get_router(db_path="data/automotive.db"):
+    """
+    Loads and caches the QueryRouter instance.
+    """
+    db_path = get_db_connection(db_path)
+    from core.router import QueryRouter
+    return QueryRouter(db_path)
 

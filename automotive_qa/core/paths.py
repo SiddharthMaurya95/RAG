@@ -34,8 +34,8 @@ def get_inbox_path(inbox_name="data/inbox"):
         return os.path.join(get_project_root(), "data", "inbox")
     return inbox_name
 
-def get_model_path(model_name="models/Phi-3-mini-4k-instruct-q4.gguf"):
-    """Returns the absolute path to Phi-3-mini model."""
-    if model_name == "models/Phi-3-mini-4k-instruct-q4.gguf" or not os.path.isabs(model_name):
-        return os.path.join(get_project_root(), "models", "Phi-3-mini-4k-instruct-q4.gguf")
+def get_model_path(model_name="models/Qwen2.5-7B-Instruct-Q4_K_M.gguf"):
+    """Returns the absolute path to Qwen model."""
+    if model_name in ("models/Phi-3-mini-4k-instruct-q4.gguf", "models/Qwen2.5-7B-Instruct-Q4_K_M.gguf") or not os.path.isabs(model_name):
+        return os.path.join(get_project_root(), "models", "Qwen2.5-7B-Instruct-Q4_K_M.gguf")
     return model_name

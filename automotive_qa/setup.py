@@ -69,16 +69,16 @@ def run_initial_etl(excel_source, db_path, project_root):
         
     # 2. Build initial FAISS Index
     print("Building initial FAISS vector index...")
-    conn = sqlite3.connect(db_path)
-    cursor = conn.cursor()
-    cursor.execute("""
-        SELECT id, subject, customer_complaint, checked_contents, 
-               checked_results, repair_contents, causal_parts_name,
-               outbreak_country, product_model_code, trouble_code_complaint, segmentation
-        FROM records;
-    """)
-    rows = cursor.fetchall()
-    conn.close()
+    from core.database import get_session, Record
+    session = get_session(db_path)
+    rows = session.query(
+        Record.id, Record.subject, Record.customer_complaint, Record.checked_contents,
+        Record.checked_results, Record.repair_contents, Record.causal_parts_name,
+        Record.outbreak_country, Record.product_model_code, Record.trouble_code_complaint,
+        Record.segmentation
+    ).all()
+    session.close()
+
     
     record_ids = []
     texts = []

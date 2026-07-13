@@ -1,0 +1,1561 @@
+2026-07-13 00:06:25,805 - __main__ - INFO - Application Started
+2026-07-13 00:06:36,705 - llm.client - INFO - Local GGUF model loaded from C:\Users\maury\OneDrive\Documents\Internship\RAG\automotive_qa\models\Qwen2.5-7B-Instruct-Q4_K_M.gguf on GPU.
+2026-07-13 00:06:44,591 - __main__ - INFO - Application Started
+2026-07-13 00:06:44,837 - __main__ - INFO - Application Started
+2026-07-13 00:12:54,949 - __main__ - INFO - Application Started
+2026-07-13 00:13:18,146 - __main__ - INFO - Application Started
+2026-07-13 00:13:18,519 - __main__ - INFO - Application Started
+2026-07-13 00:14:56,539 - __main__ - INFO - Application Started
+2026-07-13 00:15:02,272 - __main__ - INFO - Application Started
+2026-07-13 00:15:02,413 - __main__ - INFO - Application Started
+2026-07-13 00:15:58,938 - __main__ - INFO - Application Started
+2026-07-13 00:16:04,774 - llm.client - INFO - Local GGUF model loaded from C:\Users\maury\OneDrive\Documents\Internship\RAG\automotive_qa\models\Qwen2.5-7B-Instruct-Q4_K_M.gguf on GPU.
+2026-07-13 00:16:09,039 - __main__ - INFO - Application Started
+2026-07-13 00:16:09,254 - __main__ - INFO - Application Started
+2026-07-13 00:17:48,130 - __main__ - INFO - Application Started
+2026-07-13 00:18:13,067 - __main__ - INFO - Application Started
+2026-07-13 00:26:40,425 - __main__ - INFO - Application Started
+2026-07-13 00:26:42,666 - __main__ - INFO - Application Started
+2026-07-13 00:27:36,919 - __main__ - INFO - Application Started
+2026-07-13 00:28:19,321 - __main__ - INFO - Application Started
+2026-07-13 00:28:30,855 - llm.client - INFO - Local GGUF model loaded from C:\Users\maury\OneDrive\Documents\Internship\RAG\automotive_qa\models\Qwen2.5-7B-Instruct-Q4_K_M.gguf on GPU.
+2026-07-13 00:28:35,324 - __main__ - INFO - Application Started
+2026-07-13 00:28:35,538 - __main__ - INFO - Application Started
+2026-07-13 09:58:07,273 - __main__ - INFO - Application Started
+2026-07-13 09:58:07,273 - __main__ - INFO - Application Started
+2026-07-13 09:58:07,273 - __main__ - INFO - Application Started
+2026-07-13 09:58:07,273 - __main__ - INFO - Application Started
+2026-07-13 09:58:15,495 - llm.client - INFO - Local GGUF model loaded from C:\Users\maury\OneDrive\Documents\Internship\RAG\automotive_qa\models\Qwen2.5-7B-Instruct-Q4_K_M.gguf on GPU.
+2026-07-13 09:58:21,897 - __main__ - INFO - Application Started
+2026-07-13 09:58:21,897 - __main__ - INFO - Application Started
+2026-07-13 09:58:22,146 - __main__ - INFO - Application Started
+2026-07-13 09:58:22,146 - __main__ - INFO - Application Started
+2026-07-13 09:58:40,760 - __main__ - INFO - Application Started
+2026-07-13 09:58:40,760 - __main__ - INFO - Application Started
+2026-07-13 09:58:40,770 - core.router - INFO - QueryRouter dispatching query: 'give all pie chart for ftir related to all departments' (user_id=10, override_intent=None)
+2026-07-13 09:58:40,799 - core.router - INFO - Cache HIT for query: 'give all pie chart for ftir related to all departments'
+2026-07-13 09:58:40,799 - core.router - INFO - QueryRouter dispatching query: 'give all for ftir related to noise' (user_id=10, override_intent=None)
+2026-07-13 09:58:40,900 - core.router - INFO - Cache HIT for query: 'give all for ftir related to noise'
+2026-07-13 09:58:40,900 - core.router - INFO - QueryRouter dispatching query: 'give me all the ftir related to brake' (user_id=10, override_intent=None)
+2026-07-13 09:58:40,928 - core.router - INFO - Cache HIT for query: 'give me all the ftir related to brake'
+2026-07-13 09:58:40,928 - core.router - INFO - QueryRouter dispatching query: '
+give me all the unique ftir related to paint' (user_id=10, override_intent=None)
+2026-07-13 09:58:40,931 - core.router - INFO - Cache HIT for query: '
+give me all the unique ftir related to paint'
+2026-07-13 09:58:40,932 - core.router - INFO - QueryRouter dispatching query: 'give me all the unique ftir related to engine' (user_id=10, override_intent=None)
+2026-07-13 09:58:40,943 - core.router - INFO - Cache HIT for query: 'give me all the unique ftir related to engine'
+2026-07-13 09:58:40,944 - core.router - INFO - QueryRouter dispatching query: '
+give me all the unique ftir related to wheel' (user_id=10, override_intent=None)
+2026-07-13 09:58:40,968 - core.router - INFO - Cache HIT for query: '
+give me all the unique ftir related to wheel'
+2026-07-13 09:58:40,969 - core.router - INFO - QueryRouter dispatching query: 'give me pie chart all the unique ftir related to noise handled by different department' (user_id=10, override_intent=None)
+2026-07-13 09:58:40,971 - core.router - INFO - Cache HIT for query: 'give me pie chart all the unique ftir related to noise handled by different department'
+2026-07-13 09:58:40,971 - core.router - INFO - QueryRouter dispatching query: 'give me pie chart all the unique ftir related to noise handled by different department' (user_id=10, override_intent=None)
+2026-07-13 09:58:40,971 - core.router - INFO - Cache HIT for query: 'give me pie chart all the unique ftir related to noise handled by different department'
+2026-07-13 09:58:40,971 - core.router - INFO - QueryRouter dispatching query: 'give me pie chart all the unique ftir related to rust handled by different department' (user_id=10, override_intent=None)
+2026-07-13 09:58:40,977 - core.router - INFO - Cache HIT for query: 'give me pie chart all the unique ftir related to rust handled by different department'
+2026-07-13 09:58:40,978 - core.router - INFO - QueryRouter dispatching query: 'give me pie chart all the unique ftir related to door handled by different department' (user_id=10, override_intent=None)
+2026-07-13 09:58:40,982 - core.router - INFO - Cache HIT for query: 'give me pie chart all the unique ftir related to door handled by different department'
+2026-07-13 09:58:40,982 - core.router - INFO - QueryRouter dispatching query: '
+give me pie chart all the unique ftir related to door handled by different department' (user_id=10, override_intent=None)
+2026-07-13 09:58:40,984 - core.router - INFO - Cache HIT for query: '
+give me pie chart all the unique ftir related to door handled by different department'
+2026-07-13 09:58:40,984 - core.router - INFO - QueryRouter dispatching query: 'give me pie chart all the unique ftir related to wheel handled by different department' (user_id=10, override_intent=None)
+2026-07-13 09:58:40,985 - core.router - INFO - Cache HIT for query: 'give me pie chart all the unique ftir related to wheel handled by different department'
+2026-07-13 09:58:40,985 - core.router - INFO - QueryRouter dispatching query: '
+give me pie chart handled by different department' (user_id=10, override_intent=None)
+2026-07-13 09:58:40,987 - core.router - INFO - Cache HIT for query: '
+give me pie chart handled by different department'
+2026-07-13 09:58:40,987 - core.router - INFO - QueryRouter dispatching query: '
+give me entire ftir' (user_id=10, override_intent=None)
+2026-07-13 09:58:41,378 - core.router - INFO - Cache HIT for query: '
+give me entire ftir'
+2026-07-13 09:58:41,379 - core.router - INFO - QueryRouter dispatching query: '
+give me pie chart all the unique ftir related to light handled by different department' (user_id=10, override_intent=None)
+2026-07-13 09:58:41,384 - core.router - INFO - Cache HIT for query: '
+give me pie chart all the unique ftir related to light handled by different department'
+2026-07-13 09:58:41,384 - core.router - INFO - QueryRouter dispatching query: 'give me ftir related to light' (user_id=10, override_intent=None)
+2026-07-13 09:58:41,388 - core.router - INFO - Cache HIT for query: 'give me ftir related to light'
+2026-07-13 09:58:41,498 - __main__ - INFO - Application Started
+2026-07-13 09:58:41,498 - __main__ - INFO - Application Started
+2026-07-13 10:18:45,394 - __main__ - INFO - Application Started
+2026-07-13 10:18:50,911 - llm.client - INFO - Local GGUF model loaded from C:\Users\maury\OneDrive\Documents\Internship\RAG\automotive_qa\models\Qwen2.5-7B-Instruct-Q4_K_M.gguf on GPU.
+2026-07-13 11:51:12,697 - __main__ - INFO - Application Started
+2026-07-13 11:51:13,012 - __main__ - INFO - Application Started
+2026-07-13 11:51:25,900 - __main__ - INFO - Application Started
+2026-07-13 11:51:25,912 - core.router - INFO - QueryRouter dispatching query: 'give all pie chart for ftir related to all departments' (user_id=10, override_intent=None)
+2026-07-13 11:51:25,957 - core.router - INFO - Cache HIT for query: 'give all pie chart for ftir related to all departments'
+2026-07-13 11:51:25,957 - core.router - INFO - QueryRouter dispatching query: 'give all for ftir related to noise' (user_id=10, override_intent=None)
+2026-07-13 11:51:26,067 - core.router - INFO - Cache HIT for query: 'give all for ftir related to noise'
+2026-07-13 11:51:26,068 - core.router - INFO - QueryRouter dispatching query: 'give me all the ftir related to brake' (user_id=10, override_intent=None)
+2026-07-13 11:51:26,096 - core.router - INFO - Cache HIT for query: 'give me all the ftir related to brake'
+2026-07-13 11:51:26,097 - core.router - INFO - QueryRouter dispatching query: '
+give me all the unique ftir related to paint' (user_id=10, override_intent=None)
+2026-07-13 11:51:26,101 - core.router - INFO - Cache HIT for query: '
+give me all the unique ftir related to paint'
+2026-07-13 11:51:26,101 - core.router - INFO - QueryRouter dispatching query: 'give me all the unique ftir related to engine' (user_id=10, override_intent=None)
+2026-07-13 11:51:26,107 - core.router - INFO - Cache HIT for query: 'give me all the unique ftir related to engine'
+2026-07-13 11:51:26,108 - core.router - INFO - QueryRouter dispatching query: '
+give me all the unique ftir related to wheel' (user_id=10, override_intent=None)
+2026-07-13 11:51:26,129 - core.router - INFO - Cache HIT for query: '
+give me all the unique ftir related to wheel'
+2026-07-13 11:51:26,129 - core.router - INFO - QueryRouter dispatching query: 'give me pie chart all the unique ftir related to noise handled by different department' (user_id=10, override_intent=None)
+2026-07-13 11:51:26,131 - core.router - INFO - Cache HIT for query: 'give me pie chart all the unique ftir related to noise handled by different department'
+2026-07-13 11:51:26,132 - core.router - INFO - QueryRouter dispatching query: 'give me pie chart all the unique ftir related to noise handled by different department' (user_id=10, override_intent=None)
+2026-07-13 11:51:26,132 - core.router - INFO - Cache HIT for query: 'give me pie chart all the unique ftir related to noise handled by different department'
+2026-07-13 11:51:26,132 - core.router - INFO - QueryRouter dispatching query: 'give me pie chart all the unique ftir related to rust handled by different department' (user_id=10, override_intent=None)
+2026-07-13 11:51:26,137 - core.router - INFO - Cache HIT for query: 'give me pie chart all the unique ftir related to rust handled by different department'
+2026-07-13 11:51:26,137 - core.router - INFO - QueryRouter dispatching query: 'give me pie chart all the unique ftir related to door handled by different department' (user_id=10, override_intent=None)
+2026-07-13 11:51:26,143 - core.router - INFO - Cache HIT for query: 'give me pie chart all the unique ftir related to door handled by different department'
+2026-07-13 11:51:26,143 - core.router - INFO - QueryRouter dispatching query: '
+give me pie chart all the unique ftir related to door handled by different department' (user_id=10, override_intent=None)
+2026-07-13 11:51:26,146 - core.router - INFO - Cache HIT for query: '
+give me pie chart all the unique ftir related to door handled by different department'
+2026-07-13 11:51:26,146 - core.router - INFO - QueryRouter dispatching query: 'give me pie chart all the unique ftir related to wheel handled by different department' (user_id=10, override_intent=None)
+2026-07-13 11:51:26,147 - core.router - INFO - Cache HIT for query: 'give me pie chart all the unique ftir related to wheel handled by different department'
+2026-07-13 11:51:26,148 - core.router - INFO - QueryRouter dispatching query: '
+give me pie chart handled by different department' (user_id=10, override_intent=None)
+2026-07-13 11:51:26,149 - core.router - INFO - Cache HIT for query: '
+give me pie chart handled by different department'
+2026-07-13 11:51:26,149 - core.router - INFO - QueryRouter dispatching query: '
+give me entire ftir' (user_id=10, override_intent=None)
+2026-07-13 11:51:26,565 - core.router - INFO - Cache HIT for query: '
+give me entire ftir'
+2026-07-13 11:51:26,566 - core.router - INFO - QueryRouter dispatching query: '
+give me pie chart all the unique ftir related to light handled by different department' (user_id=10, override_intent=None)
+2026-07-13 11:51:26,572 - core.router - INFO - Cache HIT for query: '
+give me pie chart all the unique ftir related to light handled by different department'
+2026-07-13 11:51:26,573 - core.router - INFO - QueryRouter dispatching query: 'give me ftir related to light' (user_id=10, override_intent=None)
+2026-07-13 11:51:26,579 - core.router - INFO - Cache HIT for query: 'give me ftir related to light'
+2026-07-13 11:51:26,704 - __main__ - INFO - Application Started
+2026-07-13 11:51:36,417 - __main__ - INFO - Application Started
+2026-07-13 11:51:36,964 - __main__ - INFO - Application Started
+2026-07-13 11:51:39,818 - __main__ - INFO - Application Started
+2026-07-13 11:51:40,247 - core.router - INFO - QueryRouter dispatching query: 'give me ftir related to light' (user_id=10, override_intent=SEARCH)
+2026-07-13 11:51:40,248 - nlp.pipeline - INFO - NLPProcessor starting to parse query: 'give me ftir related to light'
+2026-07-13 11:51:46,992 - nlp.pipeline - INFO - spaCy model loaded or verified.
+2026-07-13 11:51:46,992 - nlp.pipeline - INFO - Query classified with intent 'ANALYTICS' (score: 1.0)
+2026-07-13 11:51:47,031 - nlp.pipeline - INFO - Extracted entities: {'TROUBLE_CODE': [], 'PRODUCT_MODEL': [], 'SALES_MODEL': [], 'COUNTRY': [], 'VIN': [], 'FTIR_NO': []}
+2026-07-13 11:51:47,032 - nlp.pipeline - INFO - Extracted filters: {'limit': 5}
+2026-07-13 11:51:47,033 - core.router - INFO - Routed Query: 'give me ftir related to light' | Selected Intent: SEARCH (has_col_ref=True)
+2026-07-13 11:51:47,033 - core.router - INFO - Routing query to handler for intent: SEARCH
+2026-07-13 11:51:57,399 - core.router - ERROR - Error during query execution: Cannot send a request, as the client has been closed.
+2026-07-13 11:52:03,726 - __main__ - INFO - Application Started
+2026-07-13 11:52:41,299 - __main__ - INFO - Application Started
+2026-07-13 11:52:44,621 - __main__ - INFO - Application Started
+2026-07-13 11:53:21,038 - __main__ - INFO - Application Started
+2026-07-13 11:53:21,854 - __main__ - INFO - Application Started
+2026-07-13 11:53:27,276 - __main__ - INFO - Application Started
+2026-07-13 11:53:27,695 - core.router - INFO - QueryRouter dispatching query: '
+give me ftir related to noise' (user_id=10, override_intent=SEARCH)
+2026-07-13 11:53:27,695 - nlp.pipeline - INFO - NLPProcessor starting to parse query: '
+give me ftir related to noise'
+2026-07-13 11:53:27,695 - nlp.pipeline - INFO - spaCy model loaded or verified.
+2026-07-13 11:53:27,696 - nlp.pipeline - INFO - Query classified with intent 'ANALYTICS' (score: 1.0)
+2026-07-13 11:53:27,718 - nlp.pipeline - INFO - Extracted entities: {'TROUBLE_CODE': [], 'PRODUCT_MODEL': [], 'SALES_MODEL': [], 'COUNTRY': [], 'VIN': [], 'FTIR_NO': []}
+2026-07-13 11:53:27,720 - nlp.pipeline - INFO - Extracted filters: {'limit': 5}
+2026-07-13 11:53:27,720 - core.router - INFO - Routed Query: '
+give me ftir related to noise' | Selected Intent: SEARCH (has_col_ref=True)
+2026-07-13 11:53:27,720 - core.router - INFO - Routing query to handler for intent: SEARCH
+2026-07-13 11:53:29,364 - core.router - ERROR - Error during query execution: Cannot send a request, as the client has been closed.
+2026-07-13 11:53:31,723 - __main__ - INFO - Application Started
+2026-07-13 11:53:45,101 - __main__ - INFO - Application Started
+2026-07-13 11:53:50,031 - llm.client - INFO - Local GGUF model loaded from C:\Users\maury\OneDrive\Documents\Internship\RAG\automotive_qa\models\Qwen2.5-7B-Instruct-Q4_K_M.gguf on GPU.
+2026-07-13 11:53:54,858 - __main__ - INFO - Application Started
+2026-07-13 11:53:55,021 - __main__ - INFO - Application Started
+2026-07-13 11:53:58,987 - __main__ - INFO - Application Started
+2026-07-13 11:53:59,033 - core.router - INFO - QueryRouter dispatching query: '
+give me ftir related to light' (user_id=10, override_intent=None)
+2026-07-13 11:53:59,033 - nlp.pipeline - INFO - NLPProcessor starting to parse query: '
+give me ftir related to light'
+2026-07-13 11:54:04,544 - nlp.pipeline - INFO - spaCy model loaded or verified.
+2026-07-13 11:54:04,545 - nlp.pipeline - INFO - Query classified with intent 'ANALYTICS' (score: 1.0)
+2026-07-13 11:54:04,569 - nlp.pipeline - INFO - Extracted entities: {'TROUBLE_CODE': [], 'PRODUCT_MODEL': [], 'SALES_MODEL': [], 'COUNTRY': [], 'VIN': [], 'FTIR_NO': []}
+2026-07-13 11:54:04,571 - nlp.pipeline - INFO - Extracted filters: {'limit': 5}
+2026-07-13 11:54:04,571 - core.router - INFO - Routed Query: '
+give me ftir related to light' | Selected Intent: ANALYTICS (has_col_ref=True)
+2026-07-13 11:54:04,571 - core.router - INFO - Routing query to handler for intent: ANALYTICS
+2026-07-13 11:54:04,577 - analytics.engine - INFO - AnalyticsEngine starting query_via_llm for: '
+give me ftir related to light'
+2026-07-13 11:54:04,581 - analytics.engine - INFO - Extracting intents via intent_engine for SQL generation.
+2026-07-13 11:54:05,046 - analytics.intent_classifier - INFO - Hybrid Extraction Results:
+--- HYBRID EXTRACTION ---
+Intents: []
+KPIs: []
+Filters: []
+Aggregations: []
+Confidence Score: 0
+
+2026-07-13 11:54:05,047 - analytics.intent_classifier - INFO - Running LLM extraction for comparison
+2026-07-13 11:54:11,818 - analytics.intent_classifier - INFO - LLM Extraction Results:
+--- LLM EXTRACTION ---
+Intents: ['trend']
+KPIs: []
+Filters: ["LOWER(ftir) LIKE '%light%'"]
+Aggregations: []
+Confidence Score: 0.5
+
+2026-07-13 11:54:11,819 - analytics.intent_classifier - INFO - Intent classification complete with merged final confidence 0.5
+2026-07-13 11:54:11,820 - analytics.engine - INFO - Invoking LLM for SQL generation (Attempt 1)
+2026-07-13 11:54:33,006 - analytics.engine - INFO - Generated and parsed Dynamic LLM SQL query (Attempt 1):
+SELECT * FROM records WHERE LOWER(ftir_no) LIKE '%light%'
+2026-07-13 11:54:33,026 - analytics.engine - INFO - Successfully executed LLM SQL query.
+2026-07-13 11:54:33,029 - core.router - INFO - Successfully executed LLM-generated SQL query from AnalyticsEngine.
+2026-07-13 11:54:36,518 - core.router - INFO - Query processing completed successfully.
+2026-07-13 11:54:36,714 - __main__ - INFO - Application Started
+2026-07-13 11:54:45,543 - __main__ - INFO - Application Started
+2026-07-13 11:54:45,736 - __main__ - INFO - Application Started
+2026-07-13 11:54:48,791 - __main__ - INFO - Application Started
+2026-07-13 11:54:52,586 - __main__ - INFO - Application Started
+2026-07-13 11:54:54,320 - __main__ - INFO - Application Started
+2026-07-13 11:54:54,371 - core.router - INFO - QueryRouter dispatching query: 'give me ftir related to light' (user_id=10, override_intent=SEARCH)
+2026-07-13 11:54:54,372 - nlp.pipeline - INFO - NLPProcessor starting to parse query: 'give me ftir related to light'
+2026-07-13 11:54:54,372 - nlp.pipeline - INFO - spaCy model loaded or verified.
+2026-07-13 11:54:54,372 - nlp.pipeline - INFO - Query classified with intent 'ANALYTICS' (score: 1.0)
+2026-07-13 11:54:54,397 - nlp.pipeline - INFO - Extracted entities: {'TROUBLE_CODE': [], 'PRODUCT_MODEL': [], 'SALES_MODEL': [], 'COUNTRY': [], 'VIN': [], 'FTIR_NO': []}
+2026-07-13 11:54:54,400 - nlp.pipeline - INFO - Extracted filters: {'limit': 5}
+2026-07-13 11:54:54,400 - core.router - INFO - Routed Query: 'give me ftir related to light' | Selected Intent: SEARCH (has_col_ref=True)
+2026-07-13 11:54:54,400 - core.router - INFO - Routing query to handler for intent: SEARCH
+2026-07-13 11:55:10,377 - core.router - INFO - Query processing completed successfully.
+2026-07-13 11:56:21,795 - __main__ - INFO - Application Started
+2026-07-13 11:56:54,997 - __main__ - INFO - Application Started
+2026-07-13 11:56:58,269 - __main__ - INFO - Application Started
+2026-07-13 11:57:01,042 - __main__ - INFO - Application Started
+2026-07-13 11:57:01,083 - core.router - INFO - QueryRouter dispatching query: 'give me ftir related to light' (user_id=10, override_intent=ANALYTICS)
+2026-07-13 11:57:01,083 - nlp.pipeline - INFO - NLPProcessor starting to parse query: 'give me ftir related to light'
+2026-07-13 11:57:01,083 - nlp.pipeline - INFO - spaCy model loaded or verified.
+2026-07-13 11:57:01,084 - nlp.pipeline - INFO - Query classified with intent 'ANALYTICS' (score: 1.0)
+2026-07-13 11:57:01,105 - nlp.pipeline - INFO - Extracted entities: {'TROUBLE_CODE': [], 'PRODUCT_MODEL': [], 'SALES_MODEL': [], 'COUNTRY': [], 'VIN': [], 'FTIR_NO': []}
+2026-07-13 11:57:01,107 - nlp.pipeline - INFO - Extracted filters: {'limit': 5}
+2026-07-13 11:57:01,108 - core.router - INFO - Routed Query: 'give me ftir related to light' | Selected Intent: ANALYTICS (has_col_ref=True)
+2026-07-13 11:57:01,108 - core.router - INFO - Routing query to handler for intent: ANALYTICS
+2026-07-13 11:57:01,112 - analytics.engine - INFO - AnalyticsEngine starting query_via_llm for: 'give me ftir related to light'
+2026-07-13 11:57:01,112 - analytics.engine - INFO - Extracting intents via intent_engine for SQL generation.
+2026-07-13 11:57:01,514 - analytics.intent_classifier - INFO - Hybrid Extraction Results:
+--- HYBRID EXTRACTION ---
+Intents: []
+KPIs: []
+Filters: []
+Aggregations: []
+Confidence Score: 0
+
+2026-07-13 11:57:01,515 - analytics.intent_classifier - INFO - Running LLM extraction for comparison
+2026-07-13 11:57:08,539 - analytics.intent_classifier - INFO - LLM Extraction Results:
+--- LLM EXTRACTION ---
+Intents: ['trend']
+KPIs: []
+Filters: ["ftir LIKE '%light%'"]
+Aggregations: []
+Confidence Score: 0.5
+
+2026-07-13 11:57:08,539 - analytics.intent_classifier - INFO - Intent classification complete with merged final confidence 0.5
+2026-07-13 11:57:08,541 - analytics.engine - INFO - Invoking LLM for SQL generation (Attempt 1)
+2026-07-13 11:57:29,683 - analytics.engine - INFO - Generated and parsed Dynamic LLM SQL query (Attempt 1):
+SELECT * FROM records WHERE ftir_no LIKE '%light%'
+2026-07-13 11:57:29,699 - analytics.engine - INFO - Successfully executed LLM SQL query.
+2026-07-13 11:57:29,703 - core.router - INFO - Successfully executed LLM-generated SQL query from AnalyticsEngine.
+2026-07-13 11:57:33,716 - core.router - INFO - Query processing completed successfully.
+2026-07-13 11:57:33,992 - __main__ - INFO - Application Started
+2026-07-13 11:59:36,961 - __main__ - INFO - Application Started
+2026-07-13 11:59:37,277 - __main__ - INFO - Application Started
+2026-07-13 11:59:41,465 - __main__ - INFO - Application Started
+2026-07-13 11:59:41,503 - core.router - INFO - QueryRouter dispatching query: 'give me ftir related to light' (user_id=10, override_intent=ANALYTICS)
+2026-07-13 11:59:41,504 - nlp.pipeline - INFO - NLPProcessor starting to parse query: 'give me ftir related to light'
+2026-07-13 11:59:41,504 - nlp.pipeline - INFO - spaCy model loaded or verified.
+2026-07-13 11:59:41,504 - nlp.pipeline - INFO - Query classified with intent 'ANALYTICS' (score: 1.0)
+2026-07-13 11:59:41,534 - nlp.pipeline - INFO - Extracted entities: {'TROUBLE_CODE': [], 'PRODUCT_MODEL': [], 'SALES_MODEL': [], 'COUNTRY': [], 'VIN': [], 'FTIR_NO': []}
+2026-07-13 11:59:41,535 - nlp.pipeline - INFO - Extracted filters: {'limit': 5}
+2026-07-13 11:59:41,536 - core.router - INFO - Routed Query: 'give me ftir related to light' | Selected Intent: ANALYTICS (has_col_ref=True)
+2026-07-13 11:59:41,536 - core.router - INFO - Routing query to handler for intent: ANALYTICS
+2026-07-13 11:59:41,540 - analytics.engine - INFO - AnalyticsEngine starting query_via_llm for: 'give me ftir related to light'
+2026-07-13 11:59:41,541 - analytics.engine - INFO - Extracting intents via intent_engine for SQL generation.
+2026-07-13 11:59:41,926 - analytics.intent_classifier - INFO - Hybrid Extraction Results:
+--- HYBRID EXTRACTION ---
+Intents: []
+KPIs: []
+Filters: []
+Aggregations: []
+Confidence Score: 0
+
+2026-07-13 11:59:41,926 - analytics.intent_classifier - INFO - Running LLM extraction for comparison
+2026-07-13 11:59:48,699 - analytics.intent_classifier - INFO - LLM Extraction Results:
+--- LLM EXTRACTION ---
+Intents: ['trend']
+KPIs: []
+Filters: ["ftir LIKE '%light%'"]
+Aggregations: []
+Confidence Score: 0.5
+
+2026-07-13 11:59:48,699 - analytics.intent_classifier - INFO - Intent classification complete with merged final confidence 0.5
+2026-07-13 11:59:48,701 - analytics.engine - INFO - Invoking LLM for SQL generation (Attempt 1)
+2026-07-13 12:00:09,677 - analytics.engine - INFO - Generated and parsed Dynamic LLM SQL query (Attempt 1):
+SELECT * FROM records WHERE ftir_no LIKE '%light%'
+2026-07-13 12:00:09,688 - analytics.engine - INFO - Successfully executed LLM SQL query.
+2026-07-13 12:00:09,692 - core.router - INFO - Successfully executed LLM-generated SQL query from AnalyticsEngine.
+2026-07-13 12:00:13,548 - core.router - INFO - Query processing completed successfully.
+2026-07-13 12:00:13,817 - __main__ - INFO - Application Started
+2026-07-13 12:00:54,122 - __main__ - INFO - Application Started
+2026-07-13 12:00:58,274 - llm.client - INFO - Local GGUF model loaded from C:\Users\maury\OneDrive\Documents\Internship\RAG\automotive_qa\models\Qwen2.5-7B-Instruct-Q4_K_M.gguf on GPU.
+2026-07-13 12:01:01,158 - __main__ - INFO - Application Started
+2026-07-13 12:01:01,215 - core.router - INFO - QueryRouter dispatching query: 'give me ftir related to light' (user_id=10, override_intent=None)
+2026-07-13 12:01:01,219 - core.router - INFO - Cache HIT for query: 'give me ftir related to light'
+2026-07-13 12:01:01,220 - core.router - INFO - QueryRouter dispatching query: 'give me ftir related to light' (user_id=10, override_intent=None)
+2026-07-13 12:01:01,220 - core.router - INFO - Cache HIT for query: 'give me ftir related to light'
+2026-07-13 12:01:01,310 - __main__ - INFO - Application Started
+2026-07-13 12:01:07,263 - __main__ - INFO - Application Started
+2026-07-13 12:01:07,393 - __main__ - INFO - Application Started
+2026-07-13 12:01:09,552 - __main__ - INFO - Application Started
+2026-07-13 12:01:09,596 - core.router - INFO - QueryRouter dispatching query: 'give me ftir related to light' (user_id=10, override_intent=SEARCH)
+2026-07-13 12:01:09,596 - nlp.pipeline - INFO - NLPProcessor starting to parse query: 'give me ftir related to light'
+2026-07-13 12:01:13,565 - nlp.pipeline - INFO - spaCy model loaded or verified.
+2026-07-13 12:01:13,565 - nlp.pipeline - INFO - Query classified with intent 'ANALYTICS' (score: 1.0)
+2026-07-13 12:01:13,586 - nlp.pipeline - INFO - Extracted entities: {'TROUBLE_CODE': [], 'PRODUCT_MODEL': [], 'SALES_MODEL': [], 'COUNTRY': [], 'VIN': [], 'FTIR_NO': []}
+2026-07-13 12:01:13,588 - nlp.pipeline - INFO - Extracted filters: {'limit': 5}
+2026-07-13 12:01:13,588 - core.router - INFO - Routed Query: 'give me ftir related to light' | Selected Intent: SEARCH (has_col_ref=True)
+2026-07-13 12:01:13,588 - core.router - INFO - Routing query to handler for intent: SEARCH
+2026-07-13 12:01:29,893 - core.router - INFO - Query processing completed successfully.
+2026-07-13 12:02:47,315 - __main__ - INFO - Application Started
+2026-07-13 12:03:18,246 - __main__ - INFO - Application Started
+2026-07-13 12:03:23,675 - __main__ - INFO - Application Started
+2026-07-13 12:03:25,913 - __main__ - INFO - Application Started
+2026-07-13 12:03:25,953 - core.router - INFO - QueryRouter dispatching query: 'give me ftir related to light' (user_id=10, override_intent=ANALYTICS)
+2026-07-13 12:03:25,954 - nlp.pipeline - INFO - NLPProcessor starting to parse query: 'give me ftir related to light'
+2026-07-13 12:03:25,954 - nlp.pipeline - INFO - spaCy model loaded or verified.
+2026-07-13 12:03:25,954 - nlp.pipeline - INFO - Query classified with intent 'ANALYTICS' (score: 1.0)
+2026-07-13 12:03:25,987 - nlp.pipeline - INFO - Extracted entities: {'TROUBLE_CODE': [], 'PRODUCT_MODEL': [], 'SALES_MODEL': [], 'COUNTRY': [], 'VIN': [], 'FTIR_NO': []}
+2026-07-13 12:03:25,989 - nlp.pipeline - INFO - Extracted filters: {'limit': 5}
+2026-07-13 12:03:25,989 - core.router - INFO - Routed Query: 'give me ftir related to light' | Selected Intent: ANALYTICS (has_col_ref=True)
+2026-07-13 12:03:25,990 - core.router - INFO - Routing query to handler for intent: ANALYTICS
+2026-07-13 12:03:25,994 - analytics.engine - INFO - AnalyticsEngine starting query_via_llm for: 'give me ftir related to light'
+2026-07-13 12:03:26,002 - analytics.engine - INFO - Extracting intents via intent_engine for SQL generation.
+2026-07-13 12:03:26,404 - analytics.intent_classifier - INFO - Hybrid Extraction Results:
+--- HYBRID EXTRACTION ---
+Intents: []
+KPIs: []
+Filters: []
+Aggregations: []
+Confidence Score: 0
+
+2026-07-13 12:03:26,405 - analytics.intent_classifier - INFO - Running LLM extraction for comparison
+2026-07-13 12:03:32,509 - analytics.intent_classifier - INFO - LLM Extraction Results:
+--- LLM EXTRACTION ---
+Intents: ['trend']
+KPIs: []
+Filters: ["subject LIKE '%light%'"]
+Aggregations: []
+Confidence Score: 0.5
+
+2026-07-13 12:03:32,510 - analytics.intent_classifier - INFO - Intent classification complete with merged final confidence 0.5
+2026-07-13 12:03:32,511 - analytics.engine - INFO - Invoking LLM for SQL generation (Attempt 1)
+2026-07-13 12:03:52,546 - analytics.engine - INFO - Generated and parsed Dynamic LLM SQL query (Attempt 1):
+SELECT * FROM records WHERE LOWER(subject) LIKE '%light%'
+2026-07-13 12:03:52,574 - analytics.engine - INFO - Successfully executed LLM SQL query.
+2026-07-13 12:03:52,577 - core.router - INFO - Successfully executed LLM-generated SQL query from AnalyticsEngine.
+2026-07-13 12:03:52,681 - core.router - INFO - Query processing completed successfully.
+2026-07-13 12:05:14,452 - __main__ - INFO - Application Started
+2026-07-13 12:06:42,390 - __main__ - INFO - Application Started
+2026-07-13 12:06:42,416 - core.router - INFO - QueryRouter dispatching query: 'give all pie chart for ftir related to all departments' (user_id=10, override_intent=None)
+2026-07-13 12:06:42,418 - core.router - INFO - Cache HIT for query: 'give all pie chart for ftir related to all departments'
+2026-07-13 12:06:42,418 - core.router - INFO - QueryRouter dispatching query: 'give all for ftir related to noise' (user_id=10, override_intent=None)
+2026-07-13 12:06:42,520 - core.router - INFO - Cache HIT for query: 'give all for ftir related to noise'
+2026-07-13 12:06:42,521 - core.router - INFO - QueryRouter dispatching query: 'give me all the ftir related to brake' (user_id=10, override_intent=None)
+2026-07-13 12:06:42,546 - core.router - INFO - Cache HIT for query: 'give me all the ftir related to brake'
+2026-07-13 12:06:42,547 - core.router - INFO - QueryRouter dispatching query: '
+give me all the unique ftir related to paint' (user_id=10, override_intent=None)
+2026-07-13 12:06:42,551 - core.router - INFO - Cache HIT for query: '
+give me all the unique ftir related to paint'
+2026-07-13 12:06:42,551 - core.router - INFO - QueryRouter dispatching query: 'give me all the unique ftir related to engine' (user_id=10, override_intent=None)
+2026-07-13 12:06:42,556 - core.router - INFO - Cache HIT for query: 'give me all the unique ftir related to engine'
+2026-07-13 12:06:42,556 - core.router - INFO - QueryRouter dispatching query: '
+give me all the unique ftir related to wheel' (user_id=10, override_intent=None)
+2026-07-13 12:06:42,573 - core.router - INFO - Cache HIT for query: '
+give me all the unique ftir related to wheel'
+2026-07-13 12:06:42,573 - core.router - INFO - QueryRouter dispatching query: 'give me pie chart all the unique ftir related to noise handled by different department' (user_id=10, override_intent=None)
+2026-07-13 12:06:42,575 - core.router - INFO - Cache HIT for query: 'give me pie chart all the unique ftir related to noise handled by different department'
+2026-07-13 12:06:42,575 - core.router - INFO - QueryRouter dispatching query: 'give me pie chart all the unique ftir related to noise handled by different department' (user_id=10, override_intent=None)
+2026-07-13 12:06:42,575 - core.router - INFO - Cache HIT for query: 'give me pie chart all the unique ftir related to noise handled by different department'
+2026-07-13 12:06:42,576 - core.router - INFO - QueryRouter dispatching query: 'give me pie chart all the unique ftir related to rust handled by different department' (user_id=10, override_intent=None)
+2026-07-13 12:06:42,581 - core.router - INFO - Cache HIT for query: 'give me pie chart all the unique ftir related to rust handled by different department'
+2026-07-13 12:06:42,581 - core.router - INFO - QueryRouter dispatching query: 'give me pie chart all the unique ftir related to door handled by different department' (user_id=10, override_intent=None)
+2026-07-13 12:06:42,584 - core.router - INFO - Cache HIT for query: 'give me pie chart all the unique ftir related to door handled by different department'
+2026-07-13 12:06:42,585 - core.router - INFO - QueryRouter dispatching query: '
+give me pie chart all the unique ftir related to door handled by different department' (user_id=10, override_intent=None)
+2026-07-13 12:06:42,586 - core.router - INFO - Cache HIT for query: '
+give me pie chart all the unique ftir related to door handled by different department'
+2026-07-13 12:06:42,586 - core.router - INFO - QueryRouter dispatching query: 'give me pie chart all the unique ftir related to wheel handled by different department' (user_id=10, override_intent=None)
+2026-07-13 12:06:42,587 - core.router - INFO - Cache HIT for query: 'give me pie chart all the unique ftir related to wheel handled by different department'
+2026-07-13 12:06:42,587 - core.router - INFO - QueryRouter dispatching query: '
+give me pie chart handled by different department' (user_id=10, override_intent=None)
+2026-07-13 12:06:42,588 - core.router - INFO - Cache HIT for query: '
+give me pie chart handled by different department'
+2026-07-13 12:06:42,589 - core.router - INFO - QueryRouter dispatching query: '
+give me entire ftir' (user_id=10, override_intent=None)
+2026-07-13 12:06:42,969 - core.router - INFO - Cache HIT for query: '
+give me entire ftir'
+2026-07-13 12:06:42,969 - core.router - INFO - QueryRouter dispatching query: '
+give me pie chart all the unique ftir related to light handled by different department' (user_id=10, override_intent=None)
+2026-07-13 12:06:42,973 - core.router - INFO - Cache HIT for query: '
+give me pie chart all the unique ftir related to light handled by different department'
+2026-07-13 12:06:42,974 - core.router - INFO - QueryRouter dispatching query: '
+give me ftir related to noise' (user_id=10, override_intent=None)
+2026-07-13 12:06:42,975 - nlp.pipeline - INFO - NLPProcessor starting to parse query: '
+give me ftir related to noise'
+2026-07-13 12:06:42,975 - nlp.pipeline - INFO - spaCy model loaded or verified.
+2026-07-13 12:06:42,976 - nlp.pipeline - INFO - Query classified with intent 'ANALYTICS' (score: 1.0)
+2026-07-13 12:06:42,994 - nlp.pipeline - INFO - Extracted entities: {'TROUBLE_CODE': [], 'PRODUCT_MODEL': [], 'SALES_MODEL': [], 'COUNTRY': [], 'VIN': [], 'FTIR_NO': []}
+2026-07-13 12:06:42,995 - nlp.pipeline - INFO - Extracted filters: {'limit': 5}
+2026-07-13 12:06:42,996 - core.router - INFO - Routed Query: '
+give me ftir related to noise' | Selected Intent: ANALYTICS (has_col_ref=True)
+2026-07-13 12:06:42,996 - core.router - INFO - Routing query to handler for intent: ANALYTICS
+2026-07-13 12:06:43,000 - analytics.engine - INFO - AnalyticsEngine starting query_via_llm for: '
+give me ftir related to noise'
+2026-07-13 12:06:43,000 - analytics.engine - INFO - Extracting intents via intent_engine for SQL generation.
+2026-07-13 12:06:43,378 - analytics.intent_classifier - INFO - Hybrid Extraction Results:
+--- HYBRID EXTRACTION ---
+Intents: []
+KPIs: []
+Filters: []
+Aggregations: []
+Confidence Score: 0
+
+2026-07-13 12:06:43,378 - analytics.intent_classifier - INFO - Running LLM extraction for comparison
+2026-07-13 12:06:49,486 - analytics.intent_classifier - INFO - LLM Extraction Results:
+--- LLM EXTRACTION ---
+Intents: ['trend']
+KPIs: []
+Filters: ["subject LIKE '%noise%'"]
+Aggregations: []
+Confidence Score: 0.5
+
+2026-07-13 12:06:49,486 - analytics.intent_classifier - INFO - Intent classification complete with merged final confidence 0.5
+2026-07-13 12:06:49,488 - analytics.engine - INFO - Invoking LLM for SQL generation (Attempt 1)
+2026-07-13 12:07:09,412 - analytics.engine - INFO - Generated and parsed Dynamic LLM SQL query (Attempt 1):
+SELECT * FROM records WHERE LOWER(subject) LIKE '%noise%'
+2026-07-13 12:07:09,499 - analytics.engine - INFO - Successfully executed LLM SQL query.
+2026-07-13 12:07:09,503 - core.router - INFO - Successfully executed LLM-generated SQL query from AnalyticsEngine.
+2026-07-13 12:07:09,607 - core.router - INFO - Query processing completed successfully.
+2026-07-13 12:07:10,097 - __main__ - INFO - Application Started
+2026-07-13 12:11:13,558 - __main__ - INFO - Application Started
+2026-07-13 12:11:13,852 - __main__ - INFO - Application Started
+2026-07-13 12:12:00,364 - __main__ - INFO - Application Started
+2026-07-13 12:12:03,174 - __main__ - INFO - Application Started
+2026-07-13 12:14:07,827 - __main__ - INFO - Application Started
+2026-07-13 12:14:07,872 - core.router - INFO - QueryRouter dispatching query: 'give me pie chart all the unique ftir related to damage handled by different department' (user_id=10, override_intent=SEARCH)
+2026-07-13 12:14:07,872 - nlp.pipeline - INFO - NLPProcessor starting to parse query: 'give me pie chart all the unique ftir related to damage handled by different department'
+2026-07-13 12:14:07,872 - nlp.pipeline - INFO - spaCy model loaded or verified.
+2026-07-13 12:14:07,873 - nlp.pipeline - INFO - Query classified with intent 'ANALYTICS' (score: 1.0)
+2026-07-13 12:14:07,916 - nlp.pipeline - INFO - Extracted entities: {'TROUBLE_CODE': [], 'PRODUCT_MODEL': [], 'SALES_MODEL': ['PIE', 'ALL', 'THE'], 'COUNTRY': [], 'VIN': [], 'FTIR_NO': []}
+2026-07-13 12:14:07,918 - nlp.pipeline - INFO - Extracted filters: {'limit': 5}
+2026-07-13 12:14:07,918 - core.router - INFO - Routed Query: 'give me pie chart all the unique ftir related to damage handled by different department' | Selected Intent: SEARCH (has_col_ref=True)
+2026-07-13 12:14:07,919 - core.router - INFO - Routing query to handler for intent: SEARCH
+2026-07-13 12:14:15,945 - analytics.engine - INFO - AnalyticsEngine starting query_via_llm for: 'give me pie chart all the unique ftir related to damage handled by different department'
+2026-07-13 12:14:15,945 - analytics.engine - INFO - Extracting intents via intent_engine for SQL generation.
+2026-07-13 12:14:16,359 - analytics.intent_classifier - INFO - Hybrid Extraction Results:
+--- HYBRID EXTRACTION ---
+Intents: []
+KPIs: []
+Filters: []
+Aggregations: []
+Confidence Score: 0
+
+2026-07-13 12:14:16,359 - analytics.intent_classifier - INFO - Running LLM extraction for comparison
+2026-07-13 12:14:24,275 - analytics.intent_classifier - INFO - LLM Extraction Results:
+--- LLM EXTRACTION ---
+Intents: ['distribution']
+KPIs: []
+Filters: ["ftir LIKE '%damage%'"]
+Aggregations: ['department']
+Confidence Score: 0.7
+
+2026-07-13 12:14:24,275 - analytics.intent_classifier - INFO - Intent classification complete with merged final confidence 0.7
+2026-07-13 12:14:24,275 - analytics.engine - INFO - Invoking LLM for SQL generation (Attempt 1)
+2026-07-13 12:14:53,678 - analytics.engine - INFO - Generated and parsed Dynamic LLM SQL query (Attempt 1):
+SELECT dept_of_action_judgement, COUNT(DISTINCT ftir_no) AS ftir_count 
+FROM records 
+WHERE ftir_no LIKE '%damage%' 
+GROUP BY dept_of_action_judgement
+2026-07-13 12:14:53,709 - analytics.engine - INFO - Successfully executed LLM SQL query.
+2026-07-13 12:14:53,712 - core.router - INFO - Query processing completed successfully.
+2026-07-13 12:14:53,859 - llm.client - ERROR - Local LLM chat stream generation failed: Requested tokens (4506) exceed context window of 4096
+2026-07-13 12:14:54,208 - __main__ - INFO - Application Started
+2026-07-13 12:35:35,934 - __main__ - INFO - Application Started
+2026-07-13 12:35:47,531 - __main__ - INFO - Application Started
+2026-07-13 12:35:47,541 - core.router - INFO - QueryRouter dispatching query: 'give me ftir related to light' (user_id=10, override_intent=None)
+2026-07-13 12:35:47,541 - core.router - INFO - Cache HIT for query: 'give me ftir related to light'
+2026-07-13 12:35:47,542 - core.router - INFO - QueryRouter dispatching query: 'give me ftir related to light' (user_id=10, override_intent=None)
+2026-07-13 12:35:47,542 - core.router - INFO - Cache HIT for query: 'give me ftir related to light'
+2026-07-13 12:35:47,543 - core.router - INFO - QueryRouter dispatching query: 'give me ftir related to light' (user_id=10, override_intent=None)
+2026-07-13 12:35:47,543 - core.router - INFO - Cache HIT for query: 'give me ftir related to light'
+2026-07-13 12:35:47,817 - __main__ - INFO - Application Started
+2026-07-13 12:35:53,951 - __main__ - INFO - Application Started
+2026-07-13 12:35:53,961 - core.router - INFO - QueryRouter dispatching query: 'give all pie chart for ftir related to all departments' (user_id=10, override_intent=None)
+2026-07-13 12:35:53,962 - core.router - INFO - Cache HIT for query: 'give all pie chart for ftir related to all departments'
+2026-07-13 12:35:53,962 - core.router - INFO - QueryRouter dispatching query: 'give all for ftir related to noise' (user_id=10, override_intent=None)
+2026-07-13 12:35:53,962 - core.router - INFO - Cache HIT for query: 'give all for ftir related to noise'
+2026-07-13 12:35:53,962 - core.router - INFO - QueryRouter dispatching query: 'give me all the ftir related to brake' (user_id=10, override_intent=None)
+2026-07-13 12:35:53,963 - core.router - INFO - Cache HIT for query: 'give me all the ftir related to brake'
+2026-07-13 12:35:53,963 - core.router - INFO - QueryRouter dispatching query: '
+give me all the unique ftir related to paint' (user_id=10, override_intent=None)
+2026-07-13 12:35:53,963 - core.router - INFO - Cache HIT for query: '
+give me all the unique ftir related to paint'
+2026-07-13 12:35:53,964 - core.router - INFO - QueryRouter dispatching query: 'give me all the unique ftir related to engine' (user_id=10, override_intent=None)
+2026-07-13 12:35:53,964 - core.router - INFO - Cache HIT for query: 'give me all the unique ftir related to engine'
+2026-07-13 12:35:53,964 - core.router - INFO - QueryRouter dispatching query: '
+give me all the unique ftir related to wheel' (user_id=10, override_intent=None)
+2026-07-13 12:35:53,965 - core.router - INFO - Cache HIT for query: '
+give me all the unique ftir related to wheel'
+2026-07-13 12:35:53,965 - core.router - INFO - QueryRouter dispatching query: 'give me pie chart all the unique ftir related to noise handled by different department' (user_id=10, override_intent=None)
+2026-07-13 12:35:53,965 - core.router - INFO - Cache HIT for query: 'give me pie chart all the unique ftir related to noise handled by different department'
+2026-07-13 12:35:53,965 - core.router - INFO - QueryRouter dispatching query: 'give me pie chart all the unique ftir related to noise handled by different department' (user_id=10, override_intent=None)
+2026-07-13 12:35:53,965 - core.router - INFO - Cache HIT for query: 'give me pie chart all the unique ftir related to noise handled by different department'
+2026-07-13 12:35:53,966 - core.router - INFO - QueryRouter dispatching query: 'give me pie chart all the unique ftir related to rust handled by different department' (user_id=10, override_intent=None)
+2026-07-13 12:35:53,966 - core.router - INFO - Cache HIT for query: 'give me pie chart all the unique ftir related to rust handled by different department'
+2026-07-13 12:35:53,966 - core.router - INFO - QueryRouter dispatching query: 'give me pie chart all the unique ftir related to door handled by different department' (user_id=10, override_intent=None)
+2026-07-13 12:35:53,966 - core.router - INFO - Cache HIT for query: 'give me pie chart all the unique ftir related to door handled by different department'
+2026-07-13 12:35:53,967 - core.router - INFO - QueryRouter dispatching query: '
+give me pie chart all the unique ftir related to door handled by different department' (user_id=10, override_intent=None)
+2026-07-13 12:35:53,967 - core.router - INFO - Cache HIT for query: '
+give me pie chart all the unique ftir related to door handled by different department'
+2026-07-13 12:35:53,967 - core.router - INFO - QueryRouter dispatching query: 'give me pie chart all the unique ftir related to wheel handled by different department' (user_id=10, override_intent=None)
+2026-07-13 12:35:53,967 - core.router - INFO - Cache HIT for query: 'give me pie chart all the unique ftir related to wheel handled by different department'
+2026-07-13 12:35:53,968 - core.router - INFO - QueryRouter dispatching query: '
+give me pie chart handled by different department' (user_id=10, override_intent=None)
+2026-07-13 12:35:53,968 - core.router - INFO - Cache HIT for query: '
+give me pie chart handled by different department'
+2026-07-13 12:35:53,968 - core.router - INFO - QueryRouter dispatching query: '
+give me entire ftir' (user_id=10, override_intent=None)
+2026-07-13 12:35:53,968 - core.router - INFO - Cache HIT for query: '
+give me entire ftir'
+2026-07-13 12:35:53,969 - core.router - INFO - QueryRouter dispatching query: '
+give me pie chart all the unique ftir related to light handled by different department' (user_id=10, override_intent=None)
+2026-07-13 12:35:53,969 - core.router - INFO - Cache HIT for query: '
+give me pie chart all the unique ftir related to light handled by different department'
+2026-07-13 12:35:53,969 - core.router - INFO - QueryRouter dispatching query: '
+give me ftir related to noise' (user_id=10, override_intent=None)
+2026-07-13 12:35:53,969 - core.router - INFO - Cache HIT for query: '
+give me ftir related to noise'
+2026-07-13 12:35:54,247 - __main__ - INFO - Application Started
+2026-07-13 12:36:21,491 - __main__ - INFO - Application Started
+2026-07-13 12:36:21,499 - core.router - INFO - QueryRouter dispatching query: 'give me pie chart all the unique ftir related to damage handled by different department' (user_id=10, override_intent=None)
+2026-07-13 12:36:21,499 - core.router - INFO - Cache HIT for query: 'give me pie chart all the unique ftir related to damage handled by different department'
+2026-07-13 12:36:21,808 - __main__ - INFO - Application Started
+2026-07-13 12:36:24,498 - __main__ - INFO - Application Started
+2026-07-13 12:36:27,712 - __main__ - INFO - Application Started
+2026-07-13 12:36:27,752 - core.router - INFO - QueryRouter dispatching query: '
+give me pie chart all the unique ftir related to noise handled by different department' (user_id=10, override_intent=SEARCH)
+2026-07-13 12:36:27,753 - nlp.pipeline - INFO - NLPProcessor starting to parse query: '
+give me pie chart all the unique ftir related to noise handled by different department'
+2026-07-13 12:36:27,753 - nlp.pipeline - INFO - spaCy model loaded or verified.
+2026-07-13 12:36:27,753 - nlp.pipeline - INFO - Query classified with intent 'ANALYTICS' (score: 1.0)
+2026-07-13 12:36:27,786 - nlp.pipeline - INFO - Extracted entities: {'TROUBLE_CODE': [], 'PRODUCT_MODEL': [], 'SALES_MODEL': ['PIE', 'ALL', 'THE'], 'COUNTRY': [], 'VIN': [], 'FTIR_NO': []}
+2026-07-13 12:36:27,787 - nlp.pipeline - INFO - Extracted filters: {'limit': 5}
+2026-07-13 12:36:27,787 - core.router - INFO - Routed Query: '
+give me pie chart all the unique ftir related to noise handled by different department' | Selected Intent: SEARCH (has_col_ref=True)
+2026-07-13 12:36:27,788 - core.router - INFO - Routing query to handler for intent: SEARCH
+2026-07-13 12:36:35,789 - analytics.engine - INFO - AnalyticsEngine starting query_via_llm for: '
+give me pie chart all the unique ftir related to noise handled by different department'
+2026-07-13 12:36:35,790 - analytics.engine - INFO - Extracting intents via intent_engine for SQL generation.
+2026-07-13 12:36:36,191 - analytics.intent_classifier - INFO - Hybrid Extraction Results:
+--- HYBRID EXTRACTION ---
+Intents: []
+KPIs: []
+Filters: []
+Aggregations: []
+Confidence Score: 0
+
+2026-07-13 12:36:36,191 - analytics.intent_classifier - INFO - Running LLM extraction for comparison
+2026-07-13 12:36:43,510 - analytics.intent_classifier - INFO - LLM Extraction Results:
+--- LLM EXTRACTION ---
+Intents: ['distribution']
+KPIs: []
+Filters: ['ftir_related']
+Aggregations: ['department']
+Confidence Score: 0.7
+
+2026-07-13 12:36:43,510 - analytics.intent_classifier - INFO - Intent classification complete with merged final confidence 0.7
+2026-07-13 12:36:43,510 - analytics.engine - INFO - Invoking LLM for SQL generation (Attempt 1)
+2026-07-13 12:37:11,038 - analytics.engine - INFO - Generated and parsed Dynamic LLM SQL query (Attempt 1):
+SELECT dept_of_action_judgement, COUNT(DISTINCT ftir_no) as count FROM records WHERE ftir_no IS NOT NULL GROUP BY dept_of_action_judgement
+2026-07-13 12:37:11,081 - analytics.engine - INFO - Successfully executed LLM SQL query.
+2026-07-13 12:37:11,090 - core.router - INFO - Query processing completed successfully.
+2026-07-13 12:37:11,311 - llm.client - ERROR - Local LLM chat stream generation failed: Requested tokens (4405) exceed context window of 4096
+2026-07-13 12:37:11,675 - __main__ - INFO - Application Started
+2026-07-13 12:41:00,288 - __main__ - INFO - Application Started
+2026-07-13 12:41:04,384 - llm.client - INFO - Local GGUF model loaded from C:\Users\maury\OneDrive\Documents\Internship\RAG\automotive_qa\models\Qwen2.5-7B-Instruct-Q4_K_M.gguf on GPU.
+2026-07-13 12:41:08,094 - __main__ - INFO - Application Started
+2026-07-13 12:41:08,172 - core.router - INFO - QueryRouter dispatching query: 'give me pie chart all the unique ftir related to damage handled by different department' (user_id=10, override_intent=None)
+2026-07-13 12:41:08,187 - core.router - INFO - Cache HIT for query: 'give me pie chart all the unique ftir related to damage handled by different department'
+2026-07-13 12:41:08,187 - core.router - INFO - QueryRouter dispatching query: '
+give me pie chart all the unique ftir related to noise handled by different department' (user_id=10, override_intent=None)
+2026-07-13 12:41:08,196 - core.router - INFO - Cache HIT for query: '
+give me pie chart all the unique ftir related to noise handled by different department'
+2026-07-13 12:41:08,311 - __main__ - INFO - Application Started
+2026-07-13 12:41:20,164 - __main__ - INFO - Application Started
+2026-07-13 12:41:20,310 - __main__ - INFO - Application Started
+2026-07-13 12:41:22,091 - __main__ - INFO - Application Started
+2026-07-13 12:41:22,130 - core.router - INFO - QueryRouter dispatching query: '
+give me pie chart all the unique ftir related to noise handled by different department' (user_id=10, override_intent=SEARCH)
+2026-07-13 12:41:22,130 - nlp.pipeline - INFO - NLPProcessor starting to parse query: '
+give me pie chart all the unique ftir related to noise handled by different department'
+2026-07-13 12:41:25,826 - nlp.pipeline - INFO - spaCy model loaded or verified.
+2026-07-13 12:41:25,827 - nlp.pipeline - INFO - Query classified with intent 'ANALYTICS' (score: 1.0)
+2026-07-13 12:41:25,864 - nlp.pipeline - INFO - Extracted entities: {'TROUBLE_CODE': [], 'PRODUCT_MODEL': [], 'SALES_MODEL': ['PIE', 'ALL', 'THE'], 'COUNTRY': [], 'VIN': [], 'FTIR_NO': []}
+2026-07-13 12:41:25,865 - nlp.pipeline - INFO - Extracted filters: {'limit': 5}
+2026-07-13 12:41:25,865 - core.router - INFO - Routed Query: '
+give me pie chart all the unique ftir related to noise handled by different department' | Selected Intent: SEARCH (has_col_ref=True)
+2026-07-13 12:41:25,866 - core.router - INFO - Routing query to handler for intent: SEARCH
+2026-07-13 12:41:43,042 - analytics.engine - INFO - AnalyticsEngine starting query_via_llm for: '
+give me pie chart all the unique ftir related to noise handled by different department'
+2026-07-13 12:41:43,045 - analytics.engine - INFO - Extracting intents via intent_engine for SQL generation.
+2026-07-13 12:41:43,648 - analytics.intent_classifier - INFO - Hybrid Extraction Results:
+--- HYBRID EXTRACTION ---
+Intents: []
+KPIs: []
+Filters: []
+Aggregations: []
+Confidence Score: 0
+
+2026-07-13 12:41:43,649 - analytics.intent_classifier - INFO - Running LLM extraction for comparison
+2026-07-13 12:41:49,964 - analytics.intent_classifier - INFO - LLM Extraction Results:
+--- LLM EXTRACTION ---
+Intents: ['distribution']
+KPIs: []
+Filters: ['ftir_related']
+Aggregations: ['department']
+Confidence Score: 0.7
+
+2026-07-13 12:41:49,964 - analytics.intent_classifier - INFO - Intent classification complete with merged final confidence 0.7
+2026-07-13 12:41:49,965 - analytics.engine - INFO - Invoking LLM for SQL generation (Attempt 1)
+2026-07-13 12:42:16,614 - analytics.engine - INFO - Generated and parsed Dynamic LLM SQL query (Attempt 1):
+SELECT dept_of_action_judgement, COUNT(DISTINCT ftir_no) as count FROM records WHERE ftir_no IS NOT NULL GROUP BY dept_of_action_judgement
+2026-07-13 12:42:16,646 - analytics.engine - INFO - Successfully executed LLM SQL query.
+2026-07-13 12:42:16,654 - core.router - INFO - Query processing completed successfully.
+2026-07-13 12:43:08,858 - __main__ - INFO - Application Started
+2026-07-13 13:01:29,292 - __main__ - INFO - Application Started
+2026-07-13 13:01:29,615 - __main__ - INFO - Application Started
+2026-07-13 13:01:31,043 - __main__ - INFO - Application Started
+2026-07-13 13:01:31,076 - core.router - INFO - QueryRouter dispatching query: 'give me pie chart all the unique ftir related to noise handled by different department' (user_id=10, override_intent=SEARCH)
+2026-07-13 13:01:31,077 - nlp.pipeline - INFO - NLPProcessor starting to parse query: 'give me pie chart all the unique ftir related to noise handled by different department'
+2026-07-13 13:01:31,077 - nlp.pipeline - INFO - spaCy model loaded or verified.
+2026-07-13 13:01:31,077 - nlp.pipeline - INFO - Query classified with intent 'ANALYTICS' (score: 1.0)
+2026-07-13 13:01:31,108 - nlp.pipeline - INFO - Extracted entities: {'TROUBLE_CODE': [], 'PRODUCT_MODEL': [], 'SALES_MODEL': ['PIE', 'ALL', 'THE'], 'COUNTRY': [], 'VIN': [], 'FTIR_NO': []}
+2026-07-13 13:01:31,110 - nlp.pipeline - INFO - Extracted filters: {'limit': 5}
+2026-07-13 13:01:31,110 - core.router - INFO - Routed Query: 'give me pie chart all the unique ftir related to noise handled by different department' | Selected Intent: SEARCH (has_col_ref=True)
+2026-07-13 13:01:31,110 - core.router - INFO - Routing query to handler for intent: SEARCH
+2026-07-13 13:01:40,358 - analytics.engine - INFO - AnalyticsEngine starting query_via_llm for: 'give me pie chart all the unique ftir related to noise handled by different department'
+2026-07-13 13:01:40,358 - analytics.engine - INFO - Extracting intents via intent_engine for SQL generation.
+2026-07-13 13:01:40,747 - analytics.intent_classifier - INFO - Hybrid Extraction Results:
+--- HYBRID EXTRACTION ---
+Intents: []
+KPIs: []
+Filters: []
+Aggregations: []
+Confidence Score: 0
+
+2026-07-13 13:01:40,747 - analytics.intent_classifier - INFO - Running LLM extraction for comparison
+2026-07-13 13:01:48,094 - analytics.intent_classifier - INFO - LLM Extraction Results:
+--- LLM EXTRACTION ---
+Intents: ['distribution']
+KPIs: []
+Filters: ['ftir_related_to_noise']
+Aggregations: ['department']
+Confidence Score: 0.7
+
+2026-07-13 13:01:48,095 - analytics.intent_classifier - INFO - Intent classification complete with merged final confidence 0.7
+2026-07-13 13:01:48,096 - analytics.engine - INFO - Invoking LLM for SQL generation (Attempt 1)
+2026-07-13 13:02:16,089 - analytics.engine - INFO - Generated and parsed Dynamic LLM SQL query (Attempt 1):
+SELECT dept_of_action_judgement, COUNT(DISTINCT ftir_no) as count FROM records WHERE LOWER(subject) LIKE '%noise%' GROUP BY dept_of_action_judgement
+2026-07-13 13:02:16,118 - analytics.engine - INFO - Successfully executed LLM SQL query.
+2026-07-13 13:02:16,126 - core.router - INFO - Query processing completed successfully.
+2026-07-13 13:03:09,097 - __main__ - INFO - Application Started
+2026-07-13 13:03:42,233 - __main__ - INFO - Application Started
+2026-07-13 13:03:45,784 - llm.client - INFO - Local GGUF model loaded from C:\Users\maury\OneDrive\Documents\Internship\RAG\automotive_qa\models\Qwen2.5-7B-Instruct-Q4_K_M.gguf on GPU.
+2026-07-13 13:04:37,493 - __main__ - INFO - Application Started
+2026-07-13 13:04:37,566 - core.router - INFO - QueryRouter dispatching query: 'give me pie chart all the unique ftir related to damage handled by different department' (user_id=10, override_intent=None)
+2026-07-13 13:04:37,577 - core.router - INFO - Cache HIT for query: 'give me pie chart all the unique ftir related to damage handled by different department'
+2026-07-13 13:04:37,578 - core.router - INFO - QueryRouter dispatching query: 'give me pie chart all the unique ftir related to noise handled by different department' (user_id=10, override_intent=None)
+2026-07-13 13:04:37,585 - core.router - INFO - Cache HIT for query: 'give me pie chart all the unique ftir related to noise handled by different department'
+2026-07-13 13:04:37,670 - __main__ - INFO - Application Started
+2026-07-13 13:04:42,819 - __main__ - INFO - Application Started
+2026-07-13 13:04:42,958 - __main__ - INFO - Application Started
+2026-07-13 13:04:45,478 - __main__ - INFO - Application Started
+2026-07-13 13:04:45,514 - core.router - INFO - QueryRouter dispatching query: 'give me pie chart all the unique ftir related to noise handled by different department' (user_id=10, override_intent=SEARCH)
+2026-07-13 13:04:45,515 - nlp.pipeline - INFO - NLPProcessor starting to parse query: 'give me pie chart all the unique ftir related to noise handled by different department'
+2026-07-13 13:04:49,264 - nlp.pipeline - INFO - spaCy model loaded or verified.
+2026-07-13 13:04:49,264 - nlp.pipeline - INFO - Query classified with intent 'ANALYTICS' (score: 1.0)
+2026-07-13 13:04:49,285 - nlp.pipeline - INFO - Extracted entities: {'TROUBLE_CODE': [], 'PRODUCT_MODEL': [], 'SALES_MODEL': ['PIE', 'ALL', 'THE'], 'COUNTRY': [], 'VIN': [], 'FTIR_NO': []}
+2026-07-13 13:04:49,287 - nlp.pipeline - INFO - Extracted filters: {'limit': 5}
+2026-07-13 13:04:49,287 - core.router - INFO - Routed Query: 'give me pie chart all the unique ftir related to noise handled by different department' | Selected Intent: SEARCH (has_col_ref=True)
+2026-07-13 13:04:49,287 - core.router - INFO - Routing query to handler for intent: SEARCH
+2026-07-13 13:05:06,310 - analytics.engine - INFO - AnalyticsEngine starting query_via_llm for: 'give me pie chart all the unique ftir related to noise handled by different department'
+2026-07-13 13:05:06,312 - analytics.engine - INFO - Extracting intents via intent_engine for SQL generation.
+2026-07-13 13:05:06,876 - analytics.intent_classifier - INFO - Hybrid Extraction Results:
+--- HYBRID EXTRACTION ---
+Intents: []
+KPIs: []
+Filters: []
+Aggregations: []
+Confidence Score: 0
+
+2026-07-13 13:05:06,876 - analytics.intent_classifier - INFO - Running LLM extraction for comparison
+2026-07-13 13:05:13,794 - analytics.intent_classifier - INFO - LLM Extraction Results:
+--- LLM EXTRACTION ---
+Intents: ['distribution']
+KPIs: []
+Filters: ['ftir_related_to_noise']
+Aggregations: ['department']
+Confidence Score: 0.7
+
+2026-07-13 13:05:13,794 - analytics.intent_classifier - INFO - Intent classification complete with merged final confidence 0.7
+2026-07-13 13:05:13,795 - analytics.engine - INFO - Invoking LLM for SQL generation (Attempt 1)
+2026-07-13 13:05:38,164 - analytics.engine - INFO - Generated and parsed Dynamic LLM SQL query (Attempt 1):
+SELECT dept_of_action_judgement, COUNT(DISTINCT ftir_no) as count FROM records WHERE LOWER(subject) LIKE '%noise%' GROUP BY dept_of_action_judgement
+2026-07-13 13:05:38,208 - analytics.engine - INFO - Successfully executed LLM SQL query.
+2026-07-13 13:05:38,216 - core.router - INFO - Query processing completed successfully.
+2026-07-13 13:06:25,365 - __main__ - INFO - Application Started
+2026-07-13 14:59:02,937 - __main__ - INFO - Application Started
+2026-07-13 14:59:10,566 - __main__ - INFO - Application Started
+2026-07-13 14:59:10,655 - core.router - INFO - QueryRouter dispatching query: 'give me pie chart all the unique ftir related to damage handled by different department' (user_id=10, override_intent=None)
+2026-07-13 14:59:10,664 - core.router - INFO - Cache HIT for query: 'give me pie chart all the unique ftir related to damage handled by different department'
+2026-07-13 14:59:10,664 - core.router - INFO - QueryRouter dispatching query: 'give me pie chart all the unique ftir related to noise handled by different department' (user_id=10, override_intent=None)
+2026-07-13 14:59:10,674 - core.router - INFO - Cache HIT for query: 'give me pie chart all the unique ftir related to noise handled by different department'
+2026-07-13 14:59:10,919 - __main__ - INFO - Application Started
+2026-07-13 14:59:13,912 - __main__ - INFO - Application Started
+2026-07-13 14:59:16,774 - __main__ - INFO - Application Started
+2026-07-13 14:59:21,989 - __main__ - INFO - Application Started
+2026-07-13 14:59:22,062 - core.router - INFO - QueryRouter dispatching query: 'give entire ftir' (user_id=10, override_intent=ANALYTICS)
+2026-07-13 14:59:22,062 - nlp.pipeline - INFO - NLPProcessor starting to parse query: 'give entire ftir'
+2026-07-13 14:59:22,062 - nlp.pipeline - INFO - spaCy model loaded or verified.
+2026-07-13 14:59:22,062 - nlp.pipeline - INFO - Query classified with intent 'ANALYTICS' (score: 1.0)
+2026-07-13 14:59:22,095 - nlp.pipeline - INFO - Extracted entities: {'TROUBLE_CODE': [], 'PRODUCT_MODEL': [], 'SALES_MODEL': [], 'COUNTRY': [], 'VIN': [], 'FTIR_NO': []}
+2026-07-13 14:59:22,096 - nlp.pipeline - INFO - Extracted filters: {'limit': 5}
+2026-07-13 14:59:22,097 - core.router - INFO - Routed Query: 'give entire ftir' | Selected Intent: ANALYTICS (has_col_ref=True)
+2026-07-13 14:59:22,097 - core.router - INFO - Routing query to handler for intent: ANALYTICS
+2026-07-13 14:59:22,101 - analytics.engine - INFO - AnalyticsEngine starting query_via_llm for: 'give entire ftir'
+2026-07-13 14:59:22,102 - analytics.engine - INFO - Extracting intents via intent_engine for SQL generation.
+2026-07-13 14:59:22,657 - analytics.intent_classifier - INFO - Hybrid Extraction Results:
+--- HYBRID EXTRACTION ---
+Intents: []
+KPIs: []
+Filters: []
+Aggregations: []
+Confidence Score: 0
+
+2026-07-13 14:59:22,658 - analytics.intent_classifier - INFO - Running LLM extraction for comparison
+2026-07-13 14:59:29,953 - analytics.intent_classifier - INFO - LLM Extraction Results:
+--- LLM EXTRACTION ---
+Intents: ['summary']
+KPIs: []
+Filters: []
+Aggregations: []
+Confidence Score: 0.3
+
+2026-07-13 14:59:29,953 - analytics.intent_classifier - INFO - Intent classification complete with merged final confidence 0.3
+2026-07-13 14:59:29,955 - analytics.engine - INFO - Invoking LLM for SQL generation (Attempt 1)
+2026-07-13 14:59:47,587 - analytics.engine - INFO - Generated and parsed Dynamic LLM SQL query (Attempt 1):
+SELECT * FROM records
+2026-07-13 14:59:47,763 - analytics.engine - INFO - Successfully executed LLM SQL query.
+2026-07-13 14:59:47,766 - core.router - INFO - Successfully executed LLM-generated SQL query from AnalyticsEngine.
+2026-07-13 14:59:47,884 - core.router - INFO - Query processing completed successfully.
+2026-07-13 15:00:47,448 - __main__ - INFO - Application Started
+2026-07-13 15:23:49,477 - __main__ - INFO - Application Started
+2026-07-13 15:23:56,366 - __main__ - INFO - Application Started
+2026-07-13 15:24:03,713 - __main__ - INFO - Application Started
+2026-07-13 15:24:03,784 - core.router - INFO - QueryRouter dispatching query: 'give me pie chart all the unique ftir related to damage handled by different department' (user_id=10, override_intent=None)
+2026-07-13 15:24:03,790 - core.router - INFO - Cache HIT for query: 'give me pie chart all the unique ftir related to damage handled by different department'
+2026-07-13 15:24:03,790 - core.router - INFO - QueryRouter dispatching query: 'give me pie chart all the unique ftir related to noise handled by different department' (user_id=10, override_intent=None)
+2026-07-13 15:24:03,799 - core.router - INFO - Cache HIT for query: 'give me pie chart all the unique ftir related to noise handled by different department'
+2026-07-13 15:24:03,800 - core.router - INFO - QueryRouter dispatching query: 'give entire ftir' (user_id=10, override_intent=None)
+2026-07-13 15:24:03,972 - core.router - INFO - Cache HIT for query: 'give entire ftir'
+2026-07-13 15:24:04,220 - __main__ - INFO - Application Started
+2026-07-13 15:41:39,064 - __main__ - INFO - Application Started
+2026-07-13 15:41:54,272 - __main__ - INFO - Application Started
+2026-07-13 15:41:54,396 - core.router - INFO - QueryRouter dispatching query: 'give me pie chart all the unique ftir related to damage handled by different department' (user_id=10, override_intent=None)
+2026-07-13 15:41:54,410 - core.router - INFO - Cache HIT for query: 'give me pie chart all the unique ftir related to damage handled by different department'
+2026-07-13 15:41:54,411 - core.router - INFO - QueryRouter dispatching query: 'give me pie chart all the unique ftir related to noise handled by different department' (user_id=10, override_intent=None)
+2026-07-13 15:41:54,438 - core.router - INFO - Cache HIT for query: 'give me pie chart all the unique ftir related to noise handled by different department'
+2026-07-13 15:41:54,439 - core.router - INFO - QueryRouter dispatching query: 'give entire ftir' (user_id=10, override_intent=None)
+2026-07-13 15:41:54,990 - core.router - INFO - Cache HIT for query: 'give entire ftir'
+2026-07-13 15:41:55,533 - __main__ - INFO - Application Started
+2026-07-13 15:41:59,531 - __main__ - INFO - Application Started
+2026-07-13 16:17:37,021 - __main__ - INFO - Application Started
+2026-07-13 16:17:51,634 - llm.client - INFO - Local GGUF model loaded from C:\Users\maury\OneDrive\Documents\Internship\RAG\automotive_qa\models\Qwen2.5-7B-Instruct-Q4_K_M.gguf on GPU.
+2026-07-13 16:18:21,875 - __main__ - INFO - Application Started
+2026-07-13 16:18:22,534 - __main__ - INFO - Application Started
+2026-07-13 16:18:41,058 - __main__ - INFO - Application Started
+2026-07-13 16:18:47,848 - __main__ - INFO - Application Started
+2026-07-13 16:18:48,104 - __main__ - INFO - Application Started
+2026-07-13 16:18:48,173 - core.router - INFO - QueryRouter dispatching query: 'give top 10 failed parts with reasons on graph' (user_id=14, override_intent=None)
+2026-07-13 16:18:48,174 - nlp.pipeline - INFO - NLPProcessor starting to parse query: 'give top 10 failed parts with reasons on graph'
+2026-07-13 16:19:02,444 - nlp.pipeline - INFO - spaCy model loaded or verified.
+2026-07-13 16:19:02,444 - nlp.pipeline - INFO - Query classified with intent 'ANALYTICS' (score: 1.0)
+2026-07-13 16:19:02,526 - nlp.pipeline - INFO - Extracted entities: {'TROUBLE_CODE': [], 'PRODUCT_MODEL': [], 'SALES_MODEL': ['TOP'], 'COUNTRY': [], 'VIN': [], 'FTIR_NO': []}
+2026-07-13 16:19:02,529 - nlp.pipeline - INFO - Extracted filters: {'limit': 10}
+2026-07-13 16:19:02,529 - core.router - INFO - Routed Query: 'give top 10 failed parts with reasons on graph' | Selected Intent: ANALYTICS (has_col_ref=True)
+2026-07-13 16:19:02,529 - core.router - INFO - Routing query to handler for intent: ANALYTICS
+2026-07-13 16:19:02,540 - analytics.engine - INFO - AnalyticsEngine starting query_via_llm for: 'give top 10 failed parts with reasons on graph'
+2026-07-13 16:19:02,545 - analytics.engine - INFO - Extracting intents via intent_engine for SQL generation.
+2026-07-13 16:19:03,377 - analytics.intent_classifier - INFO - Hybrid Extraction Results:
+--- HYBRID EXTRACTION ---
+Intents: ['ranking']
+KPIs: []
+Filters: []
+Aggregations: []
+Confidence Score: 0.3
+
+2026-07-13 16:19:03,378 - analytics.intent_classifier - INFO - Running LLM extraction for comparison
+2026-07-13 16:19:10,408 - analytics.intent_classifier - INFO - LLM Extraction Results:
+--- LLM EXTRACTION ---
+Intents: ['ranking']
+KPIs: ['count']
+Filters: []
+Aggregations: ['part', 'reason']
+Confidence Score: 0.8
+
+2026-07-13 16:19:10,409 - analytics.intent_classifier - INFO - Intent classification complete with merged final confidence 0.8
+2026-07-13 16:19:10,412 - analytics.engine - INFO - Invoking LLM for SQL generation (Attempt 1)
+2026-07-13 16:19:40,143 - analytics.engine - INFO - Generated and parsed Dynamic LLM SQL query (Attempt 1):
+SELECT causal_parts_name, COUNT(*) as count, GROUP_CONCAT(reason_not_sbpr) as reasons FROM records WHERE is_resolved = 1 GROUP BY causal_parts_name ORDER BY count DESC LIMIT 10
+2026-07-13 16:19:40,201 - analytics.engine - INFO - Successfully executed LLM SQL query.
+2026-07-13 16:19:40,207 - core.router - INFO - Successfully executed LLM-generated SQL query from AnalyticsEngine.
+2026-07-13 16:19:40,310 - core.router - INFO - Query processing completed successfully.
+2026-07-13 16:20:09,225 - __main__ - INFO - Application Started
+2026-07-13 16:21:20,013 - __main__ - INFO - Application Started
+2026-07-13 16:21:20,170 - core.router - INFO - QueryRouter dispatching query: 'give me a time series plot for different ftir creation dates' (user_id=14, override_intent=ANALYTICS)
+2026-07-13 16:21:20,170 - nlp.pipeline - INFO - NLPProcessor starting to parse query: 'give me a time series plot for different ftir creation dates'
+2026-07-13 16:21:20,171 - nlp.pipeline - INFO - spaCy model loaded or verified.
+2026-07-13 16:21:20,172 - nlp.pipeline - INFO - Query classified with intent 'ANALYTICS' (score: 1.0)
+2026-07-13 16:21:20,229 - nlp.pipeline - INFO - Extracted entities: {'TROUBLE_CODE': [], 'PRODUCT_MODEL': [], 'SALES_MODEL': ['FOR'], 'COUNTRY': [], 'VIN': [], 'FTIR_NO': []}
+2026-07-13 16:21:20,232 - nlp.pipeline - INFO - Extracted filters: {'limit': 5}
+2026-07-13 16:21:20,233 - core.router - INFO - Routed Query: 'give me a time series plot for different ftir creation dates' | Selected Intent: ANALYTICS (has_col_ref=True)
+2026-07-13 16:21:20,233 - core.router - INFO - Routing query to handler for intent: ANALYTICS
+2026-07-13 16:21:20,242 - analytics.engine - INFO - AnalyticsEngine starting query_via_llm for: 'give me a time series plot for different ftir creation dates'
+2026-07-13 16:21:20,243 - analytics.engine - INFO - Extracting intents via intent_engine for SQL generation.
+2026-07-13 16:21:21,190 - analytics.intent_classifier - INFO - Hybrid Extraction Results:
+--- HYBRID EXTRACTION ---
+Intents: []
+KPIs: []
+Filters: []
+Aggregations: []
+Confidence Score: 0
+
+2026-07-13 16:21:21,191 - analytics.intent_classifier - INFO - Running LLM extraction for comparison
+2026-07-13 16:21:29,058 - analytics.intent_classifier - INFO - LLM Extraction Results:
+--- LLM EXTRACTION ---
+Intents: ['trend']
+KPIs: ['resolution']
+Filters: ['ftir_creation_date']
+Aggregations: ['ftir_creation_date']
+Confidence Score: 1.0
+
+2026-07-13 16:21:29,059 - analytics.intent_classifier - INFO - Intent classification complete with merged final confidence 1.0
+2026-07-13 16:21:29,062 - analytics.engine - INFO - Invoking LLM for SQL generation (Attempt 1)
+2026-07-13 16:21:55,589 - analytics.engine - INFO - Generated and parsed Dynamic LLM SQL query (Attempt 1):
+SELECT ftir_report_date, COUNT(*) as ftir_count FROM records GROUP BY ftir_report_date ORDER BY ftir_report_date
+2026-07-13 16:21:55,623 - analytics.engine - INFO - Successfully executed LLM SQL query.
+2026-07-13 16:21:55,629 - core.router - INFO - Successfully executed LLM-generated SQL query from AnalyticsEngine.
+2026-07-13 16:21:55,680 - core.router - INFO - Query processing completed successfully.
+2026-07-13 16:22:06,011 - __main__ - INFO - Application Started
+2026-07-13 16:22:39,094 - __main__ - INFO - Application Started
+2026-07-13 16:22:39,347 - core.router - INFO - QueryRouter dispatching query: 'give me a line time series plot for different ftir creation dates
+
+' (user_id=14, override_intent=ANALYTICS)
+2026-07-13 16:22:39,347 - nlp.pipeline - INFO - NLPProcessor starting to parse query: 'give me a line time series plot for different ftir creation dates
+
+'
+2026-07-13 16:22:39,348 - nlp.pipeline - INFO - spaCy model loaded or verified.
+2026-07-13 16:22:39,348 - nlp.pipeline - INFO - Query classified with intent 'ANALYTICS' (score: 1.0)
+2026-07-13 16:22:39,402 - nlp.pipeline - INFO - Extracted entities: {'TROUBLE_CODE': [], 'PRODUCT_MODEL': [], 'SALES_MODEL': ['FOR'], 'COUNTRY': [], 'VIN': [], 'FTIR_NO': []}
+2026-07-13 16:22:39,405 - nlp.pipeline - INFO - Extracted filters: {'limit': 5}
+2026-07-13 16:22:39,405 - core.router - INFO - Routed Query: 'give me a line time series plot for different ftir creation dates
+
+' | Selected Intent: ANALYTICS (has_col_ref=True)
+2026-07-13 16:22:39,406 - core.router - INFO - Routing query to handler for intent: ANALYTICS
+2026-07-13 16:22:39,414 - analytics.engine - INFO - AnalyticsEngine starting query_via_llm for: 'give me a line time series plot for different ftir creation dates
+
+'
+2026-07-13 16:22:39,415 - analytics.engine - INFO - Extracting intents via intent_engine for SQL generation.
+2026-07-13 16:22:40,404 - analytics.intent_classifier - INFO - Hybrid Extraction Results:
+--- HYBRID EXTRACTION ---
+Intents: []
+KPIs: []
+Filters: []
+Aggregations: []
+Confidence Score: 0
+
+2026-07-13 16:22:40,405 - analytics.intent_classifier - INFO - Running LLM extraction for comparison
+2026-07-13 16:22:48,252 - analytics.intent_classifier - INFO - LLM Extraction Results:
+--- LLM EXTRACTION ---
+Intents: ['trend']
+KPIs: ['resolution']
+Filters: ['ftir_creation_date']
+Aggregations: ['ftir_creation_date']
+Confidence Score: 1.0
+
+2026-07-13 16:22:48,253 - analytics.intent_classifier - INFO - Intent classification complete with merged final confidence 1.0
+2026-07-13 16:22:48,256 - analytics.engine - INFO - Invoking LLM for SQL generation (Attempt 1)
+2026-07-13 16:23:14,800 - analytics.engine - INFO - Generated and parsed Dynamic LLM SQL query (Attempt 1):
+SELECT ftir_report_date, COUNT(*) as ftir_count FROM records GROUP BY ftir_report_date ORDER BY ftir_report_date
+2026-07-13 16:23:14,833 - analytics.engine - INFO - Successfully executed LLM SQL query.
+2026-07-13 16:23:14,840 - core.router - INFO - Successfully executed LLM-generated SQL query from AnalyticsEngine.
+2026-07-13 16:23:14,880 - core.router - INFO - Query processing completed successfully.
+2026-07-13 16:23:26,279 - __main__ - INFO - Application Started
+2026-07-13 16:26:53,594 - __main__ - INFO - Application Started
+2026-07-13 16:26:53,964 - core.router - INFO - QueryRouter dispatching query: 'give me pie chart for different departments' (user_id=14, override_intent=ANALYTICS)
+2026-07-13 16:26:53,965 - nlp.pipeline - INFO - NLPProcessor starting to parse query: 'give me pie chart for different departments'
+2026-07-13 16:26:53,965 - nlp.pipeline - INFO - spaCy model loaded or verified.
+2026-07-13 16:26:53,966 - nlp.pipeline - INFO - Query classified with intent 'ANALYTICS' (score: 1.0)
+2026-07-13 16:26:54,020 - nlp.pipeline - INFO - Extracted entities: {'TROUBLE_CODE': [], 'PRODUCT_MODEL': [], 'SALES_MODEL': ['PIE', 'FOR'], 'COUNTRY': [], 'VIN': [], 'FTIR_NO': []}
+2026-07-13 16:26:54,023 - nlp.pipeline - INFO - Extracted filters: {'limit': 5}
+2026-07-13 16:26:54,024 - core.router - INFO - Routed Query: 'give me pie chart for different departments' | Selected Intent: ANALYTICS (has_col_ref=True)
+2026-07-13 16:26:54,024 - core.router - INFO - Routing query to handler for intent: ANALYTICS
+2026-07-13 16:26:54,034 - analytics.engine - INFO - AnalyticsEngine starting query_via_llm for: 'give me pie chart for different departments'
+2026-07-13 16:26:54,035 - analytics.engine - INFO - Extracting intents via intent_engine for SQL generation.
+2026-07-13 16:26:55,003 - analytics.intent_classifier - INFO - Hybrid Extraction Results:
+--- HYBRID EXTRACTION ---
+Intents: []
+KPIs: []
+Filters: []
+Aggregations: []
+Confidence Score: 0
+
+2026-07-13 16:26:55,004 - analytics.intent_classifier - INFO - Running LLM extraction for comparison
+2026-07-13 16:27:00,934 - analytics.intent_classifier - INFO - LLM Extraction Results:
+--- LLM EXTRACTION ---
+Intents: ['distribution']
+KPIs: []
+Filters: []
+Aggregations: ['department']
+Confidence Score: 0.5
+
+2026-07-13 16:27:00,936 - analytics.intent_classifier - INFO - Intent classification complete with merged final confidence 0.5
+2026-07-13 16:27:00,940 - analytics.engine - INFO - Invoking LLM for SQL generation (Attempt 1)
+2026-07-13 16:27:26,095 - analytics.engine - INFO - Generated and parsed Dynamic LLM SQL query (Attempt 1):
+SELECT dept_of_action_judgement, COUNT(*) as count FROM records GROUP BY dept_of_action_judgement
+2026-07-13 16:27:26,130 - analytics.engine - INFO - Successfully executed LLM SQL query.
+2026-07-13 16:27:26,137 - core.router - INFO - Successfully executed LLM-generated SQL query from AnalyticsEngine.
+2026-07-13 16:27:26,187 - core.router - INFO - Query processing completed successfully.
+2026-07-13 16:27:44,424 - __main__ - INFO - Application Started
+2026-07-13 16:32:27,555 - __main__ - INFO - Application Started
+2026-07-13 16:32:28,085 - core.router - INFO - QueryRouter dispatching query: 'give me a plot for top 10 dealers' (user_id=14, override_intent=ANALYTICS)
+2026-07-13 16:32:28,086 - nlp.pipeline - INFO - NLPProcessor starting to parse query: 'give me a plot for top 10 dealers'
+2026-07-13 16:32:28,086 - nlp.pipeline - INFO - spaCy model loaded or verified.
+2026-07-13 16:32:28,087 - nlp.pipeline - INFO - Query classified with intent 'ANALYTICS' (score: 1.0)
+2026-07-13 16:32:28,173 - nlp.pipeline - INFO - Extracted entities: {'TROUBLE_CODE': [], 'PRODUCT_MODEL': [], 'SALES_MODEL': ['FOR', 'TOP'], 'COUNTRY': [], 'VIN': [], 'FTIR_NO': []}
+2026-07-13 16:32:28,176 - nlp.pipeline - INFO - Extracted filters: {'limit': 10}
+2026-07-13 16:32:28,176 - core.router - INFO - Routed Query: 'give me a plot for top 10 dealers' | Selected Intent: ANALYTICS (has_col_ref=True)
+2026-07-13 16:32:28,177 - core.router - INFO - Routing query to handler for intent: ANALYTICS
+2026-07-13 16:32:28,187 - analytics.engine - INFO - AnalyticsEngine starting query_via_llm for: 'give me a plot for top 10 dealers'
+2026-07-13 16:32:28,189 - analytics.engine - INFO - Extracting intents via intent_engine for SQL generation.
+2026-07-13 16:32:29,179 - analytics.intent_classifier - INFO - Hybrid Extraction Results:
+--- HYBRID EXTRACTION ---
+Intents: ['ranking']
+KPIs: []
+Filters: []
+Aggregations: ['group by reported_company']
+Confidence Score: 0.5
+
+2026-07-13 16:32:29,180 - analytics.intent_classifier - INFO - Running LLM extraction for comparison
+2026-07-13 16:32:35,261 - analytics.intent_classifier - INFO - LLM Extraction Results:
+--- LLM EXTRACTION ---
+Intents: ['ranking']
+KPIs: []
+Filters: []
+Aggregations: ['dealer']
+Confidence Score: 0.5
+
+2026-07-13 16:32:35,261 - analytics.intent_classifier - INFO - Intent classification complete with merged final confidence 0.5
+2026-07-13 16:32:35,280 - analytics.engine - INFO - Invoking LLM for SQL generation (Attempt 1)
+2026-07-13 16:33:01,278 - analytics.engine - INFO - Generated and parsed Dynamic LLM SQL query (Attempt 1):
+SELECT sales_dealer, COUNT(*) as count FROM records GROUP BY sales_dealer ORDER BY count DESC LIMIT 10
+2026-07-13 16:33:01,324 - analytics.engine - INFO - Successfully executed LLM SQL query.
+2026-07-13 16:33:01,332 - core.router - INFO - Successfully executed LLM-generated SQL query from AnalyticsEngine.
+2026-07-13 16:33:01,382 - core.router - INFO - Query processing completed successfully.
+2026-07-13 16:33:35,045 - __main__ - INFO - Application Started
+2026-07-13 16:35:58,273 - __main__ - INFO - Application Started
+2026-07-13 16:35:58,878 - core.router - INFO - QueryRouter dispatching query: 'compare total number of ftir in "YHC" and "YTB" model' (user_id=14, override_intent=ANALYTICS)
+2026-07-13 16:35:58,880 - nlp.pipeline - INFO - NLPProcessor starting to parse query: 'compare total number of ftir in "YHC" and "YTB" model'
+2026-07-13 16:35:58,880 - nlp.pipeline - INFO - spaCy model loaded or verified.
+2026-07-13 16:35:58,881 - nlp.pipeline - INFO - Query classified with intent 'ANALYTICS' (score: 1.0)
+2026-07-13 16:35:58,988 - nlp.pipeline - INFO - Extracted entities: {'TROUBLE_CODE': [], 'PRODUCT_MODEL': ['YHC', 'YTB'], 'SALES_MODEL': ['YHC', 'AND', 'YTB'], 'COUNTRY': [], 'VIN': [], 'FTIR_NO': []}
+2026-07-13 16:35:58,993 - nlp.pipeline - INFO - Extracted filters: {'limit': 5}
+2026-07-13 16:35:58,993 - core.router - INFO - Routed Query: 'compare total number of ftir in "YHC" and "YTB" model' | Selected Intent: ANALYTICS (has_col_ref=True)
+2026-07-13 16:35:58,994 - core.router - INFO - Routing query to handler for intent: ANALYTICS
+2026-07-13 16:35:59,005 - analytics.engine - INFO - AnalyticsEngine starting query_via_llm for: 'compare total number of ftir in "YHC" and "YTB" model'
+2026-07-13 16:35:59,008 - analytics.engine - INFO - Extracting intents via intent_engine for SQL generation.
+2026-07-13 16:36:00,163 - analytics.intent_classifier - INFO - Hybrid Extraction Results:
+--- HYBRID EXTRACTION ---
+Intents: ['comparison', 'summary']
+KPIs: ['count', 'sum']
+Filters: ["product_model_code LIKE 'YHC%'"]
+Aggregations: ['group by product_model_code']
+Confidence Score: 1.0
+
+2026-07-13 16:36:00,164 - analytics.intent_classifier - INFO - Running LLM extraction for comparison
+2026-07-13 16:36:09,791 - analytics.intent_classifier - INFO - LLM Extraction Results:
+--- LLM EXTRACTION ---
+Intents: ['comparison']
+KPIs: ['count']
+Filters: ["product_model_code = 'YHC'", "product_model_code = 'YTB'"]
+Aggregations: ['product_model_code']
+Confidence Score: 1.0
+
+2026-07-13 16:36:09,792 - analytics.intent_classifier - INFO - Intent classification complete with merged final confidence 1.0
+2026-07-13 16:36:09,795 - analytics.engine - INFO - Invoking LLM for SQL generation (Attempt 1)
+2026-07-13 16:36:40,901 - analytics.engine - INFO - Generated and parsed Dynamic LLM SQL query (Attempt 1):
+SELECT product_model_code, COUNT(*) as total_count FROM records WHERE product_model_code = 'YHC' OR product_model_code = 'YTB' GROUP BY product_model_code
+2026-07-13 16:36:40,931 - analytics.engine - INFO - Successfully executed LLM SQL query.
+2026-07-13 16:36:40,938 - core.router - INFO - Successfully executed LLM-generated SQL query from AnalyticsEngine.
+2026-07-13 16:36:40,983 - core.router - INFO - Query processing completed successfully.
+2026-07-13 16:36:52,076 - __main__ - INFO - Application Started
+2026-07-13 16:38:08,049 - __main__ - INFO - Application Started
+2026-07-13 16:38:08,806 - core.router - INFO - QueryRouter dispatching query: 'give me monthly trend for nepal' (user_id=14, override_intent=ANALYTICS)
+2026-07-13 16:38:08,807 - nlp.pipeline - INFO - NLPProcessor starting to parse query: 'give me monthly trend for nepal'
+2026-07-13 16:38:08,808 - nlp.pipeline - INFO - spaCy model loaded or verified.
+2026-07-13 16:38:08,810 - nlp.pipeline - INFO - Query classified with intent 'ANALYTICS' (score: 1.0)
+2026-07-13 16:38:08,888 - nlp.pipeline - INFO - Extracted entities: {'TROUBLE_CODE': [], 'PRODUCT_MODEL': [], 'SALES_MODEL': ['FOR'], 'COUNTRY': ['Nepal'], 'VIN': [], 'FTIR_NO': []}
+2026-07-13 16:38:08,892 - nlp.pipeline - INFO - Extracted filters: {'limit': 5}
+2026-07-13 16:38:08,892 - core.router - INFO - Routed Query: 'give me monthly trend for nepal' | Selected Intent: ANALYTICS (has_col_ref=True)
+2026-07-13 16:38:08,893 - core.router - INFO - Routing query to handler for intent: ANALYTICS
+2026-07-13 16:38:08,905 - analytics.engine - INFO - AnalyticsEngine starting query_via_llm for: 'give me monthly trend for nepal'
+2026-07-13 16:38:08,906 - analytics.engine - INFO - Extracting intents via intent_engine for SQL generation.
+2026-07-13 16:38:09,881 - analytics.intent_classifier - INFO - Hybrid Extraction Results:
+--- HYBRID EXTRACTION ---
+Intents: ['trend']
+KPIs: []
+Filters: ["outbreak_country = 'Nepal'"]
+Aggregations: ['group by report_month']
+Confidence Score: 0.7
+
+2026-07-13 16:38:09,882 - analytics.intent_classifier - INFO - Running LLM extraction for comparison
+2026-07-13 16:38:18,103 - analytics.intent_classifier - INFO - LLM Extraction Results:
+--- LLM EXTRACTION ---
+Intents: ['trend']
+KPIs: ['resolution']
+Filters: ["country = 'Nepal'"]
+Aggregations: ['MONTH']
+Confidence Score: 1.0
+
+2026-07-13 16:38:18,103 - analytics.intent_classifier - INFO - Intent classification complete with merged final confidence 1.0
+2026-07-13 16:38:18,107 - analytics.engine - INFO - Invoking LLM for SQL generation (Attempt 1)
+2026-07-13 16:38:46,405 - analytics.engine - INFO - Generated and parsed Dynamic LLM SQL query (Attempt 1):
+SELECT report_month, COUNT(*) AS count FROM records WHERE LOWER(outbreak_country) LIKE '%nepal%' GROUP BY report_month ORDER BY report_month
+2026-07-13 16:38:46,434 - analytics.engine - INFO - Successfully executed LLM SQL query.
+2026-07-13 16:38:46,441 - core.router - INFO - Successfully executed LLM-generated SQL query from AnalyticsEngine.
+2026-07-13 16:38:46,489 - core.router - INFO - Query processing completed successfully.
+2026-07-13 16:38:57,010 - __main__ - INFO - Application Started
+2026-07-13 16:40:46,662 - __main__ - INFO - Application Started
+2026-07-13 16:40:47,676 - core.router - INFO - QueryRouter dispatching query: 'what are the total number of ftir for export countries' (user_id=14, override_intent=ANALYTICS)
+2026-07-13 16:40:47,677 - nlp.pipeline - INFO - NLPProcessor starting to parse query: 'what are the total number of ftir for export countries'
+2026-07-13 16:40:47,681 - nlp.pipeline - INFO - spaCy model loaded or verified.
+2026-07-13 16:40:47,682 - nlp.pipeline - INFO - Query classified with intent 'ANALYTICS' (score: 1.0)
+2026-07-13 16:40:47,782 - nlp.pipeline - INFO - Extracted entities: {'TROUBLE_CODE': [], 'PRODUCT_MODEL': [], 'SALES_MODEL': ['ARE', 'THE', 'FOR'], 'COUNTRY': [], 'VIN': [], 'FTIR_NO': []}
+2026-07-13 16:40:47,785 - nlp.pipeline - INFO - Extracted filters: {'limit': 5}
+2026-07-13 16:40:47,786 - core.router - INFO - Routed Query: 'what are the total number of ftir for export countries' | Selected Intent: ANALYTICS (has_col_ref=True)
+2026-07-13 16:40:47,787 - core.router - INFO - Routing query to handler for intent: ANALYTICS
+2026-07-13 16:40:47,796 - analytics.engine - INFO - AnalyticsEngine starting query_via_llm for: 'what are the total number of ftir for export countries'
+2026-07-13 16:40:47,798 - analytics.engine - INFO - Extracting intents via intent_engine for SQL generation.
+2026-07-13 16:40:48,860 - analytics.intent_classifier - INFO - Hybrid Extraction Results:
+--- HYBRID EXTRACTION ---
+Intents: ['summary']
+KPIs: ['count', 'sum']
+Filters: []
+Aggregations: []
+Confidence Score: 0.6
+
+2026-07-13 16:40:48,861 - analytics.intent_classifier - INFO - Running LLM extraction for comparison
+2026-07-13 16:40:56,201 - analytics.intent_classifier - INFO - LLM Extraction Results:
+--- LLM EXTRACTION ---
+Intents: ['summary']
+KPIs: ['count']
+Filters: ['export_countries']
+Aggregations: ['export_countries']
+Confidence Score: 1.0
+
+2026-07-13 16:40:56,202 - analytics.intent_classifier - INFO - Intent classification complete with merged final confidence 1.0
+2026-07-13 16:40:56,205 - analytics.engine - INFO - Invoking LLM for SQL generation (Attempt 1)
+2026-07-13 16:41:24,489 - analytics.engine - INFO - Generated and parsed Dynamic LLM SQL query (Attempt 1):
+SELECT COUNT(*) as total_ftir FROM records WHERE LOWER(outbreak_country) NOT LIKE 'country%' AND LOWER(outbreak_country) NOT LIKE 'unknown%'
+2026-07-13 16:41:24,505 - analytics.engine - INFO - Successfully executed LLM SQL query.
+2026-07-13 16:41:24,512 - core.router - INFO - Successfully executed LLM-generated SQL query from AnalyticsEngine.
+2026-07-13 16:41:24,542 - core.router - INFO - Query processing completed successfully.
+2026-07-13 16:41:33,466 - __main__ - INFO - Application Started
+2026-07-13 16:42:09,473 - __main__ - INFO - Application Started
+2026-07-13 16:42:10,483 - core.router - INFO - QueryRouter dispatching query: 'total number of ftir country wise but do not include india' (user_id=14, override_intent=ANALYTICS)
+2026-07-13 16:42:10,484 - nlp.pipeline - INFO - NLPProcessor starting to parse query: 'total number of ftir country wise but do not include india'
+2026-07-13 16:42:10,486 - nlp.pipeline - INFO - spaCy model loaded or verified.
+2026-07-13 16:42:10,487 - nlp.pipeline - INFO - Query classified with intent 'ANALYTICS' (score: 1.0)
+2026-07-13 16:42:10,577 - nlp.pipeline - INFO - Extracted entities: {'TROUBLE_CODE': [], 'PRODUCT_MODEL': [], 'SALES_MODEL': ['BUT', 'NOT'], 'COUNTRY': ['India'], 'VIN': [], 'FTIR_NO': []}
+2026-07-13 16:42:10,580 - nlp.pipeline - INFO - Extracted filters: {'limit': 5}
+2026-07-13 16:42:10,581 - core.router - INFO - Routed Query: 'total number of ftir country wise but do not include india' | Selected Intent: ANALYTICS (has_col_ref=True)
+2026-07-13 16:42:10,581 - core.router - INFO - Routing query to handler for intent: ANALYTICS
+2026-07-13 16:42:10,592 - analytics.engine - INFO - AnalyticsEngine starting query_via_llm for: 'total number of ftir country wise but do not include india'
+2026-07-13 16:42:10,593 - analytics.engine - INFO - Extracting intents via intent_engine for SQL generation.
+2026-07-13 16:42:11,640 - analytics.intent_classifier - INFO - Hybrid Extraction Results:
+--- HYBRID EXTRACTION ---
+Intents: ['summary']
+KPIs: ['count', 'sum']
+Filters: ["outbreak_country = 'India'"]
+Aggregations: ['group by outbreak_country']
+Confidence Score: 1.0
+
+2026-07-13 16:42:11,640 - analytics.intent_classifier - INFO - Running LLM extraction for comparison
+2026-07-13 16:42:19,285 - analytics.intent_classifier - INFO - LLM Extraction Results:
+--- LLM EXTRACTION ---
+Intents: ['summary']
+KPIs: ['count']
+Filters: ["country != 'India'"]
+Aggregations: ['country']
+Confidence Score: 1.0
+
+2026-07-13 16:42:19,286 - analytics.intent_classifier - INFO - Intent classification complete with merged final confidence 1.0
+2026-07-13 16:42:19,289 - analytics.engine - INFO - Invoking LLM for SQL generation (Attempt 1)
+2026-07-13 16:42:46,488 - analytics.engine - INFO - Generated and parsed Dynamic LLM SQL query (Attempt 1):
+SELECT outbreak_country, COUNT(*) as count FROM records WHERE LOWER(outbreak_country) NOT LIKE '%india%' GROUP BY outbreak_country
+2026-07-13 16:42:46,500 - analytics.engine - INFO - Successfully executed LLM SQL query.
+2026-07-13 16:42:46,508 - core.router - INFO - Successfully executed LLM-generated SQL query from AnalyticsEngine.
+2026-07-13 16:42:46,567 - core.router - INFO - Query processing completed successfully.
+2026-07-13 16:42:58,132 - __main__ - INFO - Application Started
+2026-07-13 16:50:52,893 - __main__ - INFO - Application Started
+2026-07-13 16:50:53,731 - core.router - INFO - QueryRouter dispatching query: 'total number of ftir country wise but do not include india' (user_id=14, override_intent=ANALYTICS)
+2026-07-13 16:50:53,732 - nlp.pipeline - INFO - NLPProcessor starting to parse query: 'total number of ftir country wise but do not include india'
+2026-07-13 16:50:53,732 - nlp.pipeline - INFO - spaCy model loaded or verified.
+2026-07-13 16:50:53,732 - nlp.pipeline - INFO - Query classified with intent 'ANALYTICS' (score: 1.0)
+2026-07-13 16:50:53,823 - nlp.pipeline - INFO - Extracted entities: {'TROUBLE_CODE': [], 'PRODUCT_MODEL': [], 'SALES_MODEL': ['BUT', 'NOT'], 'COUNTRY': ['India'], 'VIN': [], 'FTIR_NO': []}
+2026-07-13 16:50:53,827 - nlp.pipeline - INFO - Extracted filters: {'limit': 5}
+2026-07-13 16:50:53,828 - core.router - INFO - Routed Query: 'total number of ftir country wise but do not include india' | Selected Intent: ANALYTICS (has_col_ref=True)
+2026-07-13 16:50:53,828 - core.router - INFO - Routing query to handler for intent: ANALYTICS
+2026-07-13 16:50:53,839 - analytics.engine - INFO - AnalyticsEngine starting query_via_llm for: 'total number of ftir country wise but do not include india'
+2026-07-13 16:50:53,840 - analytics.engine - INFO - Extracting intents via intent_engine for SQL generation.
+2026-07-13 16:50:54,781 - analytics.intent_classifier - INFO - Hybrid Extraction Results:
+--- HYBRID EXTRACTION ---
+Intents: ['summary']
+KPIs: ['count', 'sum']
+Filters: ["outbreak_country = 'India'"]
+Aggregations: ['group by outbreak_country']
+Confidence Score: 1.0
+
+2026-07-13 16:50:54,781 - analytics.intent_classifier - INFO - Running LLM extraction for comparison
+2026-07-13 16:51:02,519 - analytics.intent_classifier - INFO - LLM Extraction Results:
+--- LLM EXTRACTION ---
+Intents: ['summary']
+KPIs: ['count']
+Filters: ["country != 'India'"]
+Aggregations: ['country']
+Confidence Score: 1.0
+
+2026-07-13 16:51:02,520 - analytics.intent_classifier - INFO - Intent classification complete with merged final confidence 1.0
+2026-07-13 16:51:02,525 - analytics.engine - INFO - Invoking LLM for SQL generation (Attempt 1)
+2026-07-13 16:51:29,345 - analytics.engine - INFO - Generated and parsed Dynamic LLM SQL query (Attempt 1):
+SELECT outbreak_country, COUNT(*) as count FROM records WHERE LOWER(outbreak_country) NOT LIKE '%india%' GROUP BY outbreak_country
+2026-07-13 16:51:29,357 - analytics.engine - INFO - Successfully executed LLM SQL query.
+2026-07-13 16:51:29,362 - core.router - INFO - Successfully executed LLM-generated SQL query from AnalyticsEngine.
+2026-07-13 16:51:29,414 - core.router - INFO - Query processing completed successfully.
+2026-07-13 16:51:40,210 - __main__ - INFO - Application Started
+2026-07-13 16:52:18,060 - __main__ - INFO - Application Started
+2026-07-13 16:52:18,845 - core.router - INFO - QueryRouter dispatching query: 'top causal part related with engine issue' (user_id=14, override_intent=ANALYTICS)
+2026-07-13 16:52:18,845 - nlp.pipeline - INFO - NLPProcessor starting to parse query: 'top causal part related with engine issue'
+2026-07-13 16:52:18,846 - nlp.pipeline - INFO - spaCy model loaded or verified.
+2026-07-13 16:52:18,847 - nlp.pipeline - INFO - Query classified with intent 'ANALYTICS' (score: 1.0)
+2026-07-13 16:52:18,932 - nlp.pipeline - INFO - Extracted entities: {'TROUBLE_CODE': [], 'PRODUCT_MODEL': [], 'SALES_MODEL': ['TOP'], 'COUNTRY': [], 'VIN': [], 'FTIR_NO': []}
+2026-07-13 16:52:18,935 - nlp.pipeline - INFO - Extracted filters: {'limit': 5, 'segmentation': 'Engine'}
+2026-07-13 16:52:18,935 - core.router - INFO - Routed Query: 'top causal part related with engine issue' | Selected Intent: ANALYTICS (has_col_ref=True)
+2026-07-13 16:52:18,935 - core.router - INFO - Routing query to handler for intent: ANALYTICS
+2026-07-13 16:52:18,946 - analytics.engine - INFO - AnalyticsEngine starting query_via_llm for: 'top causal part related with engine issue'
+2026-07-13 16:52:18,947 - analytics.engine - INFO - Extracting intents via intent_engine for SQL generation.
+2026-07-13 16:52:19,901 - analytics.intent_classifier - INFO - Hybrid Extraction Results:
+--- HYBRID EXTRACTION ---
+Intents: ['ranking']
+KPIs: []
+Filters: []
+Aggregations: []
+Confidence Score: 0.3
+
+2026-07-13 16:52:19,902 - analytics.intent_classifier - INFO - Running LLM extraction for comparison
+2026-07-13 16:52:27,289 - analytics.intent_classifier - INFO - LLM Extraction Results:
+--- LLM EXTRACTION ---
+Intents: ['ranking']
+KPIs: []
+Filters: ["subject LIKE '%engine issue%'"]
+Aggregations: ['part']
+Confidence Score: 0.7
+
+2026-07-13 16:52:27,290 - analytics.intent_classifier - INFO - Intent classification complete with merged final confidence 0.7
+2026-07-13 16:52:27,293 - analytics.engine - INFO - Invoking LLM for SQL generation (Attempt 1)
+2026-07-13 16:52:55,625 - analytics.engine - INFO - Generated and parsed Dynamic LLM SQL query (Attempt 1):
+SELECT causal_parts_name, COUNT(*) as count FROM records WHERE LOWER(subject) LIKE '%engine issue%' GROUP BY causal_parts_name ORDER BY count DESC
+2026-07-13 16:52:55,658 - analytics.engine - INFO - Successfully executed LLM SQL query.
+2026-07-13 16:52:55,664 - core.router - INFO - Successfully executed LLM-generated SQL query from AnalyticsEngine.
+2026-07-13 16:53:00,000 - core.router - INFO - Query processing completed successfully.
+2026-07-13 16:53:00,406 - __main__ - INFO - Application Started
+2026-07-13 16:53:44,487 - __main__ - INFO - Application Started
+2026-07-13 16:53:45,316 - core.router - INFO - QueryRouter dispatching query: 'top causal part related with engine 
+' (user_id=14, override_intent=ANALYTICS)
+2026-07-13 16:53:45,317 - nlp.pipeline - INFO - NLPProcessor starting to parse query: 'top causal part related with engine 
+'
+2026-07-13 16:53:45,318 - nlp.pipeline - INFO - spaCy model loaded or verified.
+2026-07-13 16:53:45,319 - nlp.pipeline - INFO - Query classified with intent 'ANALYTICS' (score: 1.0)
+2026-07-13 16:53:45,405 - nlp.pipeline - INFO - Extracted entities: {'TROUBLE_CODE': [], 'PRODUCT_MODEL': [], 'SALES_MODEL': ['TOP'], 'COUNTRY': [], 'VIN': [], 'FTIR_NO': []}
+2026-07-13 16:53:45,410 - nlp.pipeline - INFO - Extracted filters: {'limit': 5, 'segmentation': 'Engine'}
+2026-07-13 16:53:45,411 - core.router - INFO - Routed Query: 'top causal part related with engine 
+' | Selected Intent: ANALYTICS (has_col_ref=True)
+2026-07-13 16:53:45,411 - core.router - INFO - Routing query to handler for intent: ANALYTICS
+2026-07-13 16:53:45,422 - analytics.engine - INFO - AnalyticsEngine starting query_via_llm for: 'top causal part related with engine 
+'
+2026-07-13 16:53:45,424 - analytics.engine - INFO - Extracting intents via intent_engine for SQL generation.
+2026-07-13 16:53:46,351 - analytics.intent_classifier - INFO - Hybrid Extraction Results:
+--- HYBRID EXTRACTION ---
+Intents: ['ranking']
+KPIs: []
+Filters: []
+Aggregations: []
+Confidence Score: 0.3
+
+2026-07-13 16:53:46,352 - analytics.intent_classifier - INFO - Running LLM extraction for comparison
+2026-07-13 16:53:53,700 - analytics.intent_classifier - INFO - LLM Extraction Results:
+--- LLM EXTRACTION ---
+Intents: ['ranking']
+KPIs: []
+Filters: ["subject LIKE '%engine%'"]
+Aggregations: ['part']
+Confidence Score: 0.7
+
+2026-07-13 16:53:53,700 - analytics.intent_classifier - INFO - Intent classification complete with merged final confidence 0.7
+2026-07-13 16:53:53,703 - analytics.engine - INFO - Invoking LLM for SQL generation (Attempt 1)
+2026-07-13 16:54:22,117 - analytics.engine - INFO - Generated and parsed Dynamic LLM SQL query (Attempt 1):
+SELECT causal_parts_name, COUNT(*) as count FROM records WHERE LOWER(subject) LIKE '%engine%' GROUP BY causal_parts_name ORDER BY count DESC
+2026-07-13 16:54:22,155 - analytics.engine - INFO - Successfully executed LLM SQL query.
+2026-07-13 16:54:22,164 - core.router - INFO - Successfully executed LLM-generated SQL query from AnalyticsEngine.
+2026-07-13 16:54:22,231 - core.router - INFO - Query processing completed successfully.
+2026-07-13 16:54:35,207 - __main__ - INFO - Application Started
+2026-07-13 16:55:26,738 - __main__ - INFO - Application Started
+2026-07-13 16:55:34,353 - llm.client - INFO - Local GGUF model loaded from C:\Users\maury\OneDrive\Documents\Internship\RAG\automotive_qa\models\Qwen2.5-7B-Instruct-Q4_K_M.gguf on GPU.
+2026-07-13 16:55:42,083 - __main__ - INFO - Application Started
+2026-07-13 16:55:42,267 - core.router - INFO - QueryRouter dispatching query: 'give top 10 failed parts with reasons on graph' (user_id=14, override_intent=None)
+2026-07-13 16:55:42,303 - core.router - INFO - Cache HIT for query: 'give top 10 failed parts with reasons on graph'
+2026-07-13 16:55:42,304 - core.router - INFO - QueryRouter dispatching query: 'give me a time series plot for different ftir creation dates' (user_id=14, override_intent=None)
+2026-07-13 16:55:42,309 - core.router - INFO - Cache HIT for query: 'give me a time series plot for different ftir creation dates'
+2026-07-13 16:55:42,309 - core.router - INFO - QueryRouter dispatching query: 'give me a line time series plot for different ftir creation dates
+
+' (user_id=14, override_intent=None)
+2026-07-13 16:55:42,314 - core.router - INFO - Cache HIT for query: 'give me a line time series plot for different ftir creation dates
+
+'
+2026-07-13 16:55:42,314 - core.router - INFO - QueryRouter dispatching query: 'give me pie chart for different departments' (user_id=14, override_intent=None)
+2026-07-13 16:55:42,317 - core.router - INFO - Cache HIT for query: 'give me pie chart for different departments'
+2026-07-13 16:55:42,318 - core.router - INFO - QueryRouter dispatching query: 'give me a plot for top 10 dealers' (user_id=14, override_intent=None)
+2026-07-13 16:55:42,321 - core.router - INFO - Cache HIT for query: 'give me a plot for top 10 dealers'
+2026-07-13 16:55:42,322 - core.router - INFO - QueryRouter dispatching query: 'compare total number of ftir in "YHC" and "YTB" model' (user_id=14, override_intent=None)
+2026-07-13 16:55:42,326 - core.router - INFO - Cache HIT for query: 'compare total number of ftir in "YHC" and "YTB" model'
+2026-07-13 16:55:42,327 - core.router - INFO - QueryRouter dispatching query: 'give me monthly trend for nepal' (user_id=14, override_intent=None)
+2026-07-13 16:55:42,332 - core.router - INFO - Cache HIT for query: 'give me monthly trend for nepal'
+2026-07-13 16:55:42,333 - core.router - INFO - QueryRouter dispatching query: 'what are the total number of ftir for export countries' (user_id=14, override_intent=None)
+2026-07-13 16:55:42,336 - core.router - INFO - Cache HIT for query: 'what are the total number of ftir for export countries'
+2026-07-13 16:55:42,337 - core.router - INFO - QueryRouter dispatching query: 'total number of ftir country wise but do not include india' (user_id=14, override_intent=None)
+2026-07-13 16:55:42,342 - core.router - INFO - Cache HIT for query: 'total number of ftir country wise but do not include india'
+2026-07-13 16:55:42,342 - core.router - INFO - QueryRouter dispatching query: 'total number of ftir country wise but do not include india' (user_id=14, override_intent=None)
+2026-07-13 16:55:42,343 - core.router - INFO - Cache HIT for query: 'total number of ftir country wise but do not include india'
+2026-07-13 16:55:42,343 - core.router - INFO - QueryRouter dispatching query: 'top causal part related with engine issue' (user_id=14, override_intent=None)
+2026-07-13 16:55:42,346 - core.router - INFO - Cache HIT for query: 'top causal part related with engine issue'
+2026-07-13 16:55:42,347 - core.router - INFO - QueryRouter dispatching query: 'top causal part related with engine 
+' (user_id=14, override_intent=None)
+2026-07-13 16:55:42,352 - core.router - INFO - Cache HIT for query: 'top causal part related with engine 
+'
+2026-07-13 16:55:42,652 - __main__ - INFO - Application Started
+2026-07-13 16:56:46,145 - __main__ - INFO - Application Started
+2026-07-13 16:56:46,978 - core.router - INFO - QueryRouter dispatching query: 'what are the causal part name where the issue is related with paint ' (user_id=14, override_intent=ANALYTICS)
+2026-07-13 16:56:46,979 - nlp.pipeline - INFO - NLPProcessor starting to parse query: 'what are the causal part name where the issue is related with paint '
+2026-07-13 16:56:53,086 - nlp.pipeline - INFO - spaCy model loaded or verified.
+2026-07-13 16:56:53,087 - nlp.pipeline - INFO - Query classified with intent 'ANALYTICS' (score: 1.0)
+2026-07-13 16:56:53,133 - nlp.pipeline - INFO - Extracted entities: {'TROUBLE_CODE': [], 'PRODUCT_MODEL': [], 'SALES_MODEL': ['ARE', 'THE'], 'COUNTRY': [], 'VIN': [], 'FTIR_NO': []}
+2026-07-13 16:56:53,136 - nlp.pipeline - INFO - Extracted filters: {'limit': 5}
+2026-07-13 16:56:53,136 - core.router - INFO - Routed Query: 'what are the causal part name where the issue is related with paint ' | Selected Intent: ANALYTICS (has_col_ref=True)
+2026-07-13 16:56:53,137 - core.router - INFO - Routing query to handler for intent: ANALYTICS
+2026-07-13 16:56:53,146 - analytics.engine - INFO - AnalyticsEngine starting query_via_llm for: 'what are the causal part name where the issue is related with paint '
+2026-07-13 16:56:53,150 - analytics.engine - INFO - Extracting intents via intent_engine for SQL generation.
+2026-07-13 16:56:54,065 - analytics.intent_classifier - INFO - Hybrid Extraction Results:
+--- HYBRID EXTRACTION ---
+Intents: []
+KPIs: []
+Filters: []
+Aggregations: []
+Confidence Score: 0
+
+2026-07-13 16:56:54,066 - analytics.intent_classifier - INFO - Running LLM extraction for comparison
+2026-07-13 16:57:03,648 - analytics.intent_classifier - INFO - LLM Extraction Results:
+--- LLM EXTRACTION ---
+Intents: ['summary']
+KPIs: []
+Filters: ["subject LIKE '%paint%'"]
+Aggregations: ['part_name']
+Confidence Score: 0.7
+
+2026-07-13 16:57:03,648 - analytics.intent_classifier - INFO - Intent classification complete with merged final confidence 0.7
+2026-07-13 16:57:03,651 - analytics.engine - INFO - Invoking LLM for SQL generation (Attempt 1)
+2026-07-13 16:57:40,646 - analytics.engine - INFO - Generated and parsed Dynamic LLM SQL query (Attempt 1):
+SELECT causal_parts_name FROM records WHERE LOWER(subject) LIKE '%paint%'
+2026-07-13 16:57:40,678 - analytics.engine - INFO - Successfully executed LLM SQL query.
+2026-07-13 16:57:40,685 - core.router - INFO - Successfully executed LLM-generated SQL query from AnalyticsEngine.
+2026-07-13 16:57:40,740 - core.router - INFO - Query processing completed successfully.
+2026-07-13 16:57:59,601 - __main__ - INFO - Application Started
+2026-07-13 17:05:03,480 - __main__ - INFO - Application Started
+2026-07-13 17:05:04,368 - core.router - INFO - QueryRouter dispatching query: 'monthly report for january 2026 plot ' (user_id=14, override_intent=ANALYTICS)
+2026-07-13 17:05:04,369 - nlp.pipeline - INFO - NLPProcessor starting to parse query: 'monthly report for january 2026 plot '
+2026-07-13 17:05:04,369 - nlp.pipeline - INFO - spaCy model loaded or verified.
+2026-07-13 17:05:04,370 - nlp.pipeline - INFO - Query classified with intent 'ANALYTICS' (score: 1.0)
+2026-07-13 17:05:04,444 - nlp.pipeline - INFO - Extracted entities: {'TROUBLE_CODE': [], 'PRODUCT_MODEL': [], 'SALES_MODEL': ['FOR'], 'COUNTRY': [], 'VIN': [], 'FTIR_NO': []}
+2026-07-13 17:05:04,446 - nlp.pipeline - INFO - Extracted filters: {'year': 2026, 'month': 1, 'limit': 5}
+2026-07-13 17:05:04,447 - core.router - INFO - Routed Query: 'monthly report for january 2026 plot ' | Selected Intent: ANALYTICS (has_col_ref=True)
+2026-07-13 17:05:04,448 - core.router - INFO - Routing query to handler for intent: ANALYTICS
+2026-07-13 17:05:04,457 - analytics.engine - INFO - AnalyticsEngine starting query_via_llm for: 'monthly report for january 2026 plot '
+2026-07-13 17:05:04,458 - analytics.engine - INFO - Extracting intents via intent_engine for SQL generation.
+2026-07-13 17:05:05,492 - analytics.intent_classifier - INFO - Hybrid Extraction Results:
+--- HYBRID EXTRACTION ---
+Intents: ['trend']
+KPIs: []
+Filters: []
+Aggregations: ['group by report_month']
+Confidence Score: 0.5
+
+2026-07-13 17:05:05,493 - analytics.intent_classifier - INFO - Running LLM extraction for comparison
+2026-07-13 17:05:17,055 - analytics.intent_classifier - INFO - LLM Extraction Results:
+--- LLM EXTRACTION ---
+Intents: ['trend']
+KPIs: ['resolution']
+Filters: ["month = 'January'", 'year = 2026']
+Aggregations: ['month', 'year']
+Confidence Score: 1.0
+
+2026-07-13 17:05:17,055 - analytics.intent_classifier - INFO - Intent classification complete with merged final confidence 1.0
+2026-07-13 17:05:17,059 - analytics.engine - INFO - Invoking LLM for SQL generation (Attempt 1)
+2026-07-13 17:06:01,120 - analytics.engine - INFO - Generated and parsed Dynamic LLM SQL query (Attempt 1):
+SELECT report_month, COUNT(*) AS report_count FROM records WHERE report_year = 2026 AND report_month = 'January' GROUP BY report_month, month, year
+2026-07-13 17:06:01,140 - analytics.engine - WARNING - Failed to execute LLM SQL query on attempt 1: Execution failed on sql 'SELECT report_month, COUNT(*) AS report_count FROM records WHERE report_year = 2026 AND report_month = 'January' GROUP BY report_month, month, year': (sqlite3.OperationalError) no such column: month
+[SQL: SELECT report_month, COUNT(*) AS report_count FROM records WHERE report_year = 2026 AND report_month = 'January' GROUP BY report_month, month, year]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2026-07-13 17:06:01,145 - analytics.engine - INFO - Invoking LLM for SQL generation (Attempt 2)
+2026-07-13 17:06:11,776 - analytics.engine - INFO - Generated and parsed Dynamic LLM SQL query (Attempt 2):
+SELECT report_month, COUNT(*) AS report_count 
+FROM records 
+WHERE report_year = 2026 AND report_month = 'January' 
+GROUP BY report_month
+2026-07-13 17:06:11,827 - analytics.engine - INFO - Successfully executed LLM SQL query.
+2026-07-13 17:06:11,831 - core.router - INFO - Successfully executed LLM-generated SQL query from AnalyticsEngine.
+2026-07-13 17:06:20,469 - core.router - INFO - Query processing completed successfully.
+2026-07-13 17:06:20,907 - __main__ - INFO - Application Started
+2026-07-13 17:08:45,686 - __main__ - INFO - Application Started
+2026-07-13 17:08:46,589 - core.router - INFO - QueryRouter dispatching query: 'monthly ftir report date for january 2026 plot
+
+' (user_id=14, override_intent=ANALYTICS)
+2026-07-13 17:08:46,590 - nlp.pipeline - INFO - NLPProcessor starting to parse query: 'monthly ftir report date for january 2026 plot
+
+'
+2026-07-13 17:08:46,590 - nlp.pipeline - INFO - spaCy model loaded or verified.
+2026-07-13 17:08:46,591 - nlp.pipeline - INFO - Query classified with intent 'ANALYTICS' (score: 1.0)
+2026-07-13 17:08:46,665 - nlp.pipeline - INFO - Extracted entities: {'TROUBLE_CODE': [], 'PRODUCT_MODEL': [], 'SALES_MODEL': ['FOR'], 'COUNTRY': [], 'VIN': [], 'FTIR_NO': []}
+2026-07-13 17:08:46,668 - nlp.pipeline - INFO - Extracted filters: {'year': 2026, 'month': 1, 'limit': 5}
+2026-07-13 17:08:46,668 - core.router - INFO - Routed Query: 'monthly ftir report date for january 2026 plot
+
+' | Selected Intent: ANALYTICS (has_col_ref=True)
+2026-07-13 17:08:46,669 - core.router - INFO - Routing query to handler for intent: ANALYTICS
+2026-07-13 17:08:46,680 - analytics.engine - INFO - AnalyticsEngine starting query_via_llm for: 'monthly ftir report date for january 2026 plot
+
+'
+2026-07-13 17:08:46,681 - analytics.engine - INFO - Extracting intents via intent_engine for SQL generation.
+2026-07-13 17:08:47,580 - analytics.intent_classifier - INFO - Hybrid Extraction Results:
+--- HYBRID EXTRACTION ---
+Intents: ['trend']
+KPIs: []
+Filters: []
+Aggregations: ['group by report_month']
+Confidence Score: 0.5
+
+2026-07-13 17:08:47,581 - analytics.intent_classifier - INFO - Running LLM extraction for comparison
+2026-07-13 17:09:00,384 - analytics.intent_classifier - INFO - LLM Extraction Results:
+--- LLM EXTRACTION ---
+Intents: ['summary']
+KPIs: ['resolution']
+Filters: ['DATEPART(MONTH, report_date) = 1', 'YEAR(report_date) = 2026']
+Aggregations: ['report_date']
+Confidence Score: 1.0
+
+2026-07-13 17:09:00,384 - analytics.intent_classifier - INFO - Intent classification complete with merged final confidence 1.0
+2026-07-13 17:09:00,387 - analytics.engine - INFO - Invoking LLM for SQL generation (Attempt 1)
+2026-07-13 17:09:48,299 - analytics.engine - INFO - Generated and parsed Dynamic LLM SQL query (Attempt 1):
+SELECT report_month, report_year, COUNT(*) AS report_count FROM records WHERE DATEPART(MONTH, report_date) = 1 AND YEAR(report_date) = 2026 GROUP BY report_month, report_year
+2026-07-13 17:09:48,306 - analytics.engine - WARNING - Failed to execute LLM SQL query on attempt 1: Execution failed on sql 'SELECT report_month, report_year, COUNT(*) AS report_count FROM records WHERE DATEPART(MONTH, report_date) = 1 AND YEAR(report_date) = 2026 GROUP BY report_month, report_year': (sqlite3.OperationalError) no such column: MONTH
+[SQL: SELECT report_month, report_year, COUNT(*) AS report_count FROM records WHERE DATEPART(MONTH, report_date) = 1 AND YEAR(report_date) = 2026 GROUP BY report_month, report_year]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2026-07-13 17:09:48,307 - analytics.engine - INFO - Invoking LLM for SQL generation (Attempt 2)
+2026-07-13 17:10:02,284 - analytics.engine - INFO - Generated and parsed Dynamic LLM SQL query (Attempt 2):
+SELECT report_month, report_year, COUNT(*) AS report_count 
+FROM records 
+WHERE strftime('%m', report_date) = '01' AND strftime('%Y', report_date) = '2026' 
+GROUP BY report_month, report_year
+2026-07-13 17:10:02,289 - analytics.engine - WARNING - Failed to execute LLM SQL query on attempt 2: Execution failed on sql 'SELECT report_month, report_year, COUNT(*) AS report_count 
+FROM records 
+WHERE strftime('%m', report_date) = '01' AND strftime('%Y', report_date) = '2026' 
+GROUP BY report_month, report_year': (sqlite3.OperationalError) no such column: report_date
+[SQL: SELECT report_month, report_year, COUNT(*) AS report_count 
+FROM records 
+WHERE strftime('%m', report_date) = '01' AND strftime('%Y', report_date) = '2026' 
+GROUP BY report_month, report_year]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2026-07-13 17:10:02,290 - analytics.engine - INFO - Invoking LLM for SQL generation (Attempt 3)
+2026-07-13 17:10:17,562 - analytics.engine - INFO - Generated and parsed Dynamic LLM SQL query (Attempt 3):
+SELECT strftime('%m', date) AS report_month, strftime('%Y', date) AS report_year, COUNT(*) AS report_count 
+FROM records 
+WHERE strftime('%m', date) = '01' AND strftime('%Y', date) = '2026' 
+GROUP BY report_month, report_year
+2026-07-13 17:10:17,568 - analytics.engine - WARNING - Failed to execute LLM SQL query on attempt 3: Execution failed on sql 'SELECT strftime('%m', date) AS report_month, strftime('%Y', date) AS report_year, COUNT(*) AS report_count 
+FROM records 
+WHERE strftime('%m', date) = '01' AND strftime('%Y', date) = '2026' 
+GROUP BY report_month, report_year': (sqlite3.OperationalError) no such column: date
+[SQL: SELECT strftime('%m', date) AS report_month, strftime('%Y', date) AS report_year, COUNT(*) AS report_count 
+FROM records 
+WHERE strftime('%m', date) = '01' AND strftime('%Y', date) = '2026' 
+GROUP BY report_month, report_year]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2026-07-13 17:10:17,569 - analytics.engine - INFO - Invoking LLM for SQL generation (Attempt 4)
+2026-07-13 17:10:33,875 - analytics.engine - INFO - Generated and parsed Dynamic LLM SQL query (Attempt 4):
+SELECT strftime('%m', datetime) AS report_month, strftime('%Y', datetime) AS report_year, COUNT(*) AS report_count 
+FROM records 
+WHERE strftime('%m', datetime) = '01' AND strftime('%Y', datetime) = '2026' 
+GROUP BY report_month, report_year
+2026-07-13 17:10:33,880 - analytics.engine - WARNING - Failed to execute LLM SQL query on attempt 4: Execution failed on sql 'SELECT strftime('%m', datetime) AS report_month, strftime('%Y', datetime) AS report_year, COUNT(*) AS report_count 
+FROM records 
+WHERE strftime('%m', datetime) = '01' AND strftime('%Y', datetime) = '2026' 
+GROUP BY report_month, report_year': (sqlite3.OperationalError) no such column: datetime
+[SQL: SELECT strftime('%m', datetime) AS report_month, strftime('%Y', datetime) AS report_year, COUNT(*) AS report_count 
+FROM records 
+WHERE strftime('%m', datetime) = '01' AND strftime('%Y', datetime) = '2026' 
+GROUP BY report_month, report_year]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2026-07-13 17:10:33,880 - analytics.engine - ERROR - All retries exhausted for LLM SQL query execution.
+2026-07-13 17:10:33,881 - core.router - WARNING - LLM-generated SQL failed or was invalid: Error in C:\Users\maury\OneDrive\Documents\Internship\RAG\automotive_qa\analytics\engine.py, line 535 : Execution failed on sql 'SELECT strftime('%m', datetime) AS report_month, strftime('%Y', datetime) AS report_year, COUNT(*) AS report_count 
+FROM records 
+WHERE strftime('%m', datetime) = '01' AND strftime('%Y', datetime) = '2026' 
+GROUP BY report_month, report_year': (sqlite3.OperationalError) no such column: datetime
+[SQL: SELECT strftime('%m', datetime) AS report_month, strftime('%Y', datetime) AS report_year, COUNT(*) AS report_count 
+FROM records 
+WHERE strftime('%m', datetime) = '01' AND strftime('%Y', datetime) = '2026' 
+GROUP BY report_month, report_year]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2026-07-13 17:10:42,227 - core.router - INFO - Query processing completed successfully.
+2026-07-13 17:10:42,534 - __main__ - INFO - Application Started
+2026-07-13 17:12:14,223 - __main__ - INFO - Application Started
+2026-07-13 17:12:27,302 - __main__ - INFO - Application Started
+2026-07-13 17:12:28,622 - __main__ - INFO - Application Started
+2026-07-13 17:12:34,599 - __main__ - INFO - Application Started
+2026-07-13 17:14:08,200 - __main__ - INFO - Application Started
+2026-07-13 17:14:09,112 - core.router - INFO - QueryRouter dispatching query: 'what are the total number of ftir which have issue related to engine and noise , visualize the result  ' (user_id=14, override_intent=SEARCH)
+2026-07-13 17:14:09,112 - nlp.pipeline - INFO - NLPProcessor starting to parse query: 'what are the total number of ftir which have issue related to engine and noise , visualize the result  '
+2026-07-13 17:14:09,113 - nlp.pipeline - INFO - spaCy model loaded or verified.
+2026-07-13 17:14:09,114 - nlp.pipeline - INFO - Query classified with intent 'ANALYTICS' (score: 1.0)
+2026-07-13 17:14:09,192 - nlp.pipeline - INFO - Extracted entities: {'TROUBLE_CODE': [], 'PRODUCT_MODEL': [], 'SALES_MODEL': ['ARE', 'THE', 'AND'], 'COUNTRY': [], 'VIN': [], 'FTIR_NO': []}
+2026-07-13 17:14:09,196 - nlp.pipeline - INFO - Extracted filters: {'limit': 5, 'segmentation': 'Engine'}
+2026-07-13 17:14:09,196 - core.router - INFO - Routed Query: 'what are the total number of ftir which have issue related to engine and noise , visualize the result  ' | Selected Intent: SEARCH (has_col_ref=True)
+2026-07-13 17:14:09,197 - core.router - INFO - Routing query to handler for intent: SEARCH
+2026-07-13 17:15:21,961 - analytics.engine - INFO - AnalyticsEngine starting query_via_llm for: 'what are the total number of ftir which have issue related to engine and noise , visualize the result  '
+2026-07-13 17:15:21,962 - analytics.engine - INFO - Extracting intents via intent_engine for SQL generation.
+2026-07-13 17:15:23,054 - analytics.intent_classifier - INFO - Hybrid Extraction Results:
+--- HYBRID EXTRACTION ---
+Intents: ['summary']
+KPIs: ['count', 'sum']
+Filters: []
+Aggregations: []
+Confidence Score: 0.6
+
+2026-07-13 17:15:23,055 - analytics.intent_classifier - INFO - Running LLM extraction for comparison
+2026-07-13 17:15:34,064 - analytics.intent_classifier - INFO - LLM Extraction Results:
+--- LLM EXTRACTION ---
+Intents: ['summary']
+KPIs: ['count']
+Filters: ["subject LIKE '%engine%' OR subject LIKE '%noise%'"]
+Aggregations: ['ftir_no']
+Confidence Score: 1.0
+
+2026-07-13 17:15:34,065 - analytics.intent_classifier - INFO - Intent classification complete with merged final confidence 1.0
+2026-07-13 17:15:34,065 - analytics.engine - INFO - Invoking LLM for SQL generation (Attempt 1)
+2026-07-13 17:16:15,084 - analytics.engine - INFO - Generated and parsed Dynamic LLM SQL query (Attempt 1):
+SELECT COUNT(*) as total_count FROM records WHERE LOWER(subject) LIKE '%engine%' OR LOWER(subject) LIKE '%noise%'
+2026-07-13 17:16:15,148 - analytics.engine - INFO - Successfully executed LLM SQL query.
+2026-07-13 17:16:15,155 - core.router - INFO - Query processing completed successfully.
+2026-07-13 17:17:23,710 - __main__ - INFO - Application Started
+2026-07-13 17:19:25,108 - __main__ - INFO - Application Started
+2026-07-13 17:19:26,231 - core.router - INFO - QueryRouter dispatching query: 'give me a pie chart for all the issues related to engine and noise according different departments' (user_id=14, override_intent=SEARCH)
+2026-07-13 17:19:26,232 - nlp.pipeline - INFO - NLPProcessor starting to parse query: 'give me a pie chart for all the issues related to engine and noise according different departments'
+2026-07-13 17:19:26,233 - nlp.pipeline - INFO - spaCy model loaded or verified.
+2026-07-13 17:19:26,233 - nlp.pipeline - INFO - Query classified with intent 'ANALYTICS' (score: 1.0)
+2026-07-13 17:19:26,320 - nlp.pipeline - INFO - Extracted entities: {'TROUBLE_CODE': [], 'PRODUCT_MODEL': [], 'SALES_MODEL': ['PIE', 'FOR', 'ALL', 'THE', 'AND'], 'COUNTRY': [], 'VIN': [], 'FTIR_NO': []}
+2026-07-13 17:19:26,323 - nlp.pipeline - INFO - Extracted filters: {'limit': 5, 'segmentation': 'Engine'}
+2026-07-13 17:19:26,324 - core.router - INFO - Routed Query: 'give me a pie chart for all the issues related to engine and noise according different departments' | Selected Intent: SEARCH (has_col_ref=True)
+2026-07-13 17:19:26,325 - core.router - INFO - Routing query to handler for intent: SEARCH
+2026-07-13 17:19:35,805 - analytics.engine - INFO - AnalyticsEngine starting query_via_llm for: 'give me a pie chart for all the issues related to engine and noise according different departments'
+2026-07-13 17:19:35,806 - analytics.engine - INFO - Extracting intents via intent_engine for SQL generation.
+2026-07-13 17:19:36,882 - analytics.intent_classifier - INFO - Hybrid Extraction Results:
+--- HYBRID EXTRACTION ---
+Intents: []
+KPIs: []
+Filters: []
+Aggregations: []
+Confidence Score: 0
+
+2026-07-13 17:19:36,883 - analytics.intent_classifier - INFO - Running LLM extraction for comparison
+2026-07-13 17:19:47,691 - analytics.intent_classifier - INFO - LLM Extraction Results:
+--- LLM EXTRACTION ---
+Intents: ['distribution']
+KPIs: ['count']
+Filters: ["subject LIKE '%engine%'", "subject LIKE '%noise%'"]
+Aggregations: ['department']
+Confidence Score: 1.0
+
+2026-07-13 17:19:47,692 - analytics.intent_classifier - INFO - Intent classification complete with merged final confidence 1.0
+2026-07-13 17:19:47,693 - analytics.engine - INFO - Invoking LLM for SQL generation (Attempt 1)
+2026-07-13 17:20:33,696 - analytics.engine - INFO - Generated and parsed Dynamic LLM SQL query (Attempt 1):
+SELECT dept_of_action_judgement, COUNT(*) as issue_count 
+FROM records 
+WHERE LOWER(subject) LIKE '%engine%' OR LOWER(subject) LIKE '%noise%' 
+GROUP BY dept_of_action_judgement
+2026-07-13 17:20:33,756 - analytics.engine - INFO - Successfully executed LLM SQL query.
+2026-07-13 17:20:33,771 - core.router - INFO - Query processing completed successfully.
+2026-07-13 17:21:47,911 - __main__ - INFO - Application Started
+2026-07-13 17:23:14,556 - __main__ - INFO - Application Started
+2026-07-13 17:23:15,877 - core.router - INFO - QueryRouter dispatching query: '
+give me a pie chart for all the issues related to wheel and paint according different status' (user_id=14, override_intent=SEARCH)
+2026-07-13 17:23:15,878 - nlp.pipeline - INFO - NLPProcessor starting to parse query: '
+give me a pie chart for all the issues related to wheel and paint according different status'
+2026-07-13 17:23:15,879 - nlp.pipeline - INFO - spaCy model loaded or verified.
+2026-07-13 17:23:15,880 - nlp.pipeline - INFO - Query classified with intent 'ANALYTICS' (score: 1.0)
+2026-07-13 17:23:15,962 - nlp.pipeline - INFO - Extracted entities: {'TROUBLE_CODE': [], 'PRODUCT_MODEL': [], 'SALES_MODEL': ['PIE', 'FOR', 'ALL', 'THE', 'AND'], 'COUNTRY': [], 'VIN': [], 'FTIR_NO': []}
+2026-07-13 17:23:15,965 - nlp.pipeline - INFO - Extracted filters: {'limit': 5}
+2026-07-13 17:23:15,966 - core.router - INFO - Routed Query: '
+give me a pie chart for all the issues related to wheel and paint according different status' | Selected Intent: SEARCH (has_col_ref=True)
+2026-07-13 17:23:15,967 - core.router - INFO - Routing query to handler for intent: SEARCH
+2026-07-13 17:23:25,132 - analytics.engine - INFO - AnalyticsEngine starting query_via_llm for: '
+give me a pie chart for all the issues related to wheel and paint according different status'
+2026-07-13 17:23:25,133 - analytics.engine - INFO - Extracting intents via intent_engine for SQL generation.
+2026-07-13 17:23:26,557 - analytics.intent_classifier - INFO - Hybrid Extraction Results:
+--- HYBRID EXTRACTION ---
+Intents: []
+KPIs: []
+Filters: []
+Aggregations: []
+Confidence Score: 0
+
+2026-07-13 17:23:26,558 - analytics.intent_classifier - INFO - Running LLM extraction for comparison
+2026-07-13 17:23:37,264 - analytics.intent_classifier - INFO - LLM Extraction Results:
+--- LLM EXTRACTION ---
+Intents: ['distribution']
+KPIs: ['count']
+Filters: ["subject LIKE '%wheel%'", "subject LIKE '%paint%'"]
+Aggregations: ['status']
+Confidence Score: 1.0
+
+2026-07-13 17:23:37,265 - analytics.intent_classifier - INFO - Intent classification complete with merged final confidence 1.0
+2026-07-13 17:23:37,266 - analytics.engine - INFO - Invoking LLM for SQL generation (Attempt 1)
+2026-07-13 17:24:22,360 - analytics.engine - INFO - Generated and parsed Dynamic LLM SQL query (Attempt 1):
+SELECT status, COUNT(*) as count FROM records WHERE LOWER(subject) LIKE '%wheel%' OR LOWER(subject) LIKE '%paint%' GROUP BY status
+2026-07-13 17:24:22,452 - analytics.engine - INFO - Successfully executed LLM SQL query.
+2026-07-13 17:24:22,471 - core.router - INFO - Query processing completed successfully.
+2026-07-13 17:25:26,573 - __main__ - INFO - Application Started

@@ -9,27 +9,15 @@ from analytics.views import refresh_materialized_views
 
 def clean_km(val):
     """Cleans using time mileage string into an integer."""
-    if pd.isna(val) or val is None:
+    try:
+        if pd.isna(val) or val is None:
+            return 0
+        val_str = str(val).replace(",", "").strip()
+        if not val_str:
+            return 0
+        return int(float(val_str.split()[0]))
+    except Exception:
         return 0
-    val_str = str(val).lower()
-    digits = "".join([c for c in val_str if c.isdigit()])
-    return int(digits) if digits else 0
-
-def parse_date(date_val):
-    """Parses date string or object into standard YYYY-MM-DD or returns empty."""
-    if pd.isna(date_val) or date_val is None:
-        return None
-    if isinstance(date_val, (datetime.date, datetime.datetime)):
-        return date_val.strftime("%Y-%m-%d")
-    
-    date_str = str(date_val).strip()
-    for fmt in ("%d-%m-%Y", "%Y-%m-%d", "%d/%m/%Y", "%Y/%m/%d"):
-        try:
-            dt = datetime.datetime.strptime(date_str, fmt)
-            return dt.strftime("%Y-%m-%d")
-        except ValueError:
-            continue
-    return date_str
 
 def extract_year_month(date_str):
     """Extracts (year, month) integers from standard YYYY-MM-DD string."""
@@ -71,6 +59,52 @@ def generate_heuristic_summary(row):
     
     return f"{sentence1} {sentence2}"
 
+def generate_root_cause(row):
+    """
+    Derives a concise root-cause statement from structured FTIR fields.
+    Priority order:
+      1. Checked Results  — technician's direct inspection finding
+      2. Checked Contents + Causal Parts Name — what was checked and what part failed
+      3. Customer Complaint — the originally reported symptom
+      4. Subject — the FTIR header description
+    Produces a single, clean declarative sentence such as:
+      "Root cause: worn brake pad (causal part: disc brake pad) identified during
+       inspection — customer reported noise during braking."
+    """
+    checked_results = str(row.get('Checked Results', '')).strip()
+    checked_contents = str(row.get('Checked Contents', '')).strip()
+    part = str(row.get('Causal Parts Name', '')).strip()
+    complaint = str(row.get('Customer Complaint', '')).strip()
+    subject = str(row.get('Subject', '')).strip()
+
+    # Sanitise nan strings
+    def _clean(val):
+        return val if val and val.lower() not in ('nan', 'none', '') else ''
+
+    checked_results   = _clean(checked_results)
+    checked_contents  = _clean(checked_contents)
+    part              = _clean(part)
+    complaint         = _clean(complaint)
+    subject           = _clean(subject)
+
+    # Build the root-cause sentence progressively
+    primary = checked_results.split('.')[0] if checked_results else ''
+    secondary = checked_contents.split('.')[0] if checked_contents else ''
+    symptom = (complaint or subject or 'unspecified complaint').split('.')[0]
+    part_clause = f" (causal part: {part.lower()})" if part else ''
+
+    if primary:
+        root_cause = f"{primary.rstrip('.').lower()}{part_clause}, as reported: {symptom.lower()}."
+    elif secondary:
+        root_cause = f"{secondary.rstrip('.').lower()}{part_clause}, as reported: {symptom.lower()}."
+    else:
+        root_cause = f"unconfirmed — reported issue: {symptom.lower()}{part_clause}."
+
+    # Normalise spacing
+    import re
+    root_cause = re.sub(r'\s+', ' ', root_cause).strip()
+    return root_cause
+
 def calculate_row_hash(row):
     """Calculates MD5 hash of critical fields to uniquely identify records."""
     ftir_no = str(row.get('FTIR No', '')).strip()
@@ -92,6 +126,9 @@ def ingest_excel(excel_path, db_path, llm_client=None):
     # Read Excel
     df = pd.read_excel(excel_path, sheet_name=0)
     
+    # Strip whitespace from column names
+    df.columns = df.columns.str.strip()
+    
     # Rename columns to normalize raw Excel sheets
     df = df.rename(columns={
         'SBPR No.': 'SBPR No',
@@ -99,11 +136,16 @@ def ingest_excel(excel_path, db_path, llm_client=None):
         'FTIR No.': 'FTIR No',
         'Product Model Code': 'Product MODEL Code',
         'Subject (English)': 'Subject',
-        'Reported Country': 'Outbreak Country',
+        # Keep Reported Country as its own field; do NOT alias to Outbreak Country
         'Report Company': 'Reported Company',
         'Causal Parts Name (English)': 'Causal Parts Name',
+        # Handle both dash and slash variants of the mileage column
         'Mileage - Using Time': 'Using Time (km)',
-        'Causal Parts No.': 'Causal Parts No (Drawing Parts No)'
+        'Mileage / Using Time': 'Using Time (km)',
+        'Causal Parts No.': 'Causal Parts No (Drawing Parts No)',
+        # New column renames
+        'Department of Action Judgement': 'Dept of Action Judgement',
+        'Reason of "Not to File as an SBPR"': 'Reason Not SBPR',
     })
     
     print(f"Loaded {len(df)} rows from Excel.")
@@ -115,15 +157,21 @@ def ingest_excel(excel_path, db_path, llm_client=None):
         
     # Ensure all required database fields exist in the DataFrame (initialize missing ones to None)
     required_cols = [
-        'SBPR No', 'FTIR No', 'FTIR Report Date', 'Reply Date', 'Status', 'FC-OK', 
-        'Product MODEL Code', 'Sales Model Code', 'Segmentation', 'VIN', 'Engine No', 
-        'Transmission No', 'Date Registered', 'Date of Incident', 'Using Time (km)', 
-        'Reported Company', 'Issued Company', 'Outbreak Country', 'Manufacturer Factory', 
-        'Subject', 'C Measure', 'Customer Complaint', 'Trouble Code (Complaint)', 
-        'Trouble Code Defect', 'Checked Contents', 'Checked Results', 'Repair Status', 
-        'Repair Contents', 'Problem Solved', 'Action Judgement', 'Causal Parts No (Drawing Parts No)', 
-        'Causal Parts Name', 'Supplier of Causal Parts', 'Production Base', 
-        'Parts Availability', 'File Name', 'Quality'
+        'SBPR No', 'FTIR No', 'FTIR Report Date', 'Reply Date', 'Status', 'FC-OK',
+        'Product MODEL Code', 'Sales Model Code', 'Segmentation', 'VIN', 'Engine No',
+        'Transmission No', 'Date Registered', 'Date of Incident', 'Using Time (km)',
+        'Reported Company', 'Issued Company', 'Reported Country', 'Outbreak Country',
+        'Manufacturer Factory', 'Subject', 'C Measure', 'Customer Complaint',
+        'Trouble Code (Complaint)', 'Trouble Code Defect', 'Checked Contents',
+        'Checked Results', 'Repair Status', 'Repair Contents', 'Problem Solved',
+        'Action Judgement', 'Causal Parts No (Drawing Parts No)', 'Causal Parts Name',
+        'Supplier of Causal Parts', 'Production Base', 'Parts Availability',
+        'File Name', 'Quality',
+        # ── New columns ─────────────────────────────────────────────────
+        'Rank', 'Days Used', 'FPCR No.', 'Sales Dealer', 'Service Dealer',
+        'Spec on Destination', 'Collection Request Date', 'Parts Retrieved Date',
+        'Person of Action Judgement', 'Dept of Action Judgement',
+        'Judgement Date', 'Reason Not SBPR', 'Approval Judgement Date',
     ]
     for col in required_cols:
         if col not in df.columns:
@@ -145,14 +193,27 @@ def ingest_excel(excel_path, db_path, llm_client=None):
         axis=1
     )
     
-    # Standardize dates
-    df['FTIR Report Date'] = df['FTIR Report Date'].apply(parse_date)
-    df['Reply Date'] = df['Reply Date'].apply(parse_date)
-    df['Date Registered'] = df['Date Registered'].apply(parse_date)
-    df['Date of Incident'] = df['Date of Incident'].apply(parse_date)
+    # Standardize dates using vectorized pandas to_datetime
+    date_columns = [
+        'FTIR Report Date', 'Reply Date', 'Date Registered', 
+        'Date of Incident', 'Collection Request Date', 
+        'Parts Retrieved Date', 'Judgement Date', 'Approval Judgement Date'
+    ]
+    df[date_columns] = df[date_columns].apply(pd.to_datetime, format='mixed', errors='coerce')
+    for col in date_columns:
+        df[col] = df[col].dt.strftime('%Y-%m-%d').where(df[col].notnull(), None)
     
     # Computed columns
     df['using_km_int'] = df['Using Time (km)'].apply(clean_km)
+    
+    # Days Used — robust regex extraction
+    df['Days Used'] = df['Days Used'].astype(str).str.extract(r'(\d+)', expand=False)
+    df['Days Used'] = pd.to_numeric(df['Days Used'], errors='coerce')
+    df['Days Used'] = df['Days Used'].where(pd.notna(df['Days Used']), None)
+    
+    # Product MODEL Code — slice to first 3 chars
+    if 'Product MODEL Code' in df.columns:
+        df['Product MODEL Code'] = df['Product MODEL Code'].str.slice(0, 3)
     
     # Year/month extraction
     df['extracted_ym'] = df['FTIR Report Date'].apply(extract_year_month)
@@ -164,86 +225,114 @@ def ingest_excel(excel_path, db_path, llm_client=None):
     df['has_sbpr'] = df['SBPR No'].apply(lambda val: 1 if val and str(val).lower() not in ('nan', '') else 0)
     
     # Connect to DB and fetch existing hashes and FTIRs to filter duplicates in batch
-    conn = sqlite3.connect(db_path)
-    cursor = conn.cursor()
+    from core.database import get_session, Record
     
-    cursor.execute("SELECT row_hash, ftir_no FROM records")
-    existing_rows = cursor.fetchall()
-    existing_hashes = {r[0] for r in existing_rows if r[0]}
-    existing_ftirs = {str(r[1]).strip() for r in existing_rows if r[1]}
+    session = get_session(db_path)
     
-    # Filter out duplicate records
-    df_new = df[~df['row_hash'].isin(existing_hashes) & ~df['FTIR No'].isin(existing_ftirs)]
-    
-    print(f"Filtered duplicates: {len(df_new)} new records to insert.")
-    
-    new_records = []
-    
-    # Insert new records
-    for idx, row in df_new.iterrows():
-        # Generate summary
-        summary = None
-        if llm_client:
-            try:
-                prompt = (
-                    f"Summarize the following vehicle quality record in exactly 2 sentences. "
-                    f"Highlight the issue and the repair action.\n"
-                    f"Subject: {row['Subject']}\n"
-                    f"Checked Results: {row['Checked Results']}\n"
-                    f"Repair: {row['Repair Contents']}\n"
-                    f"Causal Part: {row['Causal Parts Name']}\n"
-                    f"Summary:"
-                )
-                summary = llm_client.generate_summary(prompt)
-            except Exception as ex:
-                print(f"LLM Summary failed for {row['FTIR No']}, falling back to heuristic: {ex}")
-                
-        if not summary:
+    try:
+        existing_rows = session.query(Record.row_hash, Record.ftir_no).all()
+        existing_hashes = {r.row_hash for r in existing_rows if r.row_hash}
+        existing_ftirs = {str(r.ftir_no).strip() for r in existing_rows if r.ftir_no}
+        
+        # Filter out duplicate records
+        df_new = df[~df['row_hash'].isin(existing_hashes) & ~df['FTIR No'].isin(existing_ftirs)]
+        
+        print(f"Filtered duplicates: {len(df_new)} new records to insert.")
+        
+        new_records = []
+        
+        # Insert new records
+        for idx, row in df_new.iterrows():
+            # Generate summary and root cause using heuristic only
             summary = generate_heuristic_summary(row)
+            root_cause = generate_root_cause(row)
+                
+            record = Record(
+                sbpr_no=row['SBPR No'],
+                ftir_no=row['FTIR No'],
+                ftir_report_date=row['FTIR Report Date'],
+                reply_date=row['Reply Date'],
+                status=row['Status'],
+                fc_ok=row['FC-OK'],
+                product_model_code=row['Product MODEL Code'],
+                sales_model_code=row['Sales Model Code'],
+                segmentation=row['Segmentation'],
+                vin=row['VIN'],
+                engine_no=row['Engine No'],
+                transmission_no=row['Transmission No'],
+                date_registered=row['Date Registered'],
+                date_of_incident=row['Date of Incident'],
+                using_time_km=row['Using Time (km)'],
+                reported_company=row['Reported Company'],
+                issued_company=row['Issued Company'],
+                outbreak_country=row['Outbreak Country'],
+                manufacturer_factory=row['Manufacturer Factory'],
+                subject=row['Subject'],
+                c_measure=row['C Measure'],
+                customer_complaint=row['Customer Complaint'],
+                trouble_code_complaint=row['Trouble Code (Complaint)'],
+                trouble_code_defect=row['Trouble Code Defect'],
+                checked_contents=row['Checked Contents'],
+                checked_results=row['Checked Results'],
+                repair_status=row['Repair Status'],
+                repair_contents=row['Repair Contents'],
+                problem_solved=row['Problem Solved'],
+                action_judgement=row['Action Judgement'],
+                causal_parts_no=row['Causal Parts No (Drawing Parts No)'],
+                causal_parts_name=row['Causal Parts Name'],
+                supplier_of_causal_parts=row['Supplier of Causal Parts'],
+                production_base=row['Production Base'],
+                parts_availability=row['Parts Availability'],
+                file_name=row['File Name'],
+                quality=row['Quality'],
+                # ── New fields ─────────────────────────────────────────────────────
+                rank=row['Rank'],
+                reported_country=row['Reported Country'],
+                days_used=row['Days Used'],
+                fpcr_no=row['FPCR No.'],
+                sales_dealer=row['Sales Dealer'],
+                service_dealer=row['Service Dealer'],
+                spec_on_destination=row['Spec on Destination'],
+                collection_request_date=row['Collection Request Date'],
+                parts_retrieved_date=row['Parts Retrieved Date'],
+                person_of_action_judgement=row['Person of Action Judgement'],
+                dept_of_action_judgement=row['Dept of Action Judgement'],
+                judgement_date=row['Judgement Date'],
+                reason_not_sbpr=row['Reason Not SBPR'],
+                approval_judgement_date=row['Approval Judgement Date'],
+                # ── Computed / metadata ─────────────────────────────────────────────
+                row_hash=row['row_hash'],
+                using_km_int=row['using_km_int'],
+                report_year=row['report_year'],
+                report_month=row['report_month'],
+                is_resolved=row['is_resolved'],
+                has_sbpr=row['has_sbpr'],
+                summary=summary,
+                root_cause=root_cause
+            )
+            session.add(record)
+            session.flush()  # Populate record.id
             
-        cursor.execute("""
-            INSERT INTO records (
-                sbpr_no, ftir_no, ftir_report_date, reply_date, status, fc_ok, 
-                product_model_code, sales_model_code, segmentation, vin, engine_no, 
-                transmission_no, date_registered, date_of_incident, using_time_km, 
-                reported_company, issued_company, outbreak_country, manufacturer_factory, 
-                subject, c_measure, customer_complaint, trouble_code_complaint, 
-                trouble_code_defect, checked_contents, checked_results, repair_status, 
-                repair_contents, problem_solved, action_judgement, causal_parts_no, 
-                causal_parts_name, supplier_of_causal_parts, production_base, 
-                parts_availability, file_name, quality, row_hash, using_km_int, 
-                report_year, report_month, is_resolved, has_sbpr, summary
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """, (
-            row['SBPR No'], row['FTIR No'], row['FTIR Report Date'], row['Reply Date'], row['Status'], row['FC-OK'],
-            row['Product MODEL Code'], row['Sales Model Code'], row['Segmentation'], row['VIN'], row['Engine No'],
-            row['Transmission No'], row['Date Registered'], row['Date of Incident'], row['Using Time (km)'],
-            row['Reported Company'], row['Issued Company'], row['Outbreak Country'], row['Manufacturer Factory'],
-            row['Subject'], row['C Measure'], row['Customer Complaint'], row['Trouble Code (Complaint)'],
-            row['Trouble Code Defect'], row['Checked Contents'], row['Checked Results'], row['Repair Status'],
-            row['Repair Contents'], row['Problem Solved'], row['Action Judgement'], row['Causal Parts No (Drawing Parts No)'],
-            row['Causal Parts Name'], row['Supplier of Causal Parts'], row['Production Base'],
-            row['Parts Availability'], row['File Name'], row['Quality'], row['row_hash'], row['using_km_int'],
-            row['report_year'], row['report_month'], row['is_resolved'], row['has_sbpr'], summary
-        ))
-        
-        row_id = cursor.lastrowid
-        new_records.append({
-            'id': row_id,
-            'ftir_no': row['FTIR No'],
-            'outbreak_country': row['Outbreak Country'],
-            'product_model_code': row['Product MODEL Code'],
-            'segmentation': row['Segmentation'],
-            'trouble_code_complaint': row['Trouble Code (Complaint)'],
-            'subject': row['Subject'],
-            'checked_results': row['Checked Results'],
-            'repair_contents': row['Repair Contents'],
-            'causal_parts_name': row['Causal Parts Name'],
-            'summary': summary
-        })
-        
-    conn.commit()
-    conn.close()
+            new_records.append({
+                'id': record.id,
+                'ftir_no': row['FTIR No'],
+                'outbreak_country': row['Outbreak Country'],
+                'product_model_code': row['Product MODEL Code'],
+                'segmentation': row['Segmentation'],
+                'trouble_code_complaint': row['Trouble Code (Complaint)'],
+                'subject': row['Subject'],
+                'checked_results': row['Checked Results'],
+                'repair_contents': row['Repair Contents'],
+                'causal_parts_name': row['Causal Parts Name'],
+                'summary': summary
+            })
+            
+        session.commit()
+    except Exception as e:
+        session.rollback()
+        raise e
+    finally:
+        session.close()
     
     print(f"Ingested {len(new_records)} new records.")
     

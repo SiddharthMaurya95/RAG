@@ -1,0 +1,2 @@
+2026-07-10 10:34:15,760 - __main__ - INFO - Application Started
+2026-07-10 10:34:19,079 - core.ollama_client - INFO - Local GGUF model loaded from C:\Users\maury\OneDrive\Documents\Internship\RAG\automotive_qa\models\Phi-3-mini-4k-instruct-q4.gguf on GPU.

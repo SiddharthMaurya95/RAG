@@ -1,0 +1,275 @@
+2026-07-10 10:09:40,759 - __main__ - INFO - Application Started
+2026-07-10 10:09:40,760 - __main__ - INFO - Application Started
+2026-07-10 10:09:40,759 - __main__ - INFO - Application Started
+2026-07-10 10:09:40,759 - __main__ - INFO - Application Started
+2026-07-10 10:09:40,761 - __main__ - INFO - Application Started
+2026-07-10 10:09:40,760 - __main__ - INFO - Application Started
+2026-07-10 10:09:40,761 - __main__ - INFO - Application Started
+2026-07-10 10:09:40,760 - __main__ - INFO - Application Started
+2026-07-10 10:09:40,761 - __main__ - INFO - Application Started
+2026-07-10 10:09:50,193 - llm.client - INFO - Local GGUF model loaded from C:\Users\maury\OneDrive\Documents\Internship\RAG\automotive_qa\models\Qwen2.5-7B-Instruct-Q4_K_M.gguf on GPU.
+2026-07-10 10:09:56,269 - __main__ - INFO - Application Started
+2026-07-10 10:09:56,269 - __main__ - INFO - Application Started
+2026-07-10 10:09:56,269 - __main__ - INFO - Application Started
+2026-07-10 10:09:56,571 - __main__ - INFO - Application Started
+2026-07-10 10:09:56,571 - __main__ - INFO - Application Started
+2026-07-10 10:09:56,571 - __main__ - INFO - Application Started
+2026-07-10 10:36:40,761 - __main__ - INFO - Application Started
+2026-07-10 10:36:51,099 - llm.client - INFO - Local GGUF model loaded from C:\Users\maury\OneDrive\Documents\Internship\RAG\automotive_qa\models\Qwen2.5-7B-Instruct-Q4_K_M.gguf on GPU.
+2026-07-10 10:36:55,387 - __main__ - INFO - Application Started
+2026-07-10 10:36:55,917 - __main__ - INFO - Application Started
+2026-07-10 10:37:45,777 - __main__ - INFO - Application Started
+2026-07-10 10:40:07,733 - __main__ - INFO - Application Started
+2026-07-10 10:40:11,725 - __main__ - INFO - Application Started
+2026-07-10 10:40:19,978 - __main__ - INFO - Application Started
+2026-07-10 10:40:21,441 - __main__ - INFO - Application Started
+2026-07-10 10:40:53,558 - __main__ - INFO - Application Started
+2026-07-10 10:44:03,961 - __main__ - INFO - Application Started
+2026-07-10 10:44:03,961 - __main__ - INFO - Application Started
+2026-07-10 10:44:03,961 - __main__ - INFO - Application Started
+2026-07-10 10:44:03,961 - __main__ - INFO - Application Started
+2026-07-10 10:44:10,258 - llm.client - INFO - Local GGUF model loaded from C:\Users\maury\OneDrive\Documents\Internship\RAG\automotive_qa\models\Qwen2.5-7B-Instruct-Q4_K_M.gguf on GPU.
+2026-07-10 10:44:36,487 - __main__ - INFO - Application Started
+2026-07-10 10:44:36,487 - __main__ - INFO - Application Started
+2026-07-10 10:44:36,838 - __main__ - INFO - Application Started
+2026-07-10 10:44:36,838 - __main__ - INFO - Application Started
+2026-07-10 10:44:56,406 - __main__ - INFO - Application Started
+2026-07-10 10:44:56,406 - __main__ - INFO - Application Started
+2026-07-10 10:45:28,855 - __main__ - INFO - Application Started
+2026-07-10 10:45:28,855 - __main__ - INFO - Application Started
+2026-07-10 10:45:43,701 - __main__ - INFO - Application Started
+2026-07-10 10:45:43,701 - __main__ - INFO - Application Started
+2026-07-10 10:48:41,130 - __main__ - INFO - Application Started
+2026-07-10 10:48:41,130 - __main__ - INFO - Application Started
+2026-07-10 10:57:22,504 - __main__ - INFO - Application Started
+2026-07-10 10:57:22,504 - __main__ - INFO - Application Started
+2026-07-10 10:58:40,382 - __main__ - INFO - Application Started
+2026-07-10 10:58:40,382 - __main__ - INFO - Application Started
+2026-07-10 11:18:51,512 - __main__ - INFO - Application Started
+2026-07-10 11:18:51,512 - __main__ - INFO - Application Started
+2026-07-10 11:24:06,558 - __main__ - INFO - Application Started
+2026-07-10 11:24:06,558 - __main__ - INFO - Application Started
+2026-07-10 12:23:16,355 - __main__ - INFO - Application Started
+2026-07-10 12:23:16,355 - __main__ - INFO - Application Started
+2026-07-10 12:23:22,299 - __main__ - INFO - Application Started
+2026-07-10 12:23:22,299 - __main__ - INFO - Application Started
+2026-07-10 12:23:41,086 - __main__ - INFO - Application Started
+2026-07-10 12:23:46,528 - llm.client - INFO - Local GGUF model loaded from C:\Users\maury\OneDrive\Documents\Internship\RAG\automotive_qa\models\Qwen2.5-7B-Instruct-Q4_K_M.gguf on GPU.
+2026-07-10 12:23:51,334 - __main__ - INFO - Application Started
+2026-07-10 12:23:54,555 - analytics.intent_classifier - INFO - Hybrid confidence low (0), falling back to LLM extraction
+2026-07-10 12:24:01,072 - analytics.intent_classifier - INFO - Intent classification complete via LLM fallback with final confidence 0.5
+2026-07-10 12:24:21,062 - analytics.engine - INFO - Successfully executed LLM SQL query.
+2026-07-10 12:24:25,545 - __main__ - INFO - Application Started
+2026-07-10 12:28:51,211 - __main__ - INFO - Application Started
+2026-07-10 12:28:55,276 - __main__ - INFO - Application Started
+2026-07-10 12:29:42,084 - __main__ - INFO - Application Started
+2026-07-10 12:29:42,704 - __main__ - INFO - Application Started
+2026-07-10 12:29:47,270 - __main__ - INFO - Application Started
+2026-07-10 12:29:47,904 - __main__ - INFO - Application Started
+2026-07-10 12:32:24,452 - __main__ - INFO - Application Started
+2026-07-10 12:32:25,247 - __main__ - INFO - Application Started
+2026-07-10 12:32:26,009 - __main__ - INFO - Application Started
+2026-07-10 12:32:30,351 - __main__ - INFO - Application Started
+2026-07-10 12:32:48,688 - __main__ - INFO - Application Started
+2026-07-10 12:35:33,632 - __main__ - INFO - Application Started
+2026-07-10 12:39:44,705 - __main__ - INFO - Application Started
+2026-07-10 12:41:21,491 - __main__ - INFO - Application Started
+2026-07-10 12:45:08,540 - __main__ - INFO - Application Started
+2026-07-10 12:46:41,607 - __main__ - INFO - Application Started
+2026-07-10 12:46:47,104 - __main__ - INFO - Application Started
+2026-07-10 12:48:20,674 - __main__ - INFO - Application Started
+2026-07-10 12:51:33,075 - __main__ - INFO - Application Started
+2026-07-10 12:51:39,490 - __main__ - INFO - Application Started
+2026-07-10 12:51:40,317 - __main__ - INFO - Application Started
+2026-07-10 12:51:43,463 - __main__ - INFO - Application Started
+2026-07-10 12:51:44,402 - __main__ - INFO - Application Started
+2026-07-10 12:51:46,912 - __main__ - INFO - Application Started
+2026-07-10 12:51:47,623 - __main__ - INFO - Application Started
+2026-07-10 12:52:01,391 - __main__ - INFO - Application Started
+2026-07-10 12:54:57,202 - __main__ - INFO - Application Started
+2026-07-10 13:02:34,147 - __main__ - INFO - Application Started
+2026-07-10 13:13:07,006 - __main__ - INFO - Application Started
+2026-07-10 13:13:56,052 - __main__ - INFO - Application Started
+2026-07-10 13:13:56,801 - __main__ - INFO - Application Started
+2026-07-10 13:14:06,093 - __main__ - INFO - Application Started
+2026-07-10 13:15:42,545 - __main__ - INFO - Application Started
+2026-07-10 13:16:11,216 - __main__ - INFO - Application Started
+2026-07-10 13:16:14,616 - __main__ - INFO - Application Started
+2026-07-10 13:16:15,359 - __main__ - INFO - Application Started
+2026-07-10 13:16:22,437 - __main__ - INFO - Application Started
+2026-07-10 13:19:00,791 - __main__ - INFO - Application Started
+2026-07-10 13:21:29,606 - __main__ - INFO - Application Started
+2026-07-10 13:21:35,686 - llm.client - INFO - Local GGUF model loaded from C:\Users\maury\OneDrive\Documents\Internship\RAG\automotive_qa\models\Qwen2.5-7B-Instruct-Q4_K_M.gguf on GPU.
+2026-07-10 14:27:47,524 - __main__ - INFO - Application Started
+2026-07-10 14:27:47,874 - __main__ - INFO - Application Started
+2026-07-10 14:27:57,340 - __main__ - INFO - Application Started
+2026-07-10 14:27:57,920 - __main__ - INFO - Application Started
+2026-07-10 14:28:01,356 - __main__ - INFO - Application Started
+2026-07-10 14:28:09,937 - analytics.intent_classifier - INFO - Hybrid confidence low (0), falling back to LLM extraction
+2026-07-10 14:28:18,379 - analytics.intent_classifier - INFO - Intent classification complete via LLM fallback with final confidence 1.0
+2026-07-10 14:28:42,245 - analytics.engine - WARNING - Failed to execute LLM SQL query on attempt 1: Execution failed on sql 'SELECT ftir_no, COUNT(*) as count FROM records WHERE ftir LIKE '%noise%' GROUP BY ftir_no': (sqlite3.OperationalError) no such column: ftir
+[SQL: SELECT ftir_no, COUNT(*) as count FROM records WHERE ftir LIKE '%noise%' GROUP BY ftir_no]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2026-07-10 14:28:47,954 - analytics.engine - WARNING - Failed to execute LLM SQL query on attempt 2: Execution failed on sql 'SELECT ftir_no, COUNT(*) as count 
+FROM records 
+WHERE ftir LIKE '%noise%' 
+GROUP BY ftir_no': (sqlite3.OperationalError) no such column: ftir
+[SQL: SELECT ftir_no, COUNT(*) as count 
+FROM records 
+WHERE ftir LIKE '%noise%' 
+GROUP BY ftir_no]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2026-07-10 14:28:53,991 - analytics.engine - WARNING - Failed to execute LLM SQL query on attempt 3: Execution failed on sql 'SELECT ftir_no, COUNT(*) as count 
+FROM records 
+WHERE ftir LIKE '%noise%' 
+GROUP BY ftir_no': (sqlite3.OperationalError) no such column: ftir
+[SQL: SELECT ftir_no, COUNT(*) as count 
+FROM records 
+WHERE ftir LIKE '%noise%' 
+GROUP BY ftir_no]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2026-07-10 14:28:59,580 - analytics.engine - WARNING - Failed to execute LLM SQL query on attempt 4: Execution failed on sql 'SELECT ftir_no, COUNT(*) as count 
+FROM records 
+WHERE ftir LIKE '%noise%' 
+GROUP BY ftir_no': (sqlite3.OperationalError) no such column: ftir
+[SQL: SELECT ftir_no, COUNT(*) as count 
+FROM records 
+WHERE ftir LIKE '%noise%' 
+GROUP BY ftir_no]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2026-07-10 14:28:59,581 - analytics.engine - ERROR - All retries exhausted for LLM SQL query execution.
+2026-07-10 14:29:04,498 - __main__ - INFO - Application Started
+2026-07-10 14:29:18,261 - __main__ - INFO - Application Started
+2026-07-10 14:29:18,897 - __main__ - INFO - Application Started
+2026-07-10 14:29:44,125 - __main__ - INFO - Application Started
+2026-07-10 14:29:45,024 - analytics.intent_classifier - INFO - Hybrid confidence low (0), falling back to LLM extraction
+2026-07-10 14:29:51,305 - analytics.intent_classifier - INFO - Intent classification complete via LLM fallback with final confidence 1.0
+2026-07-10 14:30:13,875 - analytics.engine - INFO - Successfully executed LLM SQL query.
+2026-07-10 14:30:38,469 - __main__ - INFO - Application Started
+2026-07-10 14:30:47,470 - __main__ - INFO - Application Started
+2026-07-10 14:30:48,099 - __main__ - INFO - Application Started
+2026-07-10 14:30:50,061 - __main__ - INFO - Application Started
+2026-07-10 14:30:54,777 - __main__ - INFO - Application Started
+2026-07-10 14:31:01,758 - __main__ - INFO - Application Started
+2026-07-10 14:32:24,631 - __main__ - INFO - Application Started
+2026-07-10 14:33:12,879 - __main__ - INFO - Application Started
+2026-07-10 14:33:13,944 - __main__ - INFO - Application Started
+2026-07-10 14:33:17,727 - __main__ - INFO - Application Started
+2026-07-10 14:33:51,749 - __main__ - INFO - Application Started
+2026-07-10 14:33:58,079 - llm.client - INFO - Local GGUF model loaded from C:\Users\maury\OneDrive\Documents\Internship\RAG\automotive_qa\models\Qwen2.5-7B-Instruct-Q4_K_M.gguf on GPU.
+2026-07-10 14:34:01,151 - __main__ - INFO - Application Started
+2026-07-10 14:34:01,414 - __main__ - INFO - Application Started
+2026-07-10 14:34:12,576 - __main__ - INFO - Application Started
+2026-07-10 14:34:16,398 - analytics.intent_classifier - INFO - Hybrid confidence low (0), falling back to LLM extraction
+2026-07-10 14:34:22,922 - analytics.intent_classifier - INFO - Intent classification complete via LLM fallback with final confidence 1.0
+2026-07-10 14:34:49,089 - analytics.engine - INFO - Successfully executed LLM SQL query.
+2026-07-10 14:35:08,564 - __main__ - INFO - Application Started
+2026-07-10 14:35:12,809 - __main__ - INFO - Application Started
+2026-07-10 14:35:13,436 - __main__ - INFO - Application Started
+2026-07-10 14:36:29,083 - __main__ - INFO - Application Started
+2026-07-10 14:36:33,519 - __main__ - INFO - Application Started
+2026-07-10 14:38:34,037 - __main__ - INFO - Application Started
+2026-07-10 14:38:48,870 - analytics.intent_classifier - INFO - Hybrid confidence low (0), falling back to LLM extraction
+2026-07-10 14:38:55,207 - analytics.intent_classifier - INFO - Intent classification complete via LLM fallback with final confidence 1.0
+2026-07-10 14:39:22,038 - analytics.engine - WARNING - Failed to execute LLM SQL query on attempt 1: Execution failed on sql 'SELECT ftir_no, COUNT(*) as count FROM records WHERE ftir LIKE '%noise%' GROUP BY ftir_no': no such column: ftir
+2026-07-10 14:39:56,474 - analytics.engine - WARNING - Failed to execute LLM SQL query on attempt 2: Execution failed on sql 'SELECT ftir_no, COUNT(*) as count FROM records WHERE ftir LIKE '%noise%' GROUP BY ftir_no
+
+The error message indicates that the column `ftir` does not exist in the `records` table. However, the query you provided references `ftir_no` which does exist. Therefore, the correction is to ensure the column name `ftir` is correctly referenced if it exists, or `ftir_no` if that is the correct column name. If `ftir` is the correct column, the original query should work after ensuring the column exists. If `ftir_no` is the correct column, the provided corrected SQL statement is accurate. 
+
+Assuming `ftir_no` is the correct column name, the corrected SQL statement remains as provided. If `ftir` is the correct column, the query should be:
+
+SELECT ftir, COUNT(*) as count FROM records WHERE ftir LIKE '%noise%' GROUP BY ftir': near "The": syntax error
+2026-07-10 14:40:03,362 - analytics.engine - WARNING - Failed to execute LLM SQL query on attempt 3: Execution failed on sql 'SELECT ftir_no, COUNT(*) as count FROM records WHERE ftir LIKE '%noise%' GROUP BY ftir_no': no such column: ftir
+2026-07-10 14:40:23,245 - analytics.engine - WARNING - Failed to execute LLM SQL query on attempt 4: Execution failed on sql 'SELECT ftir_no, COUNT(*) as count FROM records WHERE ftir LIKE '%noise%' GROUP BY ftir_no
+
+The error message indicates that the column `ftir` does not exist in the `records` table. However, the query you provided references `ftir_no` which suggests that the column name might be `ftir_no` instead of `ftir`. Assuming `ftir_no` is the correct column name, the corrected SQL statement is as provided above. If `ftir` is the correct column name, you should replace `ftir_no` with `ftir` in the query. Please verify the column names in your `records` table.': near "The": syntax error
+2026-07-10 14:40:23,245 - analytics.engine - ERROR - All retries exhausted for LLM SQL query execution.
+2026-07-10 14:41:21,165 - __main__ - INFO - Application Started
+2026-07-10 14:44:23,879 - __main__ - INFO - Application Started
+2026-07-10 14:44:24,657 - __main__ - INFO - Application Started
+2026-07-10 14:44:45,873 - __main__ - INFO - Application Started
+2026-07-10 14:44:54,967 - analytics.intent_classifier - INFO - Hybrid confidence low (0), falling back to LLM extraction
+2026-07-10 14:45:01,195 - analytics.intent_classifier - INFO - Intent classification complete via LLM fallback with final confidence 1.0
+2026-07-10 14:45:27,698 - analytics.engine - INFO - Successfully executed LLM SQL query.
+2026-07-10 14:46:28,143 - __main__ - INFO - Application Started
+2026-07-10 14:48:44,152 - __main__ - INFO - Application Started
+2026-07-10 14:49:12,393 - __main__ - INFO - Application Started
+2026-07-10 14:49:13,408 - __main__ - INFO - Application Started
+2026-07-10 14:49:47,300 - __main__ - INFO - Application Started
+2026-07-10 14:50:01,998 - __main__ - INFO - Application Started
+2026-07-10 14:50:18,653 - __main__ - INFO - Application Started
+2026-07-10 14:50:20,551 - __main__ - INFO - Application Started
+2026-07-10 14:50:21,329 - __main__ - INFO - Application Started
+2026-07-10 14:50:28,389 - analytics.intent_classifier - INFO - Hybrid confidence low (0), falling back to LLM extraction
+2026-07-10 14:50:34,521 - analytics.intent_classifier - INFO - Intent classification complete via LLM fallback with final confidence 0.7
+2026-07-10 14:50:47,646 - __main__ - INFO - Application Started
+2026-07-10 14:50:57,072 - analytics.intent_classifier - INFO - Hybrid confidence low (0), falling back to LLM extraction
+2026-07-10 14:50:57,128 - analytics.intent_classifier - WARNING - Intent LLM Extraction Failed: exception: access violation reading 0x0000000000000000
+2026-07-10 14:50:57,129 - analytics.intent_classifier - ERROR - Error in intent classifier: Error in C:\Users\maury\OneDrive\Documents\Internship\RAG\automotive_qa\analytics\intent_classifier.py, line 191 : exception: access violation reading 0x0000000000000000
+2026-07-10 14:52:01,602 - __main__ - INFO - Application Started
+2026-07-10 14:52:01,602 - __main__ - INFO - Application Started
+2026-07-10 14:52:01,602 - __main__ - INFO - Application Started
+2026-07-10 14:52:01,602 - __main__ - INFO - Application Started
+2026-07-10 14:52:04,909 - llm.client - INFO - Local GGUF model loaded from C:\Users\maury\OneDrive\Documents\Internship\RAG\automotive_qa\models\Qwen2.5-7B-Instruct-Q4_K_M.gguf on GPU.
+2026-07-10 14:52:41,373 - __main__ - INFO - Application Started
+2026-07-10 14:52:41,373 - __main__ - INFO - Application Started
+2026-07-10 14:52:41,570 - __main__ - INFO - Application Started
+2026-07-10 14:52:41,570 - __main__ - INFO - Application Started
+2026-07-10 14:52:57,950 - __main__ - INFO - Application Started
+2026-07-10 14:52:57,950 - __main__ - INFO - Application Started
+2026-07-10 14:53:04,422 - analytics.intent_classifier - INFO - Hybrid confidence low (0), falling back to LLM extraction
+2026-07-10 14:53:10,949 - analytics.intent_classifier - INFO - Intent classification complete via LLM fallback with final confidence 0.7
+2026-07-10 14:53:33,974 - analytics.engine - INFO - Successfully executed LLM SQL query.
+2026-07-10 14:54:09,026 - __main__ - INFO - Application Started
+2026-07-10 14:54:09,026 - __main__ - INFO - Application Started
+2026-07-10 14:54:16,817 - __main__ - INFO - Application Started
+2026-07-10 14:54:16,817 - __main__ - INFO - Application Started
+2026-07-10 14:54:21,394 - __main__ - INFO - Application Started
+2026-07-10 14:54:21,394 - __main__ - INFO - Application Started
+2026-07-10 14:54:25,675 - __main__ - INFO - Application Started
+2026-07-10 14:54:25,675 - __main__ - INFO - Application Started
+2026-07-10 14:54:47,522 - __main__ - INFO - Application Started
+2026-07-10 14:54:47,522 - __main__ - INFO - Application Started
+2026-07-10 14:55:32,395 - __main__ - INFO - Application Started
+2026-07-10 14:55:32,395 - __main__ - INFO - Application Started
+2026-07-10 14:55:44,594 - __main__ - INFO - Application Started
+2026-07-10 14:55:44,594 - __main__ - INFO - Application Started
+2026-07-10 14:55:54,968 - __main__ - INFO - Application Started
+2026-07-10 14:55:54,968 - __main__ - INFO - Application Started
+2026-07-10 14:55:55,800 - __main__ - INFO - Application Started
+2026-07-10 14:55:55,800 - __main__ - INFO - Application Started
+2026-07-10 14:57:01,199 - __main__ - INFO - Application Started
+2026-07-10 14:57:01,199 - __main__ - INFO - Application Started
+2026-07-10 14:57:10,927 - analytics.intent_classifier - INFO - Hybrid confidence low (0), falling back to LLM extraction
+2026-07-10 14:57:17,043 - analytics.intent_classifier - INFO - Intent classification complete via LLM fallback with final confidence 0.7
+2026-07-10 14:57:40,019 - analytics.engine - INFO - Successfully executed LLM SQL query.
+2026-07-10 14:58:23,049 - __main__ - INFO - Application Started
+2026-07-10 14:58:23,049 - __main__ - INFO - Application Started
+2026-07-10 15:00:21,621 - __main__ - INFO - Application Started
+2026-07-10 15:00:21,621 - __main__ - INFO - Application Started
+2026-07-10 15:00:22,484 - __main__ - INFO - Application Started
+2026-07-10 15:00:22,484 - __main__ - INFO - Application Started
+2026-07-10 15:00:26,285 - __main__ - INFO - Application Started
+2026-07-10 15:00:26,285 - __main__ - INFO - Application Started
+2026-07-10 15:00:37,667 - __main__ - INFO - Application Started
+2026-07-10 15:00:42,097 - llm.client - INFO - Local GGUF model loaded from C:\Users\maury\OneDrive\Documents\Internship\RAG\automotive_qa\models\Qwen2.5-7B-Instruct-Q4_K_M.gguf on GPU.
+2026-07-10 15:00:48,538 - __main__ - INFO - Application Started
+2026-07-10 15:00:48,726 - __main__ - INFO - Application Started
+2026-07-10 15:00:57,097 - __main__ - INFO - Application Started
+2026-07-10 15:00:57,681 - __main__ - INFO - Application Started
+2026-07-10 15:01:09,929 - __main__ - INFO - Application Started
+2026-07-10 15:01:13,608 - __main__ - INFO - Application Started
+2026-07-10 15:01:35,270 - __main__ - INFO - Application Started
+2026-07-10 15:01:53,969 - analytics.intent_classifier - INFO - Hybrid confidence low (0), falling back to LLM extraction
+2026-07-10 15:01:59,529 - analytics.intent_classifier - INFO - Intent classification complete via LLM fallback with final confidence 0.5
+2026-07-10 15:02:23,165 - analytics.engine - INFO - Successfully executed LLM SQL query.
+2026-07-10 15:03:23,959 - __main__ - INFO - Application Started
+2026-07-10 15:09:39,213 - __main__ - INFO - Application Started
+2026-07-10 15:10:01,165 - __main__ - INFO - Application Started
+2026-07-10 15:10:02,217 - __main__ - INFO - Application Started
+2026-07-10 15:10:08,308 - __main__ - INFO - Application Started
+2026-07-10 15:10:18,605 - analytics.intent_classifier - INFO - Hybrid confidence low (0), falling back to LLM extraction
+2026-07-10 15:10:25,059 - analytics.intent_classifier - INFO - Intent classification complete via LLM fallback with final confidence 1.0
+2026-07-10 15:10:47,870 - analytics.engine - INFO - Successfully executed LLM SQL query.
+2026-07-10 15:11:30,917 - __main__ - INFO - Application Started
+2026-07-10 15:19:52,271 - __main__ - INFO - Application Started

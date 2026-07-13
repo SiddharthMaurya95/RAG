@@ -1,0 +1,1933 @@
+=== automotive_qa/etl/pipeline.py vs MQ Analytics Sytem/core/etl/pipeline.py ===
+--- MQ Analytics Sytem/core/etl/pipeline.py
++++ automotive_qa/etl/pipeline.py
+@@ -1,5 +1,2 @@
+-# =====================================================
+-# ✅ ETL PIPELINE (DATABASE INGESTION & DATA CLEANING)
+-# =====================================================
+ import sqlite3
+ import hashlib
+@@ -9,107 +6,33 @@
+ import pandas as pd
+ import numpy as np
+-
+-# Column mapping from Excel raw headers to SQLite database attributes
+-COLUMN_MAPPINGS = {
+-    'SBPR No.': 'sbpr_no',
+-    "C'measure": 'c_measure',
+-    'FTIR No.': 'ftir_no',
+-    'Product Model Code': 'product_model_code',
+-    'Sales Model Code': 'sales_model_code',
+-    'Segmentation': 'segmentation',
+-    'Subject (English)': 'subject_english',
+-    'Subject (Your Language)': 'subject_your_language',
+-    'Causal Parts No.': 'causal_parts_no',
+-    'Rank': 'rank',
+-    'Reported Country': 'reported_country',
+-    'VIN': 'vin',
+-    'Report Company': 'report_company',
+-    'Issued Company': 'issued_company',
+-    'FTIR Report Date': 'ftir_report_date',
+-    'Reply Date': 'reply_date',
+-    'Status': 'status',
+-    'FC-OK': 'fc_ok',
+-    'Date Registered': 'date_registered',
+-    'Date of Incident': 'date_of_incident',
+-    'Mileage / Using Time': 'mileage_using_time',
+-    'Days Used': 'days_used',
+-    'Deliberation': 'deliberation',
+-    'Pending Due Date': 'pending_due_date',
+-    'Latest Meeting Date': 'latest_meeting_date',
+-    'Deliberation Base': 'deliberation_base',
+-    'Transaction Base': 'transaction_base',
+-    'Production Base': 'production_base',
+-    'Requested Bases (IBCR)': 'requested_bases_ibcr',
+-    '(Drawing Parts No.)': 'drawing_parts_no',
+-    'FPCR No.': 'fpcr_no',
+-    'Engine No.': 'engine_no',
+-    'Transmission No.': 'transmission_no',
+-    'Outbreak Country': 'outbreak_country',
+-    'Trouble Code (Complaint)': 'trouble_code_complaint',
+-    'Trouble Code (Defect)': 'trouble_code_defect',
+-    'Sales Dealer': 'sales_dealer',
+-    'Service Dealer': 'service_dealer',
+-    'Spec on Destination': 'spec_on_destination',
+-    'Vehicles of same Incident': 'vehicles_of_same_incident',
+-    'Parts Availability': 'parts_availability',
+-    'Causal Parts Name (English)': 'causal_parts_name_english',
+-    'Causal Parts Name (Your Language)': 'causal_parts_name_your_language',
+-    'Collection Request Date': 'collection_request_date',
+-    'Parts Retrieved Date': 'parts_retrieved_date',
+-    'Manufacturer Factory': 'manufacturer_factory',
+-    'Issue No. (Report Co.)': 'issue_no_report_co',
+-    'Person of Action Judgement': 'person_of_action_judgement',
+-    'Department of Action Judgement': 'department_of_action_judgement',
+-    'Judgement Date': 'judgement_date',
+-    'Action Judgement': 'action_judgement',
+-    'Reason of "Not to File as an SBPR"': 'reason_of_not_to_file_as_an_sbpr',
+-    'Remarkable Problems': 'remarkable_problems',
+-    'Repair contents (English)': 'repair_contents_english',
+-    'Repair contents (Your Language)': 'repair_contents_your_language',
+-    'Approval Judgement Date': 'approval_judgement_date',
+-    'Taken-out Parts1': 'taken_out_parts1',
+-    'Taken-out Date1': 'taken_out_date1',
+-    'Taken-out Parts2': 'taken_out_parts2',
+-    'Taken-out Date2': 'taken_out_date2',
+-    'Taken-out Parts3': 'taken_out_parts3',
+-    'Taken-out Date3': 'taken_out_date3',
+-    'TSR report date': 'tsr_report_date',
+-    'SBPR': 'sbpr',
+-    'Requested Bases (IBCR)(Start Date)': 'requested_bases_ibcr_start_date',
+-    'Account of Nonacceptance': 'account_of_nonacceptance',
+-    'Account of Nonacceptance (Details) (English)': 'account_of_nonacceptance_details_english',
+-    'Account of Nonacceptance (Details) (Your Language)': 'account_of_nonacceptance_details_your_language',
+-    'FTIR Date Received': 'ftir_date_received',
+-    'Parts Dispatch Date': 'parts_dispatch_date',
+-    'Parts Dispatch Status': 'parts_dispatch_status',
+-}
+-
+-def mlg_clean(s):
+-    """Cleans using time mileage string into an integer/float."""
+-    try:
+-        if pd.isna(s) or s is None:
+-            return np.nan
+-        val_str = str(s).replace(",", "").strip()
+-        if not val_str:
+-            return np.nan
+-        return float(val_str.split()[0])
+-    except Exception:
+-        return np.nan
+-
+-def parse_date_val(val):
++from analytics.views import refresh_materialized_views
++
++def clean_km(val):
++    """Cleans using time mileage string into an integer."""
++    if pd.isna(val) or val is None:
++        return 0
++    val_str = str(val).lower()
++    digits = "".join([c for c in val_str if c.isdigit()])
++    return int(digits) if digits else 0
++
++def parse_date(date_val):
+     """Parses date string or object into standard YYYY-MM-DD or returns empty."""
+-    if pd.isna(val) or val is None or str(val).lower().strip() in ('nan', ''):
++    if pd.isna(date_val) or date_val is None:
+         return None
+-    try:
+-        dt = pd.to_datetime(val, errors='coerce')
+-        if pd.isna(dt):
+-            return None
+-        return dt.strftime("%Y-%m-%d")
+-    except Exception:
+-        return str(val)
++    if isinstance(date_val, (datetime.date, datetime.datetime)):
++        return date_val.strftime("%Y-%m-%d")
++    
++    date_str = str(date_val).strip()
++    for fmt in ("%d-%m-%Y", "%Y-%m-%d", "%d/%m/%Y", "%Y/%m/%d"):
++        try:
++            dt = datetime.datetime.strptime(date_str, fmt)
++            return dt.strftime("%Y-%m-%d")
++        except ValueError:
++            continue
++    return date_str
+ 
+ def extract_year_month(date_str):
+     """Extracts (year, month) integers from standard YYYY-MM-DD string."""
+-    if not date_str or not isinstance(date_str, str):
++    if not date_str:
+         return 0, 0
+     try:
+@@ -117,4 +40,8 @@
+         if len(parts) >= 3:
+             return int(parts[0]), int(parts[1])
++        # Try DD-MM-YYYY format
++        parts_alt = date_str.split("-")
++        if len(parts_alt) == 3 and len(parts_alt[2]) == 4:
++            return int(parts_alt[2]), int(parts_alt[1])
+     except Exception:
+         pass
+@@ -122,22 +49,40 @@
+ 
+ def generate_heuristic_summary(row):
+-    """Generates a 2-sentence summary fallback from structured fields."""
+-    subject = str(row.get('subject_english', '')).strip()
+-    repair = str(row.get('repair_contents_english', '')).strip()
+-    part = str(row.get('causal_parts_name_english', '')).strip()
+-    
++    """Generates a high-quality 2-sentence summary fallback from structured fields."""
++    subject = str(row.get('Subject', '')).strip()
++    complaint = str(row.get('Customer Complaint', '')).strip()
++    results = str(row.get('Checked Results', '')).strip()
++    repair = str(row.get('Repair Contents', '')).strip()
++    part = str(row.get('Causal Parts Name', '')).strip()
++    
++    # Handle NaNs and empty values
+     subject = subject if (subject and subject.lower() != 'nan') else "Vehicle issue"
++    results = results if (results and results.lower() != 'nan') else "inspected by technician"
+     repair = repair if (repair and repair.lower() != 'nan') else "repaired"
+     part_str = f"causal part {part.lower()}" if (part and part.lower() != 'nan') else "causal component"
+     
++    # Build text sentences
+     sentence1 = f"Issue reported was '{subject}', related to {part_str}."
+-    sentence2 = f"Technician action was '{repair.split('.')[0]}'."
+-    
++    sentence2 = f"Checked results found '{results.split('.')[0]}', and technician action was '{repair.split('.')[0]}'."
++    
++    # Clean spacing
+     sentence1 = re.sub(r'\s+', ' ', sentence1)
+     sentence2 = re.sub(r'\s+', ' ', sentence2)
++    
+     return f"{sentence1} {sentence2}"
+ 
++def calculate_row_hash(row):
++    """Calculates MD5 hash of critical fields to uniquely identify records."""
++    ftir_no = str(row.get('FTIR No', '')).strip()
++    subject = str(row.get('Subject', '')).strip()
++    complaint = str(row.get('Customer Complaint', '')).strip()
++    concat_str = f"{ftir_no}|{subject}|{complaint}"
++    return hashlib.md5(concat_str.encode('utf-8')).hexdigest()
++
+ def ingest_excel(excel_path, db_path, llm_client=None):
+-    """Reads Excel files, cleans, deduplicates, and ingests records into database."""
++    """
++    Reads an Excel file, cleans columns, deduplicates, generates summaries,
++    writes to SQLite database, and returns new rows added.
++    """
+     print(f"Starting ingestion of: {excel_path}")
+     if not os.path.exists(excel_path):
+@@ -145,208 +90,216 @@
+         return []
+     
+-    # Read Excel sheet
++    # Read Excel
+     df = pd.read_excel(excel_path, sheet_name=0)
++    
++    # Rename columns to normalize raw Excel sheets
++    df = df.rename(columns={
++        'SBPR No.': 'SBPR No',
++        "C'measure": 'C Measure',
++        'FTIR No.': 'FTIR No',
++        'Product Model Code': 'Product MODEL Code',
++        'Subject (English)': 'Subject',
++        # Keep Reported Country as its own field; do NOT alias to Outbreak Country
++        'Report Company': 'Reported Company',
++        'Causal Parts Name (English)': 'Causal Parts Name',
++        # Handle both dash and slash variants of the mileage column
++        'Mileage - Using Time': 'Using Time (km)',
++        'Mileage / Using Time': 'Using Time (km)',
++        'Causal Parts No.': 'Causal Parts No (Drawing Parts No)',
++        # New column renames
++        'Department of Action Judgement': 'Dept of Action Judgement',
++        'Reason of "Not to File as an SBPR"': 'Reason Not SBPR',
++    })
++    
+     print(f"Loaded {len(df)} rows from Excel.")
+     
+-    # 1. Apply column rename mappings
+-    df.rename(columns=COLUMN_MAPPINGS, inplace=True)
+-    df.columns = df.columns.str.strip()
+-    
+-    # 2. Clean values to string/stripping
++    # Normalize all string values and handle NaNs using a lambda expression
+     clean_val = lambda x: str(x).strip() if not pd.isna(x) else None
+     for col in df.columns:
+-        if col not in ('mileage_using_time', 'days_used'):
+-            df[col] = df[col].apply(clean_val)
+-            
+-    # 3. Apply custom cleaning functions matching mq analystic system
+-    # Mileage cleaning
+-    df['mileage_using_time'] = df['mileage_using_time'].apply(mlg_clean)
+-    
+-    # Days Used cleaning
+-    df['days_used'] = df['days_used'].astype(str).str.extract(r'(\d+)', expand=False)
+-    df['days_used'] = pd.to_numeric(df['days_used'], errors='coerce')
+-    
+-    # Product Model Code slicing
+-    if 'product_model_code' in df.columns:
+-        df['product_model_code'] = df['product_model_code'].str.slice(0, 3).copy()
+-        
+-    # Date columns conversion
+-    date_columns = [
+-        'ftir_report_date', 'reply_date', 'date_registered', 'date_of_incident',
+-        'pending_due_date', 'latest_meeting_date', 'collection_request_date',
+-        'parts_retrieved_date', 'judgement_date', 'approval_judgement_date',
+-        'taken_out_date1', 'taken_out_date2', 'taken_out_date3', 'tsr_report_date',
+-        'requested_bases_ibcr_start_date', 'ftir_date_received', 'parts_dispatch_date'
++        df[col] = df[col].apply(clean_val)
++        
++    # Ensure all required database fields exist in the DataFrame (initialize missing ones to None)
++    required_cols = [
++        'SBPR No', 'FTIR No', 'FTIR Report Date', 'Reply Date', 'Status', 'FC-OK',
++        'Product MODEL Code', 'Sales Model Code', 'Segmentation', 'VIN', 'Engine No',
++        'Transmission No', 'Date Registered', 'Date of Incident', 'Using Time (km)',
++        'Reported Company', 'Issued Company', 'Reported Country', 'Outbreak Country',
++        'Manufacturer Factory', 'Subject', 'C Measure', 'Customer Complaint',
++        'Trouble Code (Complaint)', 'Trouble Code Defect', 'Checked Contents',
++        'Checked Results', 'Repair Status', 'Repair Contents', 'Problem Solved',
++        'Action Judgement', 'Causal Parts No (Drawing Parts No)', 'Causal Parts Name',
++        'Supplier of Causal Parts', 'Production Base', 'Parts Availability',
++        'File Name', 'Quality',
++        # ── New columns ─────────────────────────────────────────────────
++        'Rank', 'Days Used', 'FPCR No.', 'Sales Dealer', 'Service Dealer',
++        'Spec on Destination', 'Collection Request Date', 'Parts Retrieved Date',
++        'Person of Action Judgement', 'Dept of Action Judgement',
++        'Judgement Date', 'Reason Not SBPR', 'Approval Judgement Date',
+     ]
+-    for col in date_columns:
+-        if col in df.columns:
+-            df[col] = df[col].apply(parse_date_val)
+-            
+-    # 4. Compute derived / custom parameters
+-    df['using_km_int'] = df['mileage_using_time'].fillna(0).astype(int)
+-    
+-    df['extracted_ym'] = df['ftir_report_date'].apply(extract_year_month)
++    for col in required_cols:
++        if col not in df.columns:
++            df[col] = None
++
++    # Handle fallbacks for missing customer complaints using lambda
++    df['Customer Complaint'] = df.apply(
++        lambda r: r['Subject'] if not r['Customer Complaint'] and r['Subject'] else r['Customer Complaint'], 
++        axis=1
++    )
++    
++    # Parse trouble code from subject if empty using lambda/regex
++    parse_tc = lambda r: re.search(r'\b([PBCU]\d{4})\b', r['Subject'], re.IGNORECASE).group(1).upper() if (not r['Trouble Code (Complaint)'] and r['Subject'] and re.search(r'\b([PBCU]\d{4})\b', r['Subject'], re.IGNORECASE)) else r['Trouble Code (Complaint)']
++    df['Trouble Code (Complaint)'] = df.apply(parse_tc, axis=1)
++
++    # Compute row hashes
++    df['row_hash'] = df.apply(
++        lambda r: hashlib.md5(f"{r['FTIR No'] or ''}|{r['Subject'] or ''}|{r['Customer Complaint'] or ''}".encode('utf-8')).hexdigest(),
++        axis=1
++    )
++    
++    # Standardize dates
++    df['FTIR Report Date'] = df['FTIR Report Date'].apply(parse_date)
++    df['Reply Date'] = df['Reply Date'].apply(parse_date)
++    df['Date Registered'] = df['Date Registered'].apply(parse_date)
++    df['Date of Incident'] = df['Date of Incident'].apply(parse_date)
++    # New date columns
++    df['Collection Request Date'] = df['Collection Request Date'].apply(parse_date)
++    df['Parts Retrieved Date']    = df['Parts Retrieved Date'].apply(parse_date)
++    df['Judgement Date']          = df['Judgement Date'].apply(parse_date)
++    df['Approval Judgement Date'] = df['Approval Judgement Date'].apply(parse_date)
++    
++    # Computed columns
++    df['using_km_int'] = df['Using Time (km)'].apply(clean_km)
++    
++    # Days Used — coerce to integer, preserve None for nulls
++    def safe_int(val):
++        try:
++            f = float(val)
++            return int(f) if not pd.isna(f) else None
++        except (TypeError, ValueError):
++            return None
++    df['Days Used'] = df['Days Used'].apply(safe_int)
++    
++    # Year/month extraction
++    df['extracted_ym'] = df['FTIR Report Date'].apply(extract_year_month)
+     df['report_year'] = df['extracted_ym'].apply(lambda x: x[0])
+     df['report_month'] = df['extracted_ym'].apply(lambda x: x[1])
+     
+-    df['is_resolved'] = df['status'].apply(lambda val: 1 if val and str(val).lower() == 'closed' else 0)
+-    df['has_sbpr'] = df['sbpr_no'].apply(lambda val: 1 if val and str(val).lower() not in ('nan', '') else 0)
+-    
+-    # 5. Populate legacy column aliases for query engine compatibility
+-    df['subject'] = df['subject_english']
+-    df['customer_complaint'] = df['subject_english']
+-    df['checked_contents'] = df['deliberation']
+-    df['checked_results'] = None
+-    df['repair_status'] = df['status']
+-    df['repair_contents'] = df['repair_contents_english']
+-    df['causal_parts_name'] = df['causal_parts_name_english']
+-    df['using_time_km'] = df['mileage_using_time']
+-    df['reported_company'] = df['report_company']
+-    
+-    # Parse trouble codes complaint from subject if not explicitly filled
+-    def parse_tc(r):
+-        subject = r.get('subject_english') or ''
+-        complaint_tc = r.get('trouble_code_complaint')
+-        if not complaint_tc and subject:
+-            match = re.search(r'\b([PBCU]\d{4})\b', subject, re.IGNORECASE)
+-            if match:
+-                return match.group(1).upper()
+-        return complaint_tc
+-    df['trouble_code_complaint'] = df.apply(parse_tc, axis=1)
+-
+-    # 6. Generate row hash
+-    df['row_hash'] = df.apply(
+-        lambda r: hashlib.md5(f"{r['ftir_no'] or ''}|{r['subject_english'] or ''}".encode('utf-8')).hexdigest(),
+-        axis=1
+-    )
+-    
+-    from core.database import get_session, Record, refresh_materialized_views
++    # Compute resolved and sbpr flags using lambdas
++    df['is_resolved'] = df['Problem Solved'].apply(lambda val: 1 if val and str(val).lower() in ('resolved', 'solved') else 0)
++    df['has_sbpr'] = df['SBPR No'].apply(lambda val: 1 if val and str(val).lower() not in ('nan', '') else 0)
++    
++    # Connect to DB and fetch existing hashes and FTIRs to filter duplicates in batch
++    from core.database import get_session, Record
++    
+     session = get_session(db_path)
+     
+     try:
+-        # Check existing records to prevent duplicates
+         existing_rows = session.query(Record.row_hash, Record.ftir_no).all()
+         existing_hashes = {r.row_hash for r in existing_rows if r.row_hash}
+         existing_ftirs = {str(r.ftir_no).strip() for r in existing_rows if r.ftir_no}
+         
+-        df_new = df[~df['row_hash'].isin(existing_hashes) & ~df['ftir_no'].isin(existing_ftirs)]
++        # Filter out duplicate records
++        df_new = df[~df['row_hash'].isin(existing_hashes) & ~df['FTIR No'].isin(existing_ftirs)]
++        
+         print(f"Filtered duplicates: {len(df_new)} new records to insert.")
+         
+         new_records = []
++        
++        # Insert new records
+         for idx, row in df_new.iterrows():
++            # Generate summary using heuristic only
+             summary = generate_heuristic_summary(row)
+-            
+-            # Construct Record model instance utilizing mapped columns
++                
+             record = Record(
+-                sbpr_no=row.get('sbpr_no'),
+-                c_measure=row.get('c_measure'),
+-                ftir_no=row.get('ftir_no'),
+-                product_model_code=row.get('product_model_code'),
+-                sales_model_code=row.get('sales_model_code'),
+-                segmentation=row.get('segmentation'),
+-                subject_english=row.get('subject_english'),
+-                subject_your_language=row.get('subject_your_language'),
+-                causal_parts_no=row.get('causal_parts_no'),
+-                rank=row.get('rank'),
+-                reported_country=row.get('reported_country'),
+-                vin=row.get('vin'),
+-                report_company=row.get('report_company'),
+-                issued_company=row.get('issued_company'),
+-                ftir_report_date=row.get('ftir_report_date'),
+-                reply_date=row.get('reply_date'),
+-                status=row.get('status'),
+-                fc_ok=row.get('fc_ok'),
+-                date_registered=row.get('date_registered'),
+-                date_of_incident=row.get('date_of_incident'),
+-                mileage_using_time=row.get('mileage_using_time'),
+-                days_used=row.get('days_used') if not pd.isna(row.get('days_used')) else None,
+-                deliberation=row.get('deliberation'),
+-                pending_due_date=row.get('pending_due_date'),
+-                latest_meeting_date=row.get('latest_meeting_date'),
+-                deliberation_base=row.get('deliberation_base'),
+-                transaction_base=row.get('transaction_base'),
+-                production_base=row.get('production_base'),
+-                requested_bases_ibcr=row.get('requested_bases_ibcr'),
+-                drawing_parts_no=row.get('drawing_parts_no'),
+-                fpcr_no=row.get('fpcr_no'),
+-                engine_no=row.get('engine_no'),
+-                transmission_no=row.get('transmission_no'),
+-                outbreak_country=row.get('outbreak_country'),
+-                trouble_code_complaint=row.get('trouble_code_complaint'),
+-                trouble_code_defect=row.get('trouble_code_defect'),
+-                sales_dealer=row.get('sales_dealer'),
+-                service_dealer=row.get('service_dealer'),
+-                spec_on_destination=row.get('spec_on_destination'),
+-                vehicles_of_same_incident=row.get('vehicles_of_same_incident'),
+-                parts_availability=row.get('parts_availability'),
+-                causal_parts_name_english=row.get('causal_parts_name_english'),
+-                causal_parts_name_your_language=row.get('causal_parts_name_your_language'),
+-                collection_request_date=row.get('collection_request_date'),
+-                parts_retrieved_date=row.get('parts_retrieved_date'),
+-                manufacturer_factory=row.get('manufacturer_factory'),
+-                issue_no_report_co=row.get('issue_no_report_co'),
+-                person_of_action_judgement=row.get('person_of_action_judgement'),
+-                department_of_action_judgement=row.get('department_of_action_judgement'),
+-                judgement_date=row.get('judgement_date'),
+-                action_judgement=row.get('action_judgement'),
+-                reason_of_not_to_file_as_an_sbpr=row.get('reason_of_not_to_file_as_an_sbpr'),
+-                remarkable_problems=row.get('remarkable_problems'),
+-                repair_contents_english=row.get('repair_contents_english'),
+-                repair_contents_your_language=row.get('repair_contents_your_language'),
+-                approval_judgement_date=row.get('approval_judgement_date'),
+-                taken_out_parts1=row.get('taken_out_parts1'),
+-                taken_out_date1=row.get('taken_out_date1'),
+-                taken_out_parts2=row.get('taken_out_parts2'),
+-                taken_out_date2=row.get('taken_out_date2'),
+-                taken_out_parts3=row.get('taken_out_parts3'),
+-                taken_out_date3=row.get('taken_out_date3'),
+-                tsr_report_date=row.get('tsr_report_date'),
+-                sbpr=row.get('sbpr'),
+-                requested_bases_ibcr_start_date=row.get('requested_bases_ibcr_start_date'),
+-                account_of_nonacceptance=row.get('account_of_nonacceptance'),
+-                account_of_nonacceptance_details_english=row.get('account_of_nonacceptance_details_english'),
+-                account_of_nonacceptance_details_your_language=row.get('account_of_nonacceptance_details_your_language'),
+-                ftir_date_received=row.get('ftir_date_received'),
+-                parts_dispatch_date=row.get('parts_dispatch_date'),
+-                parts_dispatch_status=row.get('parts_dispatch_status'),
+-                
+-                # Legacy column mappings
+-                subject=row.get('subject'),
+-                customer_complaint=row.get('customer_complaint'),
+-                checked_contents=row.get('checked_contents'),
+-                checked_results=row.get('checked_results'),
+-                repair_status=row.get('repair_status'),
+-                repair_contents=row.get('repair_contents'),
+-                causal_parts_name=row.get('causal_parts_name'),
+-                using_time_km=row.get('using_time_km'),
+-                reported_company=row.get('reported_company'),
+-                
+-                # Derived
+-                row_hash=row.get('row_hash'),
+-                using_km_int=int(row.get('using_km_int', 0)),
+-                report_year=int(row.get('report_year', 0)),
+-                report_month=int(row.get('report_month', 0)),
+-                is_resolved=int(row.get('is_resolved', 0)),
+-                has_sbpr=int(row.get('has_sbpr', 0)),
++                sbpr_no=row['SBPR No'],
++                ftir_no=row['FTIR No'],
++                ftir_report_date=row['FTIR Report Date'],
++                reply_date=row['Reply Date'],
++                status=row['Status'],
++                fc_ok=row['FC-OK'],
++                product_model_code=row['Product MODEL Code'],
++                sales_model_code=row['Sales Model Code'],
++                segmentation=row['Segmentation'],
++                vin=row['VIN'],
++                engine_no=row['Engine No'],
++                transmission_no=row['Transmission No'],
++                date_registered=row['Date Registered'],
++                date_of_incident=row['Date of Incident'],
++                using_time_km=row['Using Time (km)'],
++                reported_company=row['Reported Company'],
++                issued_company=row['Issued Company'],
++                outbreak_country=row['Outbreak Country'],
++                manufacturer_factory=row['Manufacturer Factory'],
++                subject=row['Subject'],
++                c_measure=row['C Measure'],
++                customer_complaint=row['Customer Complaint'],
++                trouble_code_complaint=row['Trouble Code (Complaint)'],
++                trouble_code_defect=row['Trouble Code Defect'],
++                checked_contents=row['Checked Contents'],
++                checked_results=row['Checked Results'],
++                repair_status=row['Repair Status'],
++                repair_contents=row['Repair Contents'],
++                problem_solved=row['Problem Solved'],
++                action_judgement=row['Action Judgement'],
++                causal_parts_no=row['Causal Parts No (Drawing Parts No)'],
++                causal_parts_name=row['Causal Parts Name'],
++                supplier_of_causal_parts=row['Supplier of Causal Parts'],
++                production_base=row['Production Base'],
++                parts_availability=row['Parts Availability'],
++                file_name=row['File Name'],
++                quality=row['Quality'],
++                # ── New fields ─────────────────────────────────────────────────────
++                rank=row['Rank'],
++                reported_country=row['Reported Country'],
++                days_used=row['Days Used'],
++                fpcr_no=row['FPCR No.'],
++                sales_dealer=row['Sales Dealer'],
++                service_dealer=row['Service Dealer'],
++                spec_on_destination=row['Spec on Destination'],
++                collection_request_date=row['Collection Request Date'],
++                parts_retrieved_date=row['Parts Retrieved Date'],
++                person_of_action_judgement=row['Person of Action Judgement'],
++                dept_of_action_judgement=row['Dept of Action Judgement'],
++                judgement_date=row['Judgement Date'],
++                reason_not_sbpr=row['Reason Not SBPR'],
++                approval_judgement_date=row['Approval Judgement Date'],
++                # ── Computed / metadata ─────────────────────────────────────────────
++                row_hash=row['row_hash'],
++                using_km_int=row['using_km_int'],
++                report_year=row['report_year'],
++                report_month=row['report_month'],
++                is_resolved=row['is_resolved'],
++                has_sbpr=row['has_sbpr'],
+                 summary=summary
+             )
+             session.add(record)
++            session.flush()  # Populate record.id
++            
+             new_records.append({
+-                "ftir_no": row.get('ftir_no'),
+-                "subject": row.get('subject_english'),
+-                "reported_company": row.get('report_company'),
+-                "outbreak_country": row.get('outbreak_country')
++                'id': record.id,
++                'ftir_no': row['FTIR No'],
++                'outbreak_country': row['Outbreak Country'],
++                'product_model_code': row['Product MODEL Code'],
++                'segmentation': row['Segmentation'],
++                'trouble_code_complaint': row['Trouble Code (Complaint)'],
++                'subject': row['Subject'],
++                'checked_results': row['Checked Results'],
++                'repair_contents': row['Repair Contents'],
++                'causal_parts_name': row['Causal Parts Name'],
++                'summary': summary
+             })
+             
+         session.commit()
+-        print(f"Successfully committed {len(new_records)} new records.")
+-        
+-        # Refresh simulated materialized views
+-        refresh_materialized_views(db_path)
+-        return new_records
+     except Exception as e:
+         session.rollback()
+-        print(f"Error during ingestion database operations: {e}")
+         raise e
+     finally:
+         session.close()
++    
++    print(f"Ingested {len(new_records)} new records.")
++    
++    # Refresh materialized views if there were any updates
++    if new_records:
++        refresh_materialized_views(db_path)
++        
++    return new_records
+
+
+=== automotive_qa/rag/embedder.py vs MQ Analytics Sytem/core/rag/rag_embedder.py ===
+--- MQ Analytics Sytem/core/rag/rag_embedder.py
++++ automotive_qa/rag/embedder.py
+@@ -1,5 +1,2 @@
+-# =====================================================
+-# ✅ VECTOR EMBEDDINGS & FAISS SEARCH
+-# =====================================================
+ import os
+ import json
+@@ -8,4 +5,5 @@
+ import faiss
+ from core.paths import get_db_path, get_index_path, get_metadata_path
++
+ from dataclasses import dataclass, field
+ from typing import List
+@@ -46,5 +44,4 @@
+         return f"threshold={self.threshold_used:.2f} → {self.count} rows matched (scores {min(scores):.3f}–{max(scores):.3f})"
+ 
+-
+ class SemanticSearcher:
+     DEFAULT_THRESHOLD_LADDER = (0.40, 0.50, 0.60, 0.70, 0.80, 0.90)
+@@ -62,8 +59,10 @@
+ 
+     def search(self, query: str, threshold: float = 0.60, candidate_ids: List[int] = None) -> ThresholdSearchResults:
+-        query_embedding = self.model.encode([query])
++        # 1. Encode query with normalization
++        query_embedding = self.model.encode([query], show_progress_bar=False, convert_to_numpy=True)
+         faiss.normalize_L2(query_embedding)
+         query_vec = np.array(query_embedding[0], dtype=np.float32)
+ 
++        # 2. Get FAISS positions
+         if candidate_ids is not None:
+             positions = self._db_ids_to_positions(candidate_ids)
+@@ -71,8 +70,10 @@
+             positions = list(range(len(self.id_map)))
+ 
++        # 3. Handle empty positions
+         if not positions:
+             print(f"Warning: No valid candidate positions for query: {query}")
+             return ThresholdSearchResults(query=query, threshold_used=threshold)
+ 
++        # 4. Reconstruct candidate embeddings from index
+         flat_index = faiss.downcast_index(self.index.index)
+         candidate_vecs = []
+@@ -82,5 +83,8 @@
+         candidate_vecs = np.vstack(candidate_vecs).astype(np.float32)
+ 
++        # 5. Compute cosine similarity
+         scores = np.dot(candidate_vecs, query_vec)
++
++        # 6. Apply threshold mask
+         mask = scores >= threshold
+         passing_indices = np.where(mask)[0]
+@@ -94,11 +98,14 @@
+         passing_scores = scores[passing_indices]
+ 
++        # 7. Sort descending
+         sorted_indices = np.argsort(-passing_scores)
+         sorted_positions = [passing_positions[idx] for idx in sorted_indices]
+         sorted_scores = [passing_scores[idx] for idx in sorted_indices]
+ 
++        # 8. Slice to max results
+         sliced_positions = sorted_positions[:self.max_results]
+         sliced_scores = sorted_scores[:self.max_results]
+ 
++        # 9. Build SearchResult objects
+         results = []
+         for rank, (pos, score) in enumerate(zip(sliced_positions, sliced_scores), 1):
+@@ -106,5 +113,5 @@
+             results.append(SearchResult(record_id=db_id, score=float(score), rank=rank))
+ 
+-        print(f"Threshold search complete: {len(results)} rows matched threshold >= {threshold:.2f}")
++        print(f"Threshold search complete: {len(results)} rows matched threshold >= {threshold:.2f} (from {len(positions)} total candidates)")
+         return ThresholdSearchResults(query=query, threshold_used=threshold, results=results)
+ 
+@@ -123,14 +130,12 @@
+         return ThresholdSearchResults(query=query, threshold_used=ladder[0])
+ 
+-
+ class VectorEmbedder:
+-    def __init__(self, model_name="all-MiniLM-L6-v2", index_path=None, metadata_path=None):
+-        from core.config import INDEX_PATH, METADATA_PATH
++    def __init__(self, model_name="all-MiniLM-L6-v2", index_path="data/faiss_index.bin", metadata_path="data/vector_metadata.json"):
+         self.model_name = model_name
+-        self.index_path = get_index_path(index_path) if index_path else INDEX_PATH
+-        self.metadata_path = get_metadata_path(metadata_path) if metadata_path else METADATA_PATH
++        self.index_path = get_index_path(index_path)
++        self.metadata_path = get_metadata_path(metadata_path)
+         self.model = None
+         self.index = None
+-        self.metadata = []
++        self.metadata = [] # List of dicts matching FAISS index row-by-row
+         
+     def load_model(self):
+@@ -142,6 +147,7 @@
+ 
+     def encode(self, texts):
+-        """Generates embeddings for a list of texts, using DB caching."""
++        """Generates embeddings for a list of texts. Returns normalized numpy arrays."""
+         self.load_model()
++        
+         from core.cache import EmbeddingCache
+         emb_cache = EmbeddingCache()
+@@ -172,12 +178,17 @@
+         return np.array(embeddings, dtype=np.float32)
+ 
+-    def build_index(self, record_ids, texts, metadatas):
+-        dimension = 384
++    def build_index(self, record_ids, texts, metadatas, nlist=100):
++        """
++        Builds the FAISS Flat IndexIDMap on the provided dataset.
++        """
++        dimension = 384 # MiniLM embedding size
+         embeddings = self.encode(texts)
+         
+-        print(f"Building FAISS IndexIDMap with {len(embeddings)} vectors...")
++        print(f"Building FAISS Flat IndexIDMap with {len(embeddings)} vectors...")
++        
+         index_flat = faiss.IndexFlatIP(dimension)
+         self.index = faiss.IndexIDMap(index_flat)
+         
++        # Add vectors with custom IDs matching the record IDs in SQLite
+         record_ids_arr = np.array(record_ids, dtype=np.int64)
+         self.index.add_with_ids(embeddings, record_ids_arr)
+@@ -188,8 +199,10 @@
+ 
+     def append_to_index(self, record_ids, texts, metadatas):
++        """Appends new vectors to the existing FAISS index incrementally."""
+         if self.index is None:
+             self.load_index()
+             
+         if self.index is None:
++            # Build new index if none exists
+             self.build_index(record_ids, texts, metadatas)
+             return
+@@ -202,7 +215,8 @@
+         self.metadata.extend(metadatas)
+         self.save_index()
+-        print("FAISS index updated.")
++        print("FAISS index updated and saved.")
+ 
+     def save_index(self):
++        """Saves the FAISS index and parallel metadata list to disk."""
+         os.makedirs(os.path.dirname(self.index_path), exist_ok=True)
+         faiss.write_index(self.index, self.index_path)
+@@ -211,4 +225,5 @@
+ 
+     def rebuild_index_from_db(self):
++        """Rebuilds the FAISS IndexIDMap from the SQLite database records."""
+         db_path = get_db_path("data/automotive.db")
+         if not os.path.exists(db_path):
+@@ -216,7 +231,8 @@
+             return
+             
+-        from core.rag.document_builder import build_document_text
+-        
+-        print("Rebuilding FAISS index from database...")
++        import sqlite3
++        from rag.document_builder import build_document_text
++        
++        print("Rebuilding FAISS index from database records...")
+         conn = sqlite3.connect(db_path)
+         cursor = conn.cursor()
+@@ -248,4 +264,5 @@
+             record_ids.append(rec_id)
+             texts.append(doc_text)
++            
+             metadatas.append({
+                 'id': rec_id,
+@@ -259,18 +276,24 @@
+ 
+     def load_index(self):
++        """Loads the FAISS index and metadata list from disk."""
+         if os.path.exists(self.index_path) and os.path.exists(self.metadata_path):
+             self.index = faiss.read_index(self.index_path)
++            # Rebuild if not IndexIDMap
+             if "IndexIDMap" not in str(type(self.index)):
+-                print("Loaded index is not IndexIDMap. Rebuilding...")
++                print("Loaded index is not IndexIDMap. Rebuilding from database...")
+                 self.rebuild_index_from_db()
+             with open(self.metadata_path, 'r') as f:
+                 self.metadata = json.load(f)
+-            print("FAISS index and metadata loaded.")
++            print("FAISS index and metadata loaded successfully.")
+             return True
+         else:
+-            print("FAISS index or metadata files do not exist.")
++            print("FAISS index or metadata files do not exist on disk.")
+             return False
+ 
+-    def search_subset(self, query_text, whitelisted_ids, k=None, threshold=0.30):
++    def search_subset(self, query_text, whitelisted_ids, k=None, nprobe=20, threshold=0.30):
++        """
++        Searches the FAISS index using a query embedding, restricted to a whitelist of IDs,
++        using range_search to filter out low-similarity records (similarity < threshold).
++        """
+         if self.index is None:
+             loaded = self.load_index()
+@@ -281,11 +304,18 @@
+             return []
+             
++        # Get query embedding
+         query_embedding = self.encode([query_text])
++        
++        # Build FAISS ID Selector for the whitelisted IDs
+         whitelisted_ids_arr = np.array(whitelisted_ids, dtype=np.int64)
+         id_selector = faiss.IDSelectorArray(whitelisted_ids_arr)
++        
++        # Prepare Search Parameters with the selector
+         params = faiss.SearchParameters(sel=id_selector)
+         
++        # Perform range search
+         lims, scores, indices = self.index.range_search(query_embedding, threshold, params=params)
+         
++        # Format results
+         results = []
+         if len(lims) > 1:
+@@ -298,5 +328,8 @@
+                     })
+                     
++        # Sort by score in descending order
+         results = sorted(results, key=lambda x: x['score'], reverse=True)
++        
++        # Limit to top k if specified
+         if k is not None:
+             return results[:k]
+
+
+=== automotive_qa/rag/retriever.py vs MQ Analytics Sytem/core/rag/rag_retriever.py ===
+--- MQ Analytics Sytem/core/rag/rag_retriever.py
++++ automotive_qa/rag/retriever.py
+@@ -1,5 +1,2 @@
+-# =====================================================
+-# ✅ HYBRID RETRIEVER (SQL PRE-FILTER + FAISS SEMANTIC SEARCH)
+-# =====================================================
+ import sqlite3
+ import pandas as pd
+@@ -11,24 +8,36 @@
+     THRESHOLD_LADDER = (0.40, 0.50, 0.60, 0.70, 0.80, 0.90)
+ 
+-    def __init__(self, db_path=None, nlp=None):
+-        from core.config import DB_PATH
+-        self.db_path = db_path if db_path else DB_PATH
++    def __init__(self, db_path="data/automotive.db", nlp=None):
++        from core.paths import get_db_path
++        self.db_path = get_db_path(db_path)
+         if nlp is not None:
++            # Reuse a pre-built NLPProcessor to avoid redundant DB scans
+             self.nlp = nlp
+         else:
+-            from core.engine.intent.nlp import NLPProcessor
++            from nlp.pipeline import NLPProcessor
+             self.nlp = NLPProcessor()
+ 
+     def retrieve(self, query: str, threshold: float | None = None, max_results: int = 15,
+-                  parsed_query: dict | None = None) -> dict:
+-        """Retrieves matching records using SQL pre-filtering and semantic FAISS search."""
++                 parsed_query: dict | None = None) -> dict:
++        """
++        Retrieves matching records using hybrid SQL pre-filtering + FAISS Semantic search
++        with custom cosine similarity thresholding.
++
++        Args:
++            parsed_query: Pre-computed result from nlp.parse_query(). If provided, the
++                          NLP parse step is skipped to avoid redundant computation.
++        """
++        # 1. SQL pre-filtering to get candidate_ids
++        # Reuse pre-parsed query from caller if available to avoid duplicate NLP work
+         if parsed_query is None:
+             parsed_query = self.nlp.parse_query(query)
+-            
+         entities = parsed_query["entities"]
+         filters = parsed_query["filters"]
+         
++        # Only hit the database for IDs when there are active filter conditions.
++        # For unfiltered queries, pass candidate_ids=None so FAISS searches the
++        # full index without a pre-filter, eliminating the full-table id scan.
+         has_filters = (
+-            entities.get("TROUBLE_CODE") or entities.get("PRODUCT_MODEL") or entities.get("COUNTRY") or
++            entities["TROUBLE_CODE"] or entities["PRODUCT_MODEL"] or entities["COUNTRY"] or
+             filters.get("segmentation") or filters.get("quality") or filters.get("km_max") or filters.get("km_min")
+         )
+@@ -40,9 +49,9 @@
+             try:
+                 query_obj = session.query(Record.id)
+-                if entities.get("TROUBLE_CODE"):
++                if entities["TROUBLE_CODE"]:
+                     query_obj = query_obj.filter(Record.trouble_code_complaint.ilike(entities["TROUBLE_CODE"][0]))
+-                if entities.get("PRODUCT_MODEL"):
++                if entities["PRODUCT_MODEL"]:
+                     query_obj = query_obj.filter(Record.product_model_code.ilike(entities["PRODUCT_MODEL"][0]))
+-                if entities.get("COUNTRY"):
++                if entities["COUNTRY"]:
+                     query_obj = query_obj.filter(Record.outbreak_country.ilike(entities["COUNTRY"][0]))
+                 if filters.get("segmentation"):
+@@ -59,18 +68,23 @@
+                 session.close()
+                 
++            # If strict filter yielded no results, fall back to full-index FAISS search
+             if not candidate_ids:
+                 candidate_ids = None
+ 
++        # Instantiate SemanticSearcher
+         from core.singletons import get_embedder
+         embedder = get_embedder()
+         
++        # Load FAISS index if not loaded
+         if embedder.index is None:
+             embedder.load_index()
+             
++        # Get id_map from index
+         id_map = faiss.vector_to_array(embedder.index.id_map).tolist()
+         
+-        from core.rag.rag_embedder import SemanticSearcher
++        from rag.embedder import SemanticSearcher
+         searcher = SemanticSearcher(embedder.index, id_map, embedder.model, max_results=max_results)
+         
++        # 2. Call search or search_with_auto_threshold
+         if threshold is not None:
+             search_result = searcher.search(query, threshold=threshold, candidate_ids=candidate_ids)
+@@ -84,4 +98,5 @@
+             )
+             
++        # 3. If empty results
+         n_candidates = len(candidate_ids) if candidate_ids is not None else embedder.index.ntotal
+         if search_result.is_empty:
+@@ -94,4 +109,5 @@
+             }
+             
++        # 4. Fetch full database rows
+         from core.database import get_session, Record
+         session = get_session(self.db_path)
+@@ -111,5 +127,7 @@
+             session.close()
+         
++        # 5. Sort fetched records to match score order
+         score_map = {r.record_id: r.score for r in search_result.results}
++        
+         records_list = df_matches.to_dict(orient="records")
+         records_list = sorted(records_list, key=lambda x: score_map.get(x["id"], 0.0), reverse=True)
+
+
+=== automotive_qa/analytics/engine.py vs MQ Analytics Sytem/core/sql/sql_executor.py ===
+--- MQ Analytics Sytem/core/sql/sql_executor.py
++++ automotive_qa/analytics/engine.py
+@@ -1,41 +1,8 @@
+-# =====================================================
+-# ✅ SQL EXECUTION ENGINE & ANALYTICS ENGINE
+-# =====================================================
+ import sqlite3
+ import pandas as pd
+-import numpy as np
+ from core.paths import get_db_path
+ 
+-def execute_sql(df, sql_query):
+-    """Executes SQL statement. If df is provided, runs on it; otherwise, queries automotive.db."""
+-    if df is not None and not df.empty:
+-        # User uploaded custom dataset: execute in-memory
+-        conn = sqlite3.connect(":memory:")
+-        df.to_sql("records", conn, index=False, if_exists="replace")
+-        try:
+-            result = pd.read_sql(sql_query, conn)
+-            conn.close()
+-            return result, None
+-        except Exception as e:
+-            conn.close()
+-            return None, str(e)
+-    else:
+-        # Standard database query mode
+-        db_path = get_db_path()
+-        conn = sqlite3.connect(db_path)
+-        try:
+-            result = pd.read_sql(sql_query, conn)
+-            conn.close()
+-            return result, None
+-        except Exception as e:
+-            conn.close()
+-            return None, str(e)
+-
+-
+ class AnalyticsEngine:
+-    def __init__(self, db_path=None):
+-        if db_path is None:
+-            from core.config import DB_PATH
+-            db_path = DB_PATH
++    def __init__(self, db_path="data/automotive.db"):
+         self.db_path = get_db_path(db_path)
+ 
+@@ -44,7 +11,10 @@
+         return get_engine(self.db_path).connect()
+ 
++
+     def get_top_dealers_or_countries(self, by="dealer", limit=10, year=None, country=None):
+         """Returns top N dealers or countries with failure counts."""
+         conn = self._get_connection()
++        
++        # Build query dynamically based on parameters
+         where_clauses = []
+         params = []
+@@ -67,5 +37,5 @@
+                 LIMIT ?;
+             """
+-        else:
++        else: # country
+             query = f"""
+                 SELECT COALESCE(outbreak_country, 'Unknown') as country, COUNT(*) as failures
+@@ -115,5 +85,5 @@
+ 
+     def get_monthly_failure_trend(self, year=None, model=None):
+-        """Returns chronological monthly failure trends."""
++        """Returns chronological monthly failure trends, applying Pandas resampling/ordering."""
+         conn = self._get_connection()
+         where_clauses = ["report_year > 0 AND report_month > 0"]
+@@ -137,4 +107,5 @@
+         conn.close()
+         
++        # Post-process with Pandas to format dates neatly for plotting (e.g. '2024-05')
+         if not df.empty:
+             df['period'] = df.apply(lambda r: f"{int(r['report_year'])}--{int(r['report_month']):02d}", axis=1)
+@@ -142,5 +113,5 @@
+ 
+     def get_model_comparison(self):
+-        """Computes failure statistics per product model."""
++        """Computes comprehensive failure stats per product model."""
+         conn = self._get_connection()
+         query = """
+@@ -161,5 +132,5 @@
+ 
+     def get_using_km_distribution(self, model=None):
+-        """Returns raw mileage values for mileage distributions."""
++        """Returns the mileage values binned into intervals for histograms."""
+         conn = self._get_connection()
+         where_clause = "WHERE using_km_int > 0"
+@@ -175,5 +146,5 @@
+ 
+     def get_quality_distribution(self, model=None, year=None, country=None):
+-        """Returns quality rating distributions."""
++        """Returns counts for each quality rating."""
+         conn = self._get_connection()
+         where_clauses = []
+@@ -201,5 +172,5 @@
+ 
+     def get_repair_success_rate(self):
+-        """Returns repair resolution percentages per trouble code."""
++        """Returns resolution percentages grouped by trouble code."""
+         conn = self._get_connection()
+         query = """
+@@ -258,7 +229,229 @@
+         return df, query.strip()
+ 
++    def query_via_llm(self, query_text):
++        """Generates and executes a SQLite query based on user request using the local LLM."""
++        from core.singletons import get_llm
++        from core.database import Record
++        llm_client = get_llm()
++
++        # Model context configuration — must match n_ctx in client.py
++        MODEL_N_CTX = 4096
++        MAX_GEN_TOKENS = 256  # reserved for the generated SQL output
++        # Safety: 4 characters ≈ 1 token (rough estimate)
++        MAX_PROMPT_CHARS = (MODEL_N_CTX - MAX_GEN_TOKENS) * 4
++
++        # Dynamically extract database schema context from SQLAlchemy Record mapper
++        # Emit only column names (no type/nullable) to keep token count minimal
++        col_names = ", ".join(
++            column.key for column in Record.__mapper__.columns
++        )
++
++        # Compact system prompt styled like the reference prompt structure
++        system_prompt = f"""You are a SQLite expert.
++
++Your task is to write a syntactically correct SQLite query to answer the user query.
++
++========================================
++DATASET CONTEXT
++========================================
++This database table represents FTIR (Field Technical Information Report) data.
++Includes vehicle system segmentation, causal parts, customer complaints, VIN, and repair status.
++
++Table: records
++Columns:
++{col_names}
++
++========================================
++COLUMN SEMANTICS (GUIDE)
++========================================
++- sbpr_no: Unique ID of substantial safety-regulatory problems (e.g. brakes/steering/immobile)
++- ftir_no: Field Technical Incident Report number (unique key)
++- ftir_report_date / reply_date: Report creation date / closure date (YYYY-MM-DD)
++- status: Report state (e.g. 'Open', 'Closed')
++- product_model_code / sales_model_code: Internal product model (starts with Y) / market model code (starts with letters)
++- segmentation: Vehicle system/area (e.g., Engine, Transmission, Body)
++- using_km_int: Odometer/mileage at time of issue in kilometers (integer)
++- reported_company: Dealership or distributor reporting the issue
++- outbreak_country: Country where incident/defect occurred/originated
++- subject: Brief summary/verbatim of the reported technical issue
++- customer_complaint: Detailed verbatim description of complaint symptoms
++- trouble_code_complaint / trouble_code_defect: DTC trouble code reported / trouble code description
++- checked_contents / checked_results: Actions taken / diagnostic findings & inspection details
++- repair_status / repair_contents: Status of repair / repair actions details (e.g., replaced parts)
++- causal_parts_no / causal_parts_name: Faulty part number / name
++- quality: Incident quality level rating ('Good', 'Moderate', 'Poor')
++- report_year / report_month: Computed year / month of report
++- is_resolved: Binary status (1 if resolved/fixed, 0 otherwise)
++
++========================================
++UNDERSTOOD USER INTENT (IMPORTANT)
++========================================
++Use structured database matching logic:
++- Apply WHERE clause filters (e.g. year, model, country) before aggregating.
++- Use correct SQLite aggregation metrics (COUNT, AVG, SUM) matching KPIs.
++- Use GROUP BY and ORDER BY clauses as matching user's requested comparison/groupings.
++
++=======================================
++CRITICAL RULES (DO NOT BREAK)
++========================================
++1. OUTPUT FORMAT:
++- Output ONLY a raw SQLite SELECT statement.
++- Do NOT wrap the query in code blocks (e.g., no ```sql).
++- Do NOT explain the query.
++
++2. DATA USAGE:
++- Always query from the 'records' table.
++
++3. MAPPING RULES:
++- Map misspelled/short columns correctly:
++  complaint -> customer_complaint, checked -> checked_contents, result -> checked_results,
++  repair -> repair_contents, part -> causal_parts_name, model -> product_model_code,
++  sales model -> sales_model_code, year -> report_year, month -> report_month,
++  country -> outbreak_country, dealer/company -> reported_company.
++- Never use singular names: Use 'checked_contents', 'checked_results', 'causal_parts_name'.
++- Use LOWER(col) LIKE '%value%' for text searches instead of = (e.g. LOWER(reported_company) LIKE '%maruti suzuki%').
++- For partial model/DTC codes, use LIKE 'value%' (e.g. product_model_code LIKE 'YNC%').
++
++4. QUERY LIMITS:
++- CRITICAL: Do NOT set any LIMIT clause in the SQL query unless a limit is explicitly and literally requested in the user query (e.g., 'top 10', 'limit 5'). Never add LIMIT 10 by default or as a fallback for charts/groupings. If the user asks to compare models or show counts (e.g., "each product_model_code"), you must retrieve all of them without any LIMIT.
++
++========================================
++FEW-SHOT EXAMPLES (FOLLOW EXACTLY)
++========================================
++Input: Compare failure rates of model YNC412 vs YFG121
++Output: SELECT product_model_code, COUNT(*) as failure_count FROM records WHERE product_model_code IN ('YNC412', 'YFG121') GROUP BY product_model_code
++
++Input: Compare YNC and YSD models
++Output: SELECT product_model_code, COUNT(*) as failure_count FROM records WHERE product_model_code LIKE 'YNC%' OR product_model_code LIKE 'YSD%' GROUP BY product_model_code
++
++Input: Compare ATM and ERT sales models
++Output: SELECT sales_model_code, COUNT(*) as failure_count FROM records WHERE sales_model_code LIKE 'ATM%' OR sales_model_code LIKE 'ERT%' GROUP BY sales_model_code
++
++Input: Compare trouble code frequency for P03 and P04
++Output: SELECT trouble_code_complaint, COUNT(*) as count FROM records WHERE trouble_code_complaint LIKE 'P03%' OR trouble_code_complaint LIKE 'P04%' GROUP BY trouble_code_complaint
++
++Input: Compare failures in India vs Brunei
++Output: SELECT outbreak_country, COUNT(*) as failure_count FROM records WHERE LOWER(outbreak_country) IN ('india', 'brunei') GROUP BY outbreak_country
++
++Input: Show trouble code frequency for model YEC222
++Output: SELECT trouble_code_complaint, COUNT(*) as count FROM records WHERE LOWER(product_model_code) = 'yec222' GROUP BY trouble_code_complaint ORDER BY count DESC
++
++Input: give me total number of ftir whose report company is maruti suzuki
++Output: SELECT COUNT(*) as count FROM records WHERE LOWER(reported_company) LIKE '%maruti suzuki%'"""
++
++        # Assemble base prompt in Phi-3 native template format
++        base_prompt = (
++            f"<|system|>\n{system_prompt}<|end|>\n"
++            f"<|user|>\nCreate a SQLite query to answer: '{query_text}'<|end|>\n"
++            f"<|assistant|>\n"
++        )
++
++        # Guard: hard-cap the prompt to avoid exceeding n_ctx
++        if len(base_prompt) > MAX_PROMPT_CHARS:
++            base_prompt = base_prompt[-MAX_PROMPT_CHARS:]
++            # Ensure the prompt still starts cleanly at an assistant tag
++            if "<|assistant|>" not in base_prompt:
++                base_prompt = "<|assistant|>\n"
++
++        llm = llm_client.load_model()
++        max_retries = 4
++
++        for attempt in range(max_retries):
++            # On retries, build a compact correction prompt instead of appending to the
++            # base prompt (which would grow unboundedly and overflow the context window).
++            if attempt == 0:
++                prompt = base_prompt
++            else:
++                # Compact retry prompt: only the error + failed SQL, no full system block
++                prompt = (
++                    f"<|system|>\nYou are a SQLite expert. Fix the SQL error and return ONLY the corrected raw SQL statement for the 'records' table.<|end|>\n"
++                    f"<|user|>\nOriginal question: '{query_text}'\n"
++                    f"Failed SQL: {last_sql}\n"
++                    f"Error: {last_error}\n"
++                    f"Corrected SQL:<|end|>\n"
++                    f"<|assistant|>\n"
++                )
++                # Safety cap on retry prompt as well
++                if len(prompt) > MAX_PROMPT_CHARS:
++                    prompt = prompt[-MAX_PROMPT_CHARS:]
++
++            response = llm(
++                prompt,
++                max_tokens=MAX_GEN_TOKENS,
++                temperature=0.1,
++                stop=["<|end|>", "<|user|>"],
++                echo=False
++            )
++
++            sql_query = response["choices"][0]["text"].strip()
++
++            # Extract SQL starting from SELECT (discarding conversational introductions)
++            select_idx = sql_query.upper().find("SELECT")
++            if select_idx != -1:
++                sql_query = sql_query[select_idx:]
++
++            # Strip code-block fences if the LLM wrapped the output
++            if "```" in sql_query:
++                lines = sql_query.split("\n")
++                sql_lines = []
++                in_code = False
++                for line in lines:
++                    if line.startswith("```"):
++                        in_code = not in_code
++                        continue
++                    if in_code or not sql_query.startswith("```"):
++                        sql_lines.append(line)
++                sql_query = "\n".join(sql_lines).strip()
++
++            # Truncate at the first semicolon to discard any postamble
++            semicolon_idx = sql_query.find(";")
++            if semicolon_idx != -1:
++                sql_query = sql_query[:semicolon_idx].strip()
++
++            sql_query = sql_query.strip().rstrip(";")
++
++            # Remove LLM-generated LIMIT clause if the user query does not explicitly specify a numeric limit
++            import re
++            limit_match = re.search(r'\bLIMIT\s+(\d+)\b', sql_query, re.IGNORECASE)
++            if limit_match:
++                q_text_lower = query_text.lower()
++                has_digit = any(char.isdigit() for char in q_text_lower)
++                limit_patterns = [
++                    r'\btop\s+\d+',
++                    r'\blimit\s+\d+',
++                    r'\bfirst\s+\d+',
++                    r'\bbest\s+\d+',
++                    r'\bworst\s+\d+',
++                    r'\bmost\s+\d+',
++                    r'\bleast\s+\d+'
++                ]
++                user_has_limit = has_digit and any(re.search(pat, q_text_lower) for pat in limit_patterns)
++                if not user_has_limit:
++                    sql_query = re.sub(r'\bLIMIT\s+\d+\b', '', sql_query, flags=re.IGNORECASE).strip()
++
++            print(f"Generated and parsed Dynamic LLM SQL query (Attempt {attempt + 1}):\n{sql_query}")
++
++            conn = self._get_connection()
++            try:
++                df = pd.read_sql_query(sql_query, conn)
++                conn.close()
++                return df, sql_query
++            except Exception as e:
++                conn.close()
++                last_sql = sql_query
++                last_error = str(e)
++                print(f"Failed to execute LLM SQL query on attempt {attempt + 1}: {e}")
++                if attempt == max_retries - 1:
++                    raise e
++
+     def get_distinct_models(self):
+-        conn = self._get_connection()
+-        query = "SELECT DISTINCT product_model_code FROM records WHERE product_model_code IS NOT NULL AND product_model_code != '' ORDER BY product_model_code ASC;"
++        """Returns a sorted list of distinct product model codes."""
++        conn = self._get_connection()
++        query = """
++            SELECT DISTINCT product_model_code
++            FROM records
++            WHERE product_model_code IS NOT NULL AND product_model_code != ''
++            ORDER BY product_model_code ASC;
++        """
+         df = pd.read_sql_query(query, conn)
+         conn.close()
+@@ -266,6 +459,12 @@
+ 
+     def get_distinct_countries(self):
+-        conn = self._get_connection()
+-        query = "SELECT DISTINCT outbreak_country FROM records WHERE outbreak_country IS NOT NULL AND outbreak_country != '' ORDER BY outbreak_country ASC;"
++        """Returns a sorted list of distinct outbreak countries."""
++        conn = self._get_connection()
++        query = """
++            SELECT DISTINCT outbreak_country
++            FROM records
++            WHERE outbreak_country IS NOT NULL AND outbreak_country != ''
++            ORDER BY outbreak_country ASC;
++        """
+         df = pd.read_sql_query(query, conn)
+         conn.close()
+@@ -273,6 +472,12 @@
+ 
+     def get_distinct_years(self):
+-        conn = self._get_connection()
+-        query = "SELECT DISTINCT report_year FROM records WHERE report_year > 0 ORDER BY report_year DESC;"
++        """Returns a sorted list of distinct report years."""
++        conn = self._get_connection()
++        query = """
++            SELECT DISTINCT report_year
++            FROM records
++            WHERE report_year > 0
++            ORDER BY report_year DESC;
++        """
+         df = pd.read_sql_query(query, conn)
+         conn.close()
+@@ -280,4 +485,5 @@
+ 
+     def get_avg_resolution_mileage(self, year=None, model=None, country=None):
++        """Returns average mileage of resolved records."""
+         from sqlalchemy import text
+         conn = self._get_connection()
+@@ -300,3 +506,4 @@
+             return int(row[0]) if row and row[0] is not None else 0
+         finally:
+-            conn.close()+            conn.close()
++
+
+
+=== automotive_qa/viz/charts.py vs MQ Analytics Sytem/core/utils/charts.py ===
+--- MQ Analytics Sytem/core/utils/charts.py
++++ automotive_qa/viz/charts.py
+@@ -1,5 +1,2 @@
+-# =====================================================
+-# ✅ MODERN PLOTLY VISUALIZATIONS
+-# =====================================================
+ import plotly.express as px
+ import plotly.graph_objects as go
+@@ -14,5 +11,5 @@
+     'warning': '#f59e0b',    # Amber
+     'neutral': '#64748b',    # Slate
+-    'background': '#ffffff', # White
++    'background': '#ffffff', # White (Light theme)
+     'paper': '#f8fafc',      # Slate 50
+     'text': '#1e293b'        # Slate 800
+@@ -21,5 +18,11 @@
+ def apply_premium_layout(fig, title_text):
+     """Applies clean, modern styling to any Plotly figure."""
+-    has_legend = fig.layout.showlegend is True if fig.layout.showlegend is not None else len(fig.data) > 1
++    # Determine if legend should be shown
++    has_legend = False
++    if fig.layout.showlegend is True:
++        has_legend = True
++    elif fig.layout.showlegend is None:
++        # If not explicitly set, show legend if there is more than 1 trace or colors
++        has_legend = len(fig.data) > 1
+ 
+     fig.update_layout(
+@@ -50,11 +53,12 @@
+             x=1.02,
+             font=dict(size=10),
+-            title=dict(text="")
++            title=dict(text="")  # Clears redundant titles like 'variable'
+         ),
+         legend_title_text=""
+     )
+     
++    # Update axes styling if they exist
+     fig.update_xaxes(
+-        gridcolor='#e2e8f0',
++        gridcolor='#e2e8f0', # Slate 200
+         zerolinecolor='#cbd5e1',
+         tickfont=dict(size=10),
+@@ -69,5 +73,5 @@
+ 
+ def plot_horizontal_bar(df, x_col, y_col, title):
+-    """Renders a horizontal bar chart."""
++    """Renders a beautiful horizontal bar chart."""
+     if df.empty:
+         return go.Figure()
+@@ -81,5 +85,5 @@
+         orientation='h',
+         color=x_col,
+-        color_continuous_scale=[[0, '#818cf8'], [1, '#4f46e5']],
++        color_continuous_scale=[[0, '#818cf8'], [1, '#4f46e5']], # Gradient effect
+         text=x_col
+     )
+@@ -95,5 +99,5 @@
+ 
+ def plot_line_trend(df, x_col, y_cols, title):
+-    """Renders a chronological line chart."""
++    """Renders a chronologically ordered line chart with markers. Supports multiple y-columns."""
+     if df.empty:
+         return go.Figure()
+@@ -104,4 +108,5 @@
+         y=y_cols, 
+         markers=True,
++        line_shape='linear',
+         color_discrete_sequence=[THEME_COLORS['primary'], THEME_COLORS['secondary'], THEME_COLORS['success'], THEME_COLORS['warning'], THEME_COLORS['danger']]
+     )
+@@ -114,5 +119,5 @@
+ 
+ def plot_donut_chart(df, labels_col, values_col, title):
+-    """Renders a donut pie chart."""
++    """Renders a modern donut pie chart."""
+     if df.empty:
+         return go.Figure()
+@@ -133,5 +138,5 @@
+ 
+ def plot_histogram(df, value_col, title, bins=30):
+-    """Renders frequency distribution histogram."""
++    """Renders a mileage frequency distribution histogram."""
+     if df.empty:
+         return go.Figure()
+@@ -153,15 +158,21 @@
+ 
+ def plot_radar_comparison(df, categories_col, metrics_cols, title):
+-    """Renders radar/spider comparison chart."""
++    """Renders a spider/radar comparison chart across multiple models."""
+     if df.empty:
+         return go.Figure()
+         
+     fig = go.Figure()
++    
++    # Cap radar to top 9 models for readable output
+     df_limited = df.head(9)
+     
++    # Normalize metrics to [0, 10] scale for visual alignment on the radar
+     for col in metrics_cols:
+         max_val = df_limited[col].max()
+         val_series = df_limited[col]
+-        norm_vals = (val_series / max_val) * 10 if max_val > 0 else val_series
++        if max_val > 0:
++            norm_vals = (val_series / max_val) * 10
++        else:
++            norm_vals = val_series
+             
+         fig.add_trace(go.Scatterpolar(
+@@ -192,12 +203,11 @@
+ 
+ def plot_grouped_bar(df, x_col, y_cols, title):
+-    """Renders grouped bar comparison chart."""
+-    if df.empty:
+-        return go.Figure()
+-        
+-    df_limited = df.head(15).copy()
+-    for col in y_cols:
+-        if col in df_limited.columns:
+-            df_limited[col] = pd.to_numeric(df_limited[col], errors='coerce').astype(float)
++    """Renders a grouped bar chart for comparisons."""
++    if df.empty:
++        return go.Figure()
++        
++    # Cap to top 15 rows for readable layout
++    df_limited = df.head(15)
++        
+     fig = px.bar(
+         df_limited, 
+@@ -211,5 +221,5 @@
+ 
+ def plot_scatter_plot(df, x_col, y_col, title):
+-    """Renders a scatter plot."""
++    """Renders a scatter plot (Seaborn scatterplot equivalent)."""
+     if df.empty:
+         return go.Figure()
+@@ -225,5 +235,5 @@
+ 
+ def plot_box_plot(df, x_col, y_col, title):
+-    """Renders a box plot showing data distribution."""
++    """Renders a box plot showing data distribution (Seaborn boxplot equivalent)."""
+     if df.empty:
+         return go.Figure()
+@@ -238,5 +248,5 @@
+ 
+ def plot_violin_plot(df, x_col, y_col, title):
+-    """Renders a violin plot."""
++    """Renders a violin plot (Seaborn violinplot equivalent)."""
+     if df.empty:
+         return go.Figure()
+@@ -253,5 +263,5 @@
+ 
+ def plot_area_chart(df, x_col, y_cols, title):
+-    """Renders a filled stacked area chart."""
++    """Renders a filled stacked area chart (Matplotlib stackplot equivalent)."""
+     if df.empty:
+         return go.Figure()
+
+
+=== automotive_qa/reports/engine.py vs MQ Analytics Sytem/core/utils/report_engine.py ===
+--- MQ Analytics Sytem/core/utils/report_engine.py
++++ automotive_qa/reports/engine.py
+@@ -1,5 +1,2 @@
+-# =====================================================
+-# ✅ PDF & DOCX REPORT GENERATION ENGINE
+-# =====================================================
+ import os
+ import sqlite3
+@@ -64,8 +61,5 @@
+ 
+ class ReportEngine:
+-    def __init__(self, db_path=None):
+-        if db_path is None:
+-            from core.config import DB_PATH
+-            db_path = DB_PATH
++    def __init__(self, db_path="data/automotive.db"):
+         self.db_path = get_db_path(db_path)
+ 
+@@ -76,4 +70,5 @@
+         cursor = conn.cursor()
+ 
++        
+         # 1. Total claims count
+         cursor.execute("SELECT COUNT(*) FROM records WHERE report_year = ? AND report_month = ?;", (year, month))
+@@ -137,7 +132,11 @@
+             return ""
+         text = html_escape(text)
++        # Bold **text** -> <b>text</b>
+         text = re.sub(r'\*\*(.*?)\*\*', r'<b>\1</b>', text)
++        # Italic *text* -> <i>text</i>
+         text = re.sub(r'\*(.*?)\*', r'<i>\1</i>', text)
++        # Code backticks `code` -> <font name="Courier">code</font>
+         text = re.sub(r'`(.*?)`', r'<font name="Courier" color="#c7254e" size="9"><b>\1</b></font>', text)
++        # Newlines
+         text = text.replace('\n', '<br/>')
+         return text
+@@ -157,4 +156,5 @@
+         styles = getSampleStyleSheet()
+         
++        # Premium Styles
+         title_style = ParagraphStyle(
+             'ReportTitle',
+@@ -162,5 +162,5 @@
+             fontName='Helvetica-Bold',
+             fontSize=24,
+-            textColor=colors.HexColor('#0f172a'),
++            textColor=colors.HexColor('#0f172a'), # Slate 900
+             spaceAfter=6,
+             keepWithNext=True
+@@ -172,5 +172,5 @@
+             fontName='Helvetica',
+             fontSize=10,
+-            textColor=colors.HexColor('#475569'),
++            textColor=colors.HexColor('#475569'), # Slate 600
+             spaceAfter=15,
+             keepWithNext=True
+@@ -182,5 +182,5 @@
+             fontName='Helvetica-Bold',
+             fontSize=14,
+-            textColor=colors.HexColor('#1e3a8a'),
++            textColor=colors.HexColor('#1e3a8a'), # Navy
+             spaceBefore=14,
+             spaceAfter=8,
+@@ -193,5 +193,5 @@
+             fontName='Helvetica',
+             fontSize=10,
+-            textColor=colors.HexColor('#334155'),
++            textColor=colors.HexColor('#334155'), # Slate 700
+             leading=15,
+             spaceAfter=8
+@@ -203,5 +203,5 @@
+             fontName='Helvetica-Bold',
+             fontSize=9,
+-            textColor=colors.white,
++            textColor=colors.HexColor('#ffffff'),
+             leading=12
+         )
+@@ -218,8 +218,10 @@
+         story = []
+         
++        # Header / Title Block
+         story.append(Paragraph(f"Monthly QA Intelligence Report", title_style))
+         story.append(Paragraph(f"Reporting Period: <b>{month_name} {year}</b> | Generated: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}", subtitle_style))
+         story.append(Spacer(1, 10))
+         
++        # Executive Summary Box
+         story.append(Paragraph("Executive Summary", h2_style))
+         summary_text = (
+@@ -238,4 +240,5 @@
+         story.append(Spacer(1, 10))
+         
++        # Data Breakdown tables side-by-side
+         story.append(Paragraph("Quality Distribution Metrics", h2_style))
+         
+@@ -246,4 +249,5 @@
+         country_lines = "<br/>".join([f"• {c[0]}: <b>{c[1]}</b> claims" for c in data['countries']]) or "No data available."
+         model_lines = "<br/>".join([f"• {m[0]}: <b>{m[1]}</b> claims" for m in data['models']]) or "No data available."
++        
+         grid_data.append([Paragraph(country_lines, table_text_style), Paragraph(model_lines, table_text_style)])
+         
+@@ -263,4 +267,5 @@
+         story.append(Spacer(1, 12))
+         
++        # Trouble Codes
+         story.append(Paragraph("Top Failure Trouble Codes (DTC)", h2_style))
+         tc_rows = [[Paragraph("Trouble Code", table_hdr_style), Paragraph("Claims Count", table_hdr_style)]]
+@@ -283,4 +288,5 @@
+         story.append(Spacer(1, 15))
+         
++        # Featured Quality Cases
+         story.append(Paragraph("Sample Quality Cases & Technical Summaries", h2_style))
+         for r in data['cases']:
+@@ -305,4 +311,5 @@
+         doc = Document()
+         
++        # Document Title
+         title = doc.add_paragraph()
+         run_title = title.add_run('Automotive QA Intelligence Monthly Report')
+@@ -310,5 +317,5 @@
+         run_title.font.size = Pt(20)
+         run_title.bold = True
+-        run_title.font.color.rgb = RGBColor(15, 23, 42)
++        run_title.font.color.rgb = RGBColor(15, 23, 42) # Slate 900
+         title.alignment = WD_ALIGN_PARAGRAPH.LEFT
+         
+@@ -317,4 +324,5 @@
+         p.add_run(f"Generated at: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+         
++        # Executive Summary
+         h1 = doc.add_heading(level=1)
+         r1 = h1.add_run('Executive Summary')
+@@ -328,4 +336,5 @@
+         )
+         
++        # Outbreaks by Country
+         h2 = doc.add_heading(level=2)
+         r2 = h2.add_run('Outbreaks by Country')
+@@ -342,4 +351,5 @@
+             row_cells[1].text = str(count)
+             
++        # Claims by Model Code
+         h3 = doc.add_heading(level=2)
+         r3 = h3.add_run('Claims by Product Model')
+@@ -356,4 +366,5 @@
+             row_cells[1].text = str(count)
+             
++        # Top Trouble Codes
+         h4 = doc.add_heading(level=2)
+         r4 = h4.add_run('Top Failure Trouble Codes (DTC)')
+@@ -370,4 +381,5 @@
+             row_cells[1].text = str(count)
+             
++        # Featured Quality Cases
+         h5 = doc.add_heading(level=1)
+         r5 = h5.add_run('Sample Quality Cases & Technical Summaries')
+@@ -492,4 +504,5 @@
+         story = []
+         
++        # Document Title Block
+         story.append(Paragraph(f"Chat Session Transcript", title_style))
+         story.append(Paragraph(f"Session: <b>{session_title}</b> | Operator: {username} | Generated: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}", meta_style))
+@@ -501,8 +514,9 @@
+             
+             if role == "user":
++                # User Bubble Table Box
+                 user_content_p = Paragraph(content_html, user_body_style)
+                 user_box = Table([[user_content_p]], colWidths=[504])
+                 user_box.setStyle(TableStyle([
+-                    ('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#eff6ff')),
++                    ('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#eff6ff')), # Light blue bubble
+                     ('BOX', (0,0), (-1,-1), 1, colors.HexColor('#bfdbfe')),
+                     ('PADDING', (0,0), (-1,-1), 8),
+@@ -514,8 +528,10 @@
+                 
+             else:
++                # Assistant message
+                 intent = msg.get("intent", "GENERAL")
+                 story.append(Paragraph(f"✨ Assistant | <font size='8'>[{intent}]</font>", assistant_header_style))
+                 story.append(Paragraph(content_html, assistant_body_style))
+                 
++                # SQL Query
+                 sql_query = msg.get("sql_query")
+                 if sql_query:
+@@ -524,5 +540,5 @@
+                     sql_box = Table([[sql_p]], colWidths=[504])
+                     sql_box.setStyle(TableStyle([
+-                        ('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#0f172a')),
++                        ('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#0f172a')), # Dark block
+                         ('PADDING', (0,0), (-1,-1), 8),
+                         ('BOX', (0,0), (-1,-1), 0.5, colors.HexColor('#1e293b')),
+@@ -532,8 +548,10 @@
+                     story.append(Spacer(1, 6))
+                 
++                # Tabular DataFrame Data
+                 df = msg.get("df")
+                 if df is not None and not df.empty:
+                     story.append(Paragraph("<b>Query Results Table:</b>", assistant_body_style))
+                     
++                    # Prevent crash on extremely wide or large tables in PDF
+                     max_cols = 7
+                     max_rows = 30
+@@ -555,5 +573,5 @@
+                     df_table = Table(data, colWidths=col_widths)
+                     df_table.setStyle(TableStyle([
+-                        ('BACKGROUND', (0,0), (-1,0), colors.HexColor('#0d9488')),
++                        ('BACKGROUND', (0,0), (-1,0), colors.HexColor('#0d9488')), # Teal header
+                         ('VALIGN', (0,0), (-1,-1), 'TOP'),
+                         ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor('#cbd5e1')),
+@@ -574,4 +592,5 @@
+                     story.append(Spacer(1, 8))
+                     
++                # Chart Visuals
+                 chart_type = msg.get("chart_type")
+                 chart_title = msg.get("chart_title", "Chart")
+@@ -581,5 +600,5 @@
+                     import time
+                     
+-                    from core.utils.charts import (
++                    from viz.charts import (
+                         plot_horizontal_bar,
+                         plot_line_trend,
+@@ -617,4 +636,5 @@
+                         print(f"Error rendering chart to PDF: {e}")
+                 
++                # Citations
+                 citations = msg.get("citations")
+                 if citations:
+
+
+=== automotive_qa/llm/client.py vs MQ Analytics Sytem/core/ollama_client.py ===
+--- MQ Analytics Sytem/core/ollama_client.py
++++ automotive_qa/llm/client.py
+@@ -1,96 +1,62 @@
+-# =====================================================
+-# ✅ UNIFIED LLM CLIENT
+-# =====================================================
+ import os
+-import sys
++from llama_cpp import Llama
+ 
+-# ✅ Force bypass proxy inside Python for local Ollama server
+-os.environ["NO_PROXY"] = "127.0.0.1,localhost"
+-os.environ["HTTP_PROXY"] = ""
+-os.environ["HTTPS_PROXY"] = ""
++class LocalLLMClient:
++    def __init__(self, model_path="models/Phi-3-mini-4k-instruct-q4.gguf"):
++        self.model_path = model_path
++        self.llm = None
+ 
+-class UnifiedLLMClient:
+-    def __init__(self):
+-        from core.config import LLM_BACKEND, MODEL_PATH
+-        self.backend = LLM_BACKEND
+-        self.model_path = MODEL_PATH
+-        self.llm = None
+-        self.ollama_client = None
++    def load_model(self):
++        """Loads the GGUF model into VRAM/RAM if not already loaded."""
++        if self.llm is None:
++            if not os.path.exists(self.model_path):
++                raise FileNotFoundError(
++                    f"Local GGUF model not found at {self.model_path}. "
++                    f"Please verify it was downloaded successfully."
++                )
+ 
+-        if self.backend == "ollama":
+-            import ollama
+-            self.ollama_client = ollama.Client(host="http://127.0.0.1:11434")
+-        else:
+-            # We delay loading llama_cpp to when it is actually needed
+-            pass
+-
+-    def load_local_model(self):
+-        """Loads GGUF model using llama-cpp-python with CUDA DLL configurations."""
+-        if self.llm is not None:
+-            return self.llm
+-
+-        if os.name == 'nt':
+-            # Configure DLL search directories for NVIDIA CUDA
+-            for path in sys.path:
+-                if "site-packages" in path:
+-                    cuda_dir = os.path.join(path, "nvidia", "cuda_runtime", "bin")
+-                    cublas_dir = os.path.join(path, "nvidia", "cublas", "bin")
+-                    nvrtc_dir = os.path.join(path, "nvidia", "cuda_nvrtc", "bin")
+-                    if os.path.exists(cuda_dir):
+-                        try:
+-                            os.add_dll_directory(cuda_dir)
+-                            os.environ['PATH'] = f"{cuda_dir};" + os.environ['PATH']
+-                        except Exception:
+-                            pass
+-                    if os.path.exists(cublas_dir):
+-                        try:
+-                            os.add_dll_directory(cublas_dir)
+-                            os.environ['PATH'] = f"{cublas_dir};" + os.environ['PATH']
+-                        except Exception:
+-                            pass
+-                    if os.path.exists(nvrtc_dir):
+-                        try:
+-                            os.add_dll_directory(nvrtc_dir)
+-                            os.environ['PATH'] = f"{nvrtc_dir};" + os.environ['PATH']
+-                        except Exception:
+-                            pass
+-
+-        from llama_cpp import Llama
+-        if not os.path.exists(self.model_path):
+-            raise FileNotFoundError(f"Local GGUF model not found at: {self.model_path}")
+-
+-        # Load GGUF model with full GPU offload
+-        self.llm = Llama(
+-            model_path=self.model_path,
+-            n_ctx=4096,
+-            n_gpu_layers=-1,
+-            use_mlock=False,
+-            verbose=False
+-        )
++            # Configure GPU offload (20 layers) to leave VRAM headroom and prevent memory corruption on 4GB GPUs
++            self.llm = Llama(
++                model_path=self.model_path,
++                n_ctx=4096,          # Phi-3-mini native context limit
++                n_gpu_layers=-1,     # Partial GPU offload (safe for RTX 3050 Laptop GPU)
++                use_mlock=False,
++                verbose=False
++            )
++            print(f"Phi-3 GGUF model loaded from {self.model_path} on GPU.")
+         return self.llm
+ 
+-    def chat(self, model=None, messages=None, stream=False):
+-        """Unified chat entry point matching Ollama interface."""
+-        if messages is None:
+-            messages = []
+-        if model is None:
+-            from core.config import MODEL_NAME
+-            model = MODEL_NAME
++    def generate_summary(self, prompt, max_tokens=150):
++        """Generates a synchronous summary (used in ingestion/ETL)."""
++        self.load_model()
++        if len(prompt) > 14000:
++            prompt = prompt[:14000] + "\n<|end|>\n<|assistant|>\n"
++        response = self.llm(
++            prompt,
++            max_tokens=max_tokens,
++            temperature=0.1,
++            stop=["\n", "Summary:", "Issue:", "<|end|>", "<|user|>"],
++            echo=False
++        )
++        text = response["choices"][0]["text"].strip()
++        return text
+ 
+-        if self.backend == "ollama":
+-            # Direct Ollama API call
+-            return self.ollama_client.chat(model=model, messages=messages, stream=stream)
++    def generate_chat_stream(self, messages):
++        """
++        Generates a streaming response for Streamlit chat.
++        Yields tokens/chunks as they are generated by the model.
++        """
++        self.load_model()
+ 
+-        # Local GGUF completion backend
+-        llm = self.load_local_model()
+-
+-        # Format messages into GGUF template (compatible with Phi-3/Qwen)
++        # Phi-3 native chat template
+         prompt_parts = []
+         for msg in messages:
+             role = msg["role"]
+             content = msg["content"]
++            
++            # Truncate extremely long user content to fit within context safety limits
+             if role == "user" and len(content) > 10000:
+-                content = content[:10000] + "\n\n*(Truncated)*"
+-            
++                content = content[:10000] + "\n\n*(Context truncated to prevent context window overflow)*"
++                
+             if role == "system":
+                 prompt_parts.append(f"<|system|>\n{content}<|end|>\n")
+@@ -99,65 +65,28 @@
+             elif role == "assistant":
+                 prompt_parts.append(f"<|assistant|>\n{content}<|end|>\n")
+-
+         prompt_parts.append("<|assistant|>\n")
+         prompt = "".join(prompt_parts)
+ 
+-        # Truncate prompt if it exceeds context limit
++        # Safety: estimate token count (~4 chars per token) — Phi-3 native ctx is 4096
+         estimated_tokens = len(prompt) // 4
+-        if estimated_tokens > 3496:
++        model_ctx = 4096
++        if estimated_tokens > model_ctx - 600:
++            print(f"WARNING: Estimated prompt tokens ({estimated_tokens}) near context limit ({model_ctx}). Truncating prompt.")
++            # Keep the tail end of the prompt where user/assistant messages reside
+             prompt = prompt[-12000:]
+             if "<|system|>" not in prompt:
+                 prompt = "<|system|>\nYou are a helpful automotive engineering assistant.<|end|>\n" + prompt
+ 
+-        if stream:
+-            # Yield chunks formatted like Ollama chunks
+-            chat_completion = llm(
+-                prompt,
+-                max_tokens=1024,
+-                temperature=0.1,
+-                stream=True,
+-                stop=["<|end|>", "<|user|>", "<|system|>"]
+-            )
+-            def chunk_generator():
+-                for chunk in chat_completion:
+-                    text = chunk["choices"][0].get("text", "")
+-                    yield {"message": {"content": text}}
+-            return chunk_generator()
+-        else:
+-            # Synchronous execution
+-            response = llm(
+-                prompt,
+-                max_tokens=1024,
+-                temperature=0.1,
+-                stop=["<|end|>", "<|user|>", "<|system|>"]
+-            )
+-            text = response["choices"][0]["text"].strip()
+-            return {"message": {"content": text}}
++        # Call the raw completion endpoint with streaming
++        chat_completion = self.llm(
++            prompt,
++            max_tokens=512,
++            temperature=0.1,
++            stream=True,
++            stop=["<|end|>", "<|user|>", "<|system|>"]
++        )
+ 
+-    def generate_summary(self, prompt, max_tokens=150):
+-        """Helper to generate summary matching GGUF interface."""
+-        if self.backend == "ollama":
+-            from core.config import MODEL_NAME
+-            response = self.chat(
+-                model=MODEL_NAME,
+-                messages=[{"role": "user", "content": prompt}]
+-            )
+-            return response["message"]["content"]
+-        else:
+-            llm = self.load_local_model()
+-            if len(prompt) > 14000:
+-                prompt = prompt[:14000] + "\n<|end|>\n<|assistant|>\n"
+-            response = llm(
+-                prompt,
+-                max_tokens=max_tokens,
+-                temperature=0.1,
+-                stop=["\n", "Summary:", "Issue:", "<|end|>", "<|user|>"],
+-                echo=False
+-            )
+-            return response["choices"][0]["text"].strip()
+-
+-# Shared client singleton
+-_client_instance = UnifiedLLMClient()
+-
+-def get_client():
+-    return _client_instance
++        for chunk in chat_completion:
++            choice = chunk["choices"][0]
++            if "text" in choice:
++                yield choice["text"]
+
+

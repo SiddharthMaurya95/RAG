@@ -1,4 +1,3 @@
-import sqlite3
 import hashlib
 import json
 import time
@@ -6,6 +5,7 @@ import datetime
 import numpy as np
 import pandas as pd
 from core.paths import get_db_path
+from core.database import get_session, QueryCache as DBQueryCache, EmbeddingCache as DBEmbeddingCache
 
 class CustomJSONEncoder(json.JSONEncoder):
     def default(self, obj):
@@ -32,7 +32,7 @@ class QueryCache:
     def get(self, query_text, user_id=0):
         """
         Gets a cached query result for a given query text and user ID.
-        Checks L1 (RAM) first, then L2 (SQLite).
+        Checks L1 (RAM) first, then L2 (SQLite via SQLAlchemy).
         """
         query_hash = self._get_hash(query_text)
         
@@ -44,49 +44,47 @@ class QueryCache:
             else:
                 del self.ram_cache[query_hash]
 
-        # Check L2 (SQLite)
-        conn = sqlite3.connect(self.db_path)
-        cursor = conn.cursor()
-        cursor.execute("""
-            SELECT result_json, expires_at 
-            FROM query_cache 
-            WHERE query_hash = ? AND (user_id = ? OR user_id = 0);
-        """, (query_hash, user_id))
-        
-        row = cursor.fetchone()
-        conn.close()
-        
-        if row:
-            result_json, expires_at_str = row
-            try:
-                expires_at = datetime.datetime.strptime(expires_at_str, "%Y-%m-%d %H:%M:%S")
+        # Check L2 (SQLite via SQLAlchemy)
+        session = get_session(self.db_path)
+        try:
+            row = session.query(DBQueryCache).filter(
+                DBQueryCache.query_hash == query_hash,
+                (DBQueryCache.user_id == user_id) | (DBQueryCache.user_id == 0)
+            ).first()
+            
+            if row:
+                expires_at = row.expires_at
                 expires_timestamp = expires_at.timestamp()
-            except ValueError:
-                expires_timestamp = 0.0
-                
-            if expires_timestamp > time.time():
-                data = json.loads(result_json, object_hook=custom_json_decoder)
-                # Store in L1
-                self.ram_cache[query_hash] = {
-                    "data": data,
-                    "expires_at": expires_timestamp
-                }
-                self._prune_ram_cache()
-                return data
-            else:
-                # Expired: delete from DB
-                self.delete(query_hash, user_id)
+                    
+                if expires_timestamp > time.time():
+                    data = json.loads(row.result_json, object_hook=custom_json_decoder)
+                    # Store in L1
+                    self.ram_cache[query_hash] = {
+                        "data": data,
+                        "expires_at": expires_timestamp
+                    }
+                    self._prune_ram_cache()
+                    return data
+                else:
+                    # Expired: delete from DB
+                    session.delete(row)
+                    session.commit()
+        except Exception as e:
+            session.rollback()
+            print(f"Error reading query cache: {e}")
+        finally:
+            session.close()
                 
         return None
 
-    def set(self, query_text, user_id, data, ttl_seconds=7200):
+    def set(self, query_text, user_id, data, ttl_seconds=30*86400):
         """
         Caches a query result for a given query text.
-        Writes to both L1 (RAM) and L2 (SQLite).
+        Writes to both L1 (RAM) and L2 (SQLite via SQLAlchemy).
         """
         query_hash = self._get_hash(query_text)
         expires_timestamp = time.time() + ttl_seconds
-        expires_str = datetime.datetime.fromtimestamp(expires_timestamp).strftime("%Y-%m-%d %H:%M:%S")
+        expires_dt = datetime.datetime.fromtimestamp(expires_timestamp)
         result_json = json.dumps(data, cls=CustomJSONEncoder)
 
         # Write to L1 (RAM)
@@ -96,30 +94,49 @@ class QueryCache:
         }
         self._prune_ram_cache()
 
-        # Write to L2 (SQLite)
-        conn = sqlite3.connect(self.db_path)
-        cursor = conn.cursor()
+        # Write to L2 (SQLite via SQLAlchemy)
+        session = get_session(self.db_path)
         try:
-            cursor.execute("""
-                INSERT OR REPLACE INTO query_cache (query_hash, user_id, result_json, expires_at)
-                VALUES (?, ?, ?, ?);
-            """, (query_hash, user_id, result_json, expires_str))
-            conn.commit()
+            cache_entry = session.query(DBQueryCache).filter(
+                DBQueryCache.query_hash == query_hash,
+                DBQueryCache.user_id == user_id
+            ).first()
+            
+            if cache_entry:
+                cache_entry.result_json = result_json
+                cache_entry.expires_at = expires_dt
+            else:
+                cache_entry = DBQueryCache(
+                    query_hash=query_hash,
+                    user_id=user_id,
+                    result_json=result_json,
+                    expires_at=expires_dt
+                )
+                session.add(cache_entry)
+            session.commit()
         except Exception as e:
+            session.rollback()
             print(f"Error saving to query cache: {e}")
         finally:
-            conn.close()
+            session.close()
 
     def delete(self, query_hash, user_id):
-        conn = sqlite3.connect(self.db_path)
-        cursor = conn.cursor()
+        # Remove from L1 (RAM)
+        if query_hash in self.ram_cache:
+            del self.ram_cache[query_hash]
+            
+        session = get_session(self.db_path)
         try:
-            cursor.execute("DELETE FROM query_cache WHERE query_hash = ? AND user_id = ?;", (query_hash, user_id))
-            conn.commit()
-        except Exception:
-            pass
+            session.query(DBQueryCache).filter(
+                DBQueryCache.query_hash == query_hash,
+                DBQueryCache.user_id == user_id
+            ).delete()
+            session.commit()
+        except Exception as e:
+            session.rollback()
+            print(f"Error deleting query cache entry: {e}")
         finally:
-            conn.close()
+            session.close()
 
     def _prune_ram_cache(self):
         if len(self.ram_cache) > self.max_ram_entries:
@@ -146,17 +163,17 @@ class EmbeddingCache:
     def get(self, text):
         """Retrieves cached embedding array from DB if exists."""
         text_hash = self._get_hash(text)
-        conn = sqlite3.connect(self.db_path)
-        cursor = conn.cursor()
-        cursor.execute("SELECT embedding_blob FROM embedding_cache WHERE text_hash = ?;", (text_hash,))
-        row = cursor.fetchone()
-        conn.close()
-        
-        if row:
-            # Load numpy array from blob
-            blob = row[0]
-            embedding = np.frombuffer(blob, dtype=np.float32)
-            return embedding
+        session = get_session(self.db_path)
+        try:
+            row = session.query(DBEmbeddingCache).filter(DBEmbeddingCache.text_hash == text_hash).first()
+            if row:
+                blob = row.embedding_blob
+                embedding = np.frombuffer(blob, dtype=np.float32)
+                return embedding
+        except Exception as e:
+            print(f"Error loading embedding from cache: {e}")
+        finally:
+            session.close()
         return None
 
     def set(self, text, embedding):
@@ -164,15 +181,20 @@ class EmbeddingCache:
         text_hash = self._get_hash(text)
         blob = embedding.astype(np.float32).tobytes()
         
-        conn = sqlite3.connect(self.db_path)
-        cursor = conn.cursor()
+        session = get_session(self.db_path)
         try:
-            cursor.execute("""
-                INSERT OR REPLACE INTO embedding_cache (text_hash, embedding_blob)
-                VALUES (?, ?);
-            """, (text_hash, sqlite3.Binary(blob)))
-            conn.commit()
+            cache_entry = session.query(DBEmbeddingCache).filter(DBEmbeddingCache.text_hash == text_hash).first()
+            if cache_entry:
+                cache_entry.embedding_blob = blob
+            else:
+                cache_entry = DBEmbeddingCache(
+                    text_hash=text_hash,
+                    embedding_blob=blob
+                )
+                session.add(cache_entry)
+            session.commit()
         except Exception as e:
+            session.rollback()
             print(f"Error saving embedding to cache: {e}")
         finally:
-            conn.close()
+            session.close()

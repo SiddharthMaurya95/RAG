@@ -17,7 +17,7 @@ def main():
         "Find FTIR reports about engine failures in USA",
         "Show me the top 5 dealers by failure count",
         "What is the trend of monthly failures for model XC90?",
-        "Compare the failure rates between product model XC90 and S60",
+        "Compare YTB and YHB models",
         "What is the distribution of using mileage before failure?",
         "Generate the monthly QA report for May 2024",
         "Show me the distribution of quality ratings",

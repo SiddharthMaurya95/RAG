@@ -218,3 +218,163 @@ def plot_grouped_bar(df, x_col, y_cols, title):
     )
     apply_premium_layout(fig, title)
     return fig
+
+def plot_scatter_plot(df, x_col, y_col, title):
+    """Renders a scatter plot (Seaborn scatterplot equivalent)."""
+    if df.empty:
+        return go.Figure()
+    fig = px.scatter(
+        df,
+        x=x_col,
+        y=y_col,
+        color_discrete_sequence=[THEME_COLORS['primary']]
+    )
+    fig.update_traces(marker=dict(size=9, opacity=0.85, line=dict(width=1, color='#ffffff')))
+    apply_premium_layout(fig, title)
+    return fig
+
+def plot_box_plot(df, x_col, y_col, title):
+    """Renders a box plot showing data distribution (Seaborn boxplot equivalent)."""
+    if df.empty:
+        return go.Figure()
+    fig = px.box(
+        df,
+        x=x_col,
+        y=y_col,
+        color_discrete_sequence=[THEME_COLORS['secondary']]
+    )
+    apply_premium_layout(fig, title)
+    return fig
+
+def plot_violin_plot(df, x_col, y_col, title):
+    """Renders a violin plot (Seaborn violinplot equivalent)."""
+    if df.empty:
+        return go.Figure()
+    fig = px.violin(
+        df,
+        x=x_col,
+        y=y_col,
+        box=True,
+        points="all",
+        color_discrete_sequence=[THEME_COLORS['success']]
+    )
+    apply_premium_layout(fig, title)
+    return fig
+
+def plot_area_chart(df, x_col, y_cols, title):
+    """Renders a filled stacked area chart (Matplotlib stackplot equivalent)."""
+    if df.empty:
+        return go.Figure()
+    fig = px.area(
+        df,
+        x=x_col,
+        y=y_cols,
+        color_discrete_sequence=[THEME_COLORS['primary'], THEME_COLORS['secondary'], THEME_COLORS['success']]
+    )
+    apply_premium_layout(fig, title)
+    return fig
+
+
+def build_plotly_figure(chart_type, df, title):
+    """Renders the appropriate Plotly figure based on the selector type. Handles dataframe preprocessing."""
+    if df.empty:
+        return None
+        
+    # Copy dataframe to prevent mutating original data
+    df = df.copy()
+    
+    # Drop rows that have proper NaN/None values
+    df = df.dropna()
+    
+    # Also drop rows where any string column contains literal "nan", "none", "null", or empty strings
+    for col in df.columns:
+        if df[col].dtype == 'object':
+            mask = df[col].astype(str).str.strip().str.lower().isin(['', 'nan', 'none', 'null', 'na'])
+            df = df[~mask]
+            
+    if df.empty:
+        return None
+    
+    import pandas.api.types as ptypes
+    
+    # If the dataframe has only 1 column and it is non-numeric, convert it to a frequency count so we can plot it
+    if len(df.columns) == 1 and not ptypes.is_numeric_dtype(df[df.columns[0]]):
+        col_name = df.columns[0]
+        df = df[col_name].value_counts().reset_index()
+        df.columns = [col_name, "count"]
+        
+    # Ensure numeric columns are properly cast and clean up non-numeric columns for y-axes
+    x_col = "period" if "period" in df.columns else df.columns[0]
+    for c in df.columns:
+        if c not in [x_col, "report_year", "report_month"]:
+            try:
+                df[c] = pd.to_numeric(df[c])
+            except Exception:
+                pass
+                
+    fig = None
+    if chart_type == "horizontal_bar":
+        # Ensure numeric value column
+        val_col = df.columns[1] if len(df.columns) > 1 else df.columns[0]
+        try:
+            df[val_col] = pd.to_numeric(df[val_col], errors='coerce')
+        except:
+            pass
+        fig = plot_horizontal_bar(df, val_col, df.columns[0], title)
+    elif chart_type == "line":
+        y_cols = [c for c in df.columns if c not in [x_col, "report_year", "report_month"] and ptypes.is_numeric_dtype(df[c])]
+        if not y_cols and len(df.columns) > 1:
+            try:
+                df[df.columns[1]] = pd.to_numeric(df[df.columns[1]], errors='coerce')
+                y_cols = [df.columns[1]]
+            except:
+                pass
+        fig = plot_line_trend(df, x_col, y_cols, title)
+    elif chart_type == "donut":
+        val_col = df.columns[1] if len(df.columns) > 1 else df.columns[0]
+        try:
+            df[val_col] = pd.to_numeric(df[val_col], errors='coerce')
+        except:
+            pass
+        fig = plot_donut_chart(df, df.columns[0], val_col, title)
+    elif chart_type == "histogram":
+        val_col = df.columns[0]
+        try:
+            df[val_col] = pd.to_numeric(df[val_col], errors='coerce')
+        except:
+            pass
+        fig = plot_histogram(df, val_col, title)
+    elif chart_type == "radar":
+        y_cols = [c for c in df.columns if c not in [df.columns[0], "report_year", "report_month"] and ptypes.is_numeric_dtype(df[c])]
+        fig = plot_radar_comparison(df, df.columns[0], list(y_cols[:3]), title)
+    elif chart_type == "grouped_bar":
+        y_cols = [c for c in df.columns if c not in [df.columns[0], "report_year", "report_month"] and ptypes.is_numeric_dtype(df[c])]
+        fig = plot_grouped_bar(df, df.columns[0], list(y_cols), title)
+    elif chart_type == "scatter":
+        x_val = df.columns[0]
+        y_val = df.columns[1] if len(df.columns) > 1 else df.columns[0]
+        try:
+            df[x_val] = pd.to_numeric(df[x_val], errors='coerce')
+            df[y_val] = pd.to_numeric(df[y_val], errors='coerce')
+        except:
+            pass
+        fig = plot_scatter_plot(df, x_val, y_val, title)
+    elif chart_type == "box":
+        y_val = df.columns[1] if len(df.columns) > 1 else df.columns[0]
+        try:
+            df[y_val] = pd.to_numeric(df[y_val], errors='coerce')
+        except:
+            pass
+        fig = plot_box_plot(df, df.columns[0], y_val, title)
+    elif chart_type == "violin":
+        y_val = df.columns[1] if len(df.columns) > 1 else df.columns[0]
+        try:
+            df[y_val] = pd.to_numeric(df[y_val], errors='coerce')
+        except:
+            pass
+        fig = plot_violin_plot(df, df.columns[0], y_val, title)
+    elif chart_type == "area":
+        y_cols = [c for c in df.columns if c not in [x_col, "report_year", "report_month"] and ptypes.is_numeric_dtype(df[c])]
+        fig = plot_area_chart(df, x_col, list(y_cols), title)
+        
+    return fig

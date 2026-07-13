@@ -5,6 +5,130 @@ import numpy as np
 import faiss
 from core.paths import get_db_path, get_index_path, get_metadata_path
 
+from dataclasses import dataclass, field
+from typing import List
+
+@dataclass
+class SearchResult:
+    record_id: int
+    score: float
+    rank: int
+
+@dataclass
+class ThresholdSearchResults:
+    query: str
+    threshold_used: float
+    results: List[SearchResult] = field(default_factory=list)
+
+    @property
+    def count(self) -> int:
+        return len(self.results)
+
+    @property
+    def ids(self) -> List[int]:
+        return [r.record_id for r in self.results]
+
+    @property
+    def scores(self) -> List[float]:
+        return [r.score for r in self.results]
+
+    @property
+    def is_empty(self) -> bool:
+        return len(self.results) == 0
+
+    @property
+    def summary_line(self) -> str:
+        if self.is_empty:
+            return f"threshold={self.threshold_used:.2f} → 0 rows matched"
+        scores = self.scores
+        return f"threshold={self.threshold_used:.2f} → {self.count} rows matched (scores {min(scores):.3f}–{max(scores):.3f})"
+
+class SemanticSearcher:
+    DEFAULT_THRESHOLD_LADDER = (0.40, 0.50, 0.60, 0.70, 0.80, 0.90)
+
+    def __init__(self, index, id_map: List[int], model, max_results: int = 20):
+        self.index = index
+        self.id_map = id_map
+        self.model = model
+        self.max_results = max_results
+
+    def _db_ids_to_positions(self, db_ids: List[int]) -> List[int]:
+        db_ids_set = set(db_ids)
+        positions = [pos for pos, db_id in enumerate(self.id_map) if db_id in db_ids_set]
+        return positions
+
+    def search(self, query: str, threshold: float = 0.60, candidate_ids: List[int] = None) -> ThresholdSearchResults:
+        # 1. Encode query with normalization
+        query_embedding = self.model.encode([query], show_progress_bar=False, convert_to_numpy=True)
+        faiss.normalize_L2(query_embedding)
+        query_vec = np.array(query_embedding[0], dtype=np.float32)
+
+        # 2. Get FAISS positions
+        if candidate_ids is not None:
+            positions = self._db_ids_to_positions(candidate_ids)
+        else:
+            positions = list(range(len(self.id_map)))
+
+        # 3. Handle empty positions
+        if not positions:
+            print(f"Warning: No valid candidate positions for query: {query}")
+            return ThresholdSearchResults(query=query, threshold_used=threshold)
+
+        # 4. Reconstruct candidate embeddings from index
+        flat_index = faiss.downcast_index(self.index.index)
+        candidate_vecs = []
+        for pos in positions:
+            vec = flat_index.reconstruct(pos)
+            candidate_vecs.append(vec)
+        candidate_vecs = np.vstack(candidate_vecs).astype(np.float32)
+
+        # 5. Compute cosine similarity
+        scores = np.dot(candidate_vecs, query_vec)
+
+        # 6. Apply threshold mask
+        mask = scores >= threshold
+        passing_indices = np.where(mask)[0]
+
+        if len(passing_indices) == 0:
+            best_score = float(np.max(scores)) if len(scores) > 0 else 0.0
+            print(f"No results passed threshold {threshold:.2f} for query: {query}. Best score was: {best_score:.3f}")
+            return ThresholdSearchResults(query=query, threshold_used=threshold)
+
+        passing_positions = [positions[idx] for idx in passing_indices]
+        passing_scores = scores[passing_indices]
+
+        # 7. Sort descending
+        sorted_indices = np.argsort(-passing_scores)
+        sorted_positions = [passing_positions[idx] for idx in sorted_indices]
+        sorted_scores = [passing_scores[idx] for idx in sorted_indices]
+
+        # 8. Slice to max results
+        sliced_positions = sorted_positions[:self.max_results]
+        sliced_scores = sorted_scores[:self.max_results]
+
+        # 9. Build SearchResult objects
+        results = []
+        for rank, (pos, score) in enumerate(zip(sliced_positions, sliced_scores), 1):
+            db_id = self.id_map[pos]
+            results.append(SearchResult(record_id=db_id, score=float(score), rank=rank))
+
+        print(f"Threshold search complete: {len(results)} rows matched threshold >= {threshold:.2f} (from {len(positions)} total candidates)")
+        return ThresholdSearchResults(query=query, threshold_used=threshold, results=results)
+
+    def search_with_auto_threshold(self, query: str, ladder=DEFAULT_THRESHOLD_LADDER, target_min: int = 3, target_max: int = 15, candidate_ids: List[int] = None) -> ThresholdSearchResults:
+        best = None
+        for threshold in ladder:
+            res = self.search(query, threshold=threshold, candidate_ids=candidate_ids)
+            if res.count == 0:
+                break
+            best = res
+            if res.count <= target_max:
+                break
+        
+        if best is not None:
+            return best
+        return ThresholdSearchResults(query=query, threshold_used=ladder[0])
+
 class VectorEmbedder:
     def __init__(self, model_name="all-MiniLM-L6-v2", index_path="data/faiss_index.bin", metadata_path="data/vector_metadata.json"):
         self.model_name = model_name
@@ -18,7 +142,7 @@ class VectorEmbedder:
         """Loads the SentenceTransformer model into memory."""
         if self.model is None:
             from sentence_transformers import SentenceTransformer
-            self.model = SentenceTransformer(self.model_name)
+            self.model = SentenceTransformer(self.model_name, device="cpu")
         return self.model
 
     def encode(self, texts):

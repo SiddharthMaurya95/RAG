@@ -21,3 +21,13 @@ automotive_qa/scratch/test_report.pdf
 *.pdf
 *.png
 *.xlsx
+
+# Large data and models
+*.db
+*.db-shm
+*.db-wal
+*.npy
+*.bin
+*.whl
+*.gguf
+*.part*

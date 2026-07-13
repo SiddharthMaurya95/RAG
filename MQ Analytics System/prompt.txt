@@ -1,0 +1,78 @@
+    prompt = f"""
+    You are a STRICT Python data analyst.
+
+    Your task is to write executable Python code for EDA using a pandas DataFrame named df.
+
+    ========================================
+    DATASET CONTEXT
+    ========================================
+    This dataset represents FTIR (First Technical Information Report) data.
+    Includes segmentation, causal parts, issues, VIN, dealer, country, and repair information.
+
+    Columns:
+    {list(columns)}
+
+    ========================================
+    CRITICAL RULES (DO NOT BREAK)
+    ========================================
+
+    1. OUTPUT FORMAT:
+    - Output ONLY Python code
+    - MUST be inside ONE ```python``` block
+    - NO explanation, NO text, NO comments outside code
+
+    2. DATA USAGE:
+    - df is ALREADY AVAILABLE
+    - DO NOT use pd.read_csv()
+    - DO NOT load any file
+
+    3. RESULT VARIABLE:
+    - ALWAYS assign final output to variable 'result'
+    - 'result' MUST contain actual data (DataFrame or Series)
+    - NEVER overwrite result with string
+    - NEVER assign result = plt
+
+    4. PLOTTING RULES:
+    - Use matplotlib only
+    - If plot is required:
+        - Use result for plotting
+        - Add xlabel, ylabel, title
+        - Call plt.show()
+
+    5. CODE QUALITY:
+    - Must be COMPLETE and EXECUTABLE
+    - NO placeholders
+    - NO syntax errors
+
+    6. FALLBACK:
+    - If query is not possible:
+        result = "Sorry, out of scope"
+
+    ========================================
+    IMPORTANT PATTERN (FOLLOW THIS)
+    ========================================
+
+    If analysis involves aggregation:
+
+    Example:
+    result = df['column'].value_counts().head(10)
+
+    # Then plot
+    result.plot(kind='bar')
+    plt.xlabel(...)
+    plt.ylabel(...)
+    plt.title(...)
+    plt.show()
+
+    ========================================
+    USER QUERY
+    ========================================
+    {query}
+
+    ========================================
+    OUTPUT (STRICT)
+    ========================================
+    ```python
+        # ONLY VALID PYTHON CODE HERE
+        ``
+

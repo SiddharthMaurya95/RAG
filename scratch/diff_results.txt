@@ -1,0 +1,163 @@
+=== automotive_qa/etl/pipeline.py has these additions compared to MQ Analytics Sytem/core/etl/pipeline.py ===
++from analytics.views import refresh_materialized_views
++
++def clean_km(val):
++    """Cleans using time mileage string into an integer."""
++    if pd.isna(val) or val is None:
++        return 0
++    val_str = str(val).lower()
++    digits = "".join([c for c in val_str if c.isdigit()])
++    return int(digits) if digits else 0
++
++def parse_date(date_val):
++    if pd.isna(date_val) or date_val is None:
++    if isinstance(date_val, (datetime.date, datetime.datetime)):
++        return date_val.strftime("%Y-%m-%d")
++    
++    date_str = str(date_val).strip()
++    for fmt in ("%d-%m-%Y", "%Y-%m-%d", "%d/%m/%Y", "%Y/%m/%d"):
++        try:
++            dt = datetime.datetime.strptime(date_str, fmt)
++            return dt.strftime("%Y-%m-%d")
+... and 214 more additions.
+
+=== No additions in automotive_qa/rag/document_builder.py compared to MQ Analytics Sytem/core/rag/document_builder.py ===
+
+=== automotive_qa/rag/embedder.py has these additions compared to MQ Analytics Sytem/core/rag/rag_embedder.py ===
++
++        # 1. Encode query with normalization
++        query_embedding = self.model.encode([query], show_progress_bar=False, convert_to_numpy=True)
++        # 2. Get FAISS positions
++        # 3. Handle empty positions
++        # 4. Reconstruct candidate embeddings from index
++        # 5. Compute cosine similarity
++
++        # 6. Apply threshold mask
++        # 7. Sort descending
++        # 8. Slice to max results
++        # 9. Build SearchResult objects
++        print(f"Threshold search complete: {len(results)} rows matched threshold >= {threshold:.2f} (from {len(positions)} total candidates)")
++    def __init__(self, model_name="all-MiniLM-L6-v2", index_path="data/faiss_index.bin", metadata_path="data/vector_metadata.json"):
++        self.index_path = get_index_path(index_path)
++        self.metadata_path = get_metadata_path(metadata_path)
++        self.metadata = [] # List of dicts matching FAISS index row-by-row
++        """Generates embeddings for a list of texts. Returns normalized numpy arrays."""
++        
++    def build_index(self, record_ids, texts, metadatas, nlist=100):
+... and 37 more additions.
+
+=== automotive_qa/rag/retriever.py has these additions compared to MQ Analytics Sytem/core/rag/rag_retriever.py ===
++    def __init__(self, db_path="data/automotive.db", nlp=None):
++        from core.paths import get_db_path
++        self.db_path = get_db_path(db_path)
++            # Reuse a pre-built NLPProcessor to avoid redundant DB scans
++            from nlp.pipeline import NLPProcessor
++                 parsed_query: dict | None = None) -> dict:
++        """
++        Retrieves matching records using hybrid SQL pre-filtering + FAISS Semantic search
++        with custom cosine similarity thresholding.
++
++        Args:
++            parsed_query: Pre-computed result from nlp.parse_query(). If provided, the
++                          NLP parse step is skipped to avoid redundant computation.
++        """
++        # 1. SQL pre-filtering to get candidate_ids
++        # Reuse pre-parsed query from caller if available to avoid duplicate NLP work
++        # Only hit the database for IDs when there are active filter conditions.
++        # For unfiltered queries, pass candidate_ids=None so FAISS searches the
++        # full index without a pre-filter, eliminating the full-table id scan.
++            entities["TROUBLE_CODE"] or entities["PRODUCT_MODEL"] or entities["COUNTRY"] or
+... and 13 more additions.
+
+=== automotive_qa/analytics/engine.py has these additions compared to MQ Analytics Sytem/core/sql/sql_executor.py ===
++    def __init__(self, db_path="data/automotive.db"):
++
++        
++        # Build query dynamically based on parameters
++        else: # country
++        """Returns chronological monthly failure trends, applying Pandas resampling/ordering."""
++        # Post-process with Pandas to format dates neatly for plotting (e.g. '2024-05')
++        """Computes comprehensive failure stats per product model."""
++        """Returns the mileage values binned into intervals for histograms."""
++        """Returns counts for each quality rating."""
++        """Returns resolution percentages grouped by trouble code."""
++    def query_via_llm(self, query_text):
++        """Generates and executes a SQLite query based on user request using the local LLM."""
++        from core.singletons import get_llm
++        from core.database import Record
++        llm_client = get_llm()
++
++        # Model context configuration — must match n_ctx in client.py
++        MODEL_N_CTX = 4096
++        MAX_GEN_TOKENS = 256  # reserved for the generated SQL output
+... and 234 more additions.
+
+=== automotive_qa/viz/charts.py has these additions compared to MQ Analytics Sytem/core/utils/charts.py ===
++    'background': '#ffffff', # White (Light theme)
++    # Determine if legend should be shown
++    has_legend = False
++    if fig.layout.showlegend is True:
++        has_legend = True
++    elif fig.layout.showlegend is None:
++        # If not explicitly set, show legend if there is more than 1 trace or colors
++        has_legend = len(fig.data) > 1
++            title=dict(text="")  # Clears redundant titles like 'variable'
++    # Update axes styling if they exist
++        gridcolor='#e2e8f0', # Slate 200
++    """Renders a beautiful horizontal bar chart."""
++        color_continuous_scale=[[0, '#818cf8'], [1, '#4f46e5']], # Gradient effect
++    """Renders a chronologically ordered line chart with markers. Supports multiple y-columns."""
++        line_shape='linear',
++    """Renders a modern donut pie chart."""
++    """Renders a mileage frequency distribution histogram."""
++    """Renders a spider/radar comparison chart across multiple models."""
++    
++    # Cap radar to top 9 models for readable output
+... and 16 more additions.
+
+=== automotive_qa/reports/engine.py has these additions compared to MQ Analytics Sytem/core/utils/report_engine.py ===
++    def __init__(self, db_path="data/automotive.db"):
++        
++        # Bold **text** -> <b>text</b>
++        # Italic *text* -> <i>text</i>
++        # Code backticks `code` -> <font name="Courier">code</font>
++        # Newlines
++        # Premium Styles
++            textColor=colors.HexColor('#0f172a'), # Slate 900
++            textColor=colors.HexColor('#475569'), # Slate 600
++            textColor=colors.HexColor('#1e3a8a'), # Navy
++            textColor=colors.HexColor('#334155'), # Slate 700
++            textColor=colors.HexColor('#ffffff'),
++        # Header / Title Block
++        # Executive Summary Box
++        # Data Breakdown tables side-by-side
++        
++        # Trouble Codes
++        # Featured Quality Cases
++        # Document Title
++        run_title.font.color.rgb = RGBColor(15, 23, 42) # Slate 900
+... and 17 more additions.
+
+=== automotive_qa/llm/client.py has these additions compared to MQ Analytics Sytem/core/ollama_client.py ===
++from llama_cpp import Llama
++class LocalLLMClient:
++    def __init__(self, model_path="models/Phi-3-mini-4k-instruct-q4.gguf"):
++        self.model_path = model_path
++        self.llm = None
++    def load_model(self):
++        """Loads the GGUF model into VRAM/RAM if not already loaded."""
++        if self.llm is None:
++            if not os.path.exists(self.model_path):
++                raise FileNotFoundError(
++                    f"Local GGUF model not found at {self.model_path}. "
++                    f"Please verify it was downloaded successfully."
++                )
++            # Configure GPU offload (20 layers) to leave VRAM headroom and prevent memory corruption on 4GB GPUs
++            self.llm = Llama(
++                model_path=self.model_path,
++                n_ctx=4096,          # Phi-3-mini native context limit
++                n_gpu_layers=-1,     # Partial GPU offload (safe for RTX 3050 Laptop GPU)
++                use_mlock=False,
++                verbose=False
+... and 44 more additions.
+

@@ -1,20 +1,25 @@
 import re
+from core.logger import get_logger
+
+logger = get_logger(__name__)
 
 class NLPProcessor:
     def __init__(self):
         self.nlp = None
-        # Default fallback lists
-        self.countries = ["nepal", "bhutan", "india", "sri lanka", "bangladesh", "maldives", "chile", "brunei", "saudi arabia", "south africa", "indonesia", "tunisia", "uae", "united arab emirates", "uruguay", "costa rica", "philippines", "lebanon", "kuwait", "bahrain", "guatemala", "italy", "nigeria", "libya", "panama", "zimbabwe", "iraq"]
-        self.db_models = set()
+        self.countries = []
         self.db_countries_map = {}
+        self.db_models = set()
+        self.db_sales_models = set()
+        self.db_tcs = set()
         
         # Dynamically load from database if available
         try:
-            import sqlite3
+            from core.database import get_engine
             from core.paths import get_db_path
             db_path = get_db_path("data/automotive.db")
-            conn = sqlite3.connect(db_path)
+            conn = get_engine(db_path).raw_connection()
             cursor = conn.cursor()
+
             
             # Load countries and build mapping for case preservation
             cursor.execute("SELECT DISTINCT outbreak_country FROM records WHERE outbreak_country IS NOT NULL;")
@@ -43,6 +48,16 @@ class NLPProcessor:
             if db_models:
                 self.db_models = set(db_models)
                 
+            cursor.execute("SELECT DISTINCT sales_model_code FROM records WHERE sales_model_code IS NOT NULL;")
+            db_sales_models = [row[0].strip().upper() for row in cursor.fetchall() if row[0]]
+            if db_sales_models:
+                self.db_sales_models = set(db_sales_models)
+                
+            cursor.execute("SELECT DISTINCT trouble_code_complaint FROM records WHERE trouble_code_complaint IS NOT NULL;")
+            db_tcs = [row[0].strip().upper() for row in cursor.fetchall() if row[0]]
+            if db_tcs:
+                self.db_tcs = set(db_tcs)
+                
             conn.close()
         except Exception as e:
             print(f"Error dynamically loading entities: {e}")
@@ -67,12 +82,12 @@ class NLPProcessor:
         
         # Define entity patterns
         patterns = [
-            # Trouble Code (e.g. P0500, C0035)
-            {"label": "TROUBLE_CODE", "pattern": [{"TEXT": {"REGEX": "^[PBCU]\\d{4}$"}}]},
-            # Product Model Code (Starts with Y followed by 5 to 9 alphanumeric chars)
-            {"label": "PRODUCT_MODEL", "pattern": [{"TEXT": {"REGEX": "(?i)^Y[A-Z0-9]{5,9}$"}}]},
-            # Sales Model Code (e.g. ERT701, ATM412)
-            {"label": "SALES_MODEL", "pattern": [{"TEXT": {"REGEX": "^[A-Z]{3}\\d{3,4}$"}}]},
+            # Trouble Code (e.g. P0500, C0035, P03)
+            {"label": "TROUBLE_CODE", "pattern": [{"TEXT": {"REGEX": "(?i)^[PBCU]\\d{1,4}$"}}]},
+            # Product Model Code (Starts with Y followed by 2 to 9 alphanumeric chars)
+            {"label": "PRODUCT_MODEL", "pattern": [{"TEXT": {"REGEX": "(?i)^Y[A-Z0-9]{2,9}$"}}]},
+            # Sales Model Code (e.g. ERT701, ATM)
+            {"label": "SALES_MODEL", "pattern": [{"TEXT": {"REGEX": "(?i)^[A-Z]{3}\\d{0,4}$"}}]},
             # Outbreak Country
             {"label": "COUNTRY", "pattern": [{"LOWER": {"IN": self.countries}}]},
             # FTIR No (e.g. FTIR/2024/1018)
@@ -82,59 +97,10 @@ class NLPProcessor:
 
     def classify_intent(self, query):
         """
-        Classifies intent into one of the 8 categories based on keywords.
-        Returns (intent, score). If score < threshold, returns ('AMBIGUOUS', score).
+        Always returns 'ANALYTICS' as the default intent.
+        Search intent is only triggered when explicitly overridden.
         """
-        q = query.lower()
-        
-        scores = {
-            "VISUALIZE+EXPLAIN": 0,
-            "VISUALIZE": 0,
-            "COMPARE": 0,
-            "REPORT": 0,
-            "ESCALATION": 0,
-            "ANALYTICS": 0,
-            "SEARCH": 0
-        }
-        
-        # 1. VISUALIZE+EXPLAIN
-        if ("chart" in q or "graph" in q or "plot" in q or "visual" in q) and ("why" in q or "explain" in q or "reason" in q or "cause" in q):
-            scores["VISUALIZE+EXPLAIN"] = 4
-            
-        # 2. VISUALIZE
-        if "chart" in q or "graph" in q or "plot" in q or "visualize" in q or "show chart" in q:
-            scores["VISUALIZE"] = 3
-            
-        # 3. COMPARE
-        if "compare" in q or " vs " in q or "versus" in q or "difference between" in q:
-            scores["COMPARE"] = 3
-            
-        # 4. REPORT
-        if "monthly report" in q or "generate report" in q or "annual report" in q or "export report" in q or (("report" in q or "export" in q) and ("month" in q or "year" in q or any(yr in q for yr in ["2020", "2021", "2022", "2023", "2024", "2025", "2026", "2027", "2028", "2029", "2030"]))):
-            if "monthly report" in q or "annual report" in q:
-                scores["REPORT"] = 6
-            else:
-                db_centric_keywords = ["unresolved", "repair", "failure", "defect", "model", "trouble", "code", "claim", "claims", "ftir", "incident", "incidents"]
-                if not any(k in q for k in db_centric_keywords):
-                    scores["REPORT"] = 3
-            
-
-        # 6. ANALYTICS
-        if "top" in q or "count" in q or "how many" in q or "total" in q or "number" in q or "frequency" in q or "average" in q or "stats" in q or "ranking" in q or "most common" in q or "percent" in q or "rate" in q:
-            scores["ANALYTICS"] = 2
-            
-        # 7. SEARCH
-        if "similar" in q or "find" in q or "cases like" in q or "search" in q or "lookup" in q:
-            scores["SEARCH"] = 3
-            
-        # Get highest score intent
-        best_intent = max(scores, key=scores.get)
-        best_score = scores[best_intent]
-        
-        if best_score == 0:
-            return "AMBIGUOUS", 0.0
-            
-        return best_intent, float(best_score)
+        return "ANALYTICS", 1.0
 
     def extract_entities_regex(self, text):
         """Backup regex entity extraction."""
@@ -148,19 +114,21 @@ class NLPProcessor:
         }
         
         # Regex definitions
-        tc_pattern = re.compile(r'\b[PBCU]\d{4}\b', re.IGNORECASE)
-        pm_pattern = re.compile(r'\bY[A-Z0-9]{5,9}\b', re.IGNORECASE)
-        sm_pattern = re.compile(r'\b[A-Z]{3}\d{3,4}\b', re.IGNORECASE)
+        tc_pattern = re.compile(r'\b[PBCU]\d{1,4}\b', re.IGNORECASE)
+        pm_pattern = re.compile(r'\bY[A-Z0-9]{2,9}\b', re.IGNORECASE)
+        sm_pattern = re.compile(r'\b[A-Z]{3}\d{0,4}\b', re.IGNORECASE)
         vin_pattern = re.compile(r'\bMA3[A-Z0-9]{14}\b', re.IGNORECASE) # 17 chars VIN
         ftir_pattern = re.compile(r'\bFTIR/\d{4}/\d{4}\b', re.IGNORECASE)
         
         for m in tc_pattern.finditer(text):
-            entities["TROUBLE_CODE"].append(m.group().upper())
+            code_val = m.group().upper()
+            if not self.db_tcs or code_val in self.db_tcs or (len(code_val) < 5 and any(m.startswith(code_val) for m in self.db_tcs)):
+                entities["TROUBLE_CODE"].append(code_val)
             
         # Match product models via regex
         for m in pm_pattern.finditer(text):
             model_val = m.group().upper()
-            if not self.db_models or model_val in self.db_models:
+            if not self.db_models or model_val in self.db_models or (len(model_val) < 5 and any(m.startswith(model_val) for m in self.db_models)):
                 entities["PRODUCT_MODEL"].append(model_val)
                 
         # Also scan directly for known db_models to prevent regex omission
@@ -171,7 +139,9 @@ class NLPProcessor:
                         entities["PRODUCT_MODEL"].append(model)
                         
         for m in sm_pattern.finditer(text):
-            entities["SALES_MODEL"].append(m.group().upper())
+            model_val = m.group().upper()
+            if not self.db_sales_models or model_val in self.db_sales_models or (len(model_val) < 6 and any(m.startswith(model_val) for m in self.db_sales_models)):
+                entities["SALES_MODEL"].append(model_val)
         for m in vin_pattern.finditer(text):
             entities["VIN"].append(m.group().upper())
         for m in ftir_pattern.finditer(text):
@@ -273,11 +243,15 @@ class NLPProcessor:
         """
         Main entry point. Parse query and return a structured ParsedQuery object.
         """
+        logger.info(f"NLPProcessor starting to parse query: '{query}'")
+        
         # Load spaCy if not loaded
         self.load_spacy()
+        logger.info("spaCy model loaded or verified.")
         
         # Classify intent
         intent, intent_score = self.classify_intent(query)
+        logger.info(f"Query classified with intent '{intent}' (score: {intent_score})")
         
         # Extract entities (try spaCy, fallback/combine with regex)
         entities = self.extract_entities_regex(query)
@@ -290,8 +264,11 @@ class NLPProcessor:
                     if val not in entities[ent.label_]:
                         entities[ent.label_].append(val)
                         
+        logger.info(f"Extracted entities: {entities}")
+        
         # Extract filters
         filters = self.extract_filters(query)
+        logger.info(f"Extracted filters: {filters}")
         
         return {
             "query": query,

@@ -10,10 +10,18 @@ def select_chart_type(intent, df, query_text):
 
     columns = [c.lower() for c in df.columns]
 
-    # Suppress charts for simple count/total queries or single-row data unless explicitly requested
-    is_chart_requested = any(w in q for w in ["chart", "graph", "plot", "visualize", "visual", "trend", "compare", "vs", "versus", "distribution", "pie", "bar", "histogram", "line", "radar"])
-    is_count_query = any(w in q for w in ["total number", "how many", "count of", "number of"])
-    if (df.shape[0] <= 1) or (is_count_query and not is_chart_requested):
+    import re
+    chart_keywords = [
+        "chart", "graph", "plot", "visualize", "visual", "trend", "compare", "vs", "versus",
+        "distribution", "pie", "bar", "histogram", "line", "radar", "scatter", "box", "boxplot",
+        "violin", "area", "stackplot"
+    ]
+    
+    # Check if a chart is explicitly requested using word boundaries
+    is_chart_requested = any(re.search(r'\b' + re.escape(w) + r'\b', q) for w in chart_keywords)
+    
+    # CRITICAL: Suppress all charts unless explicitly requested in the query
+    if not is_chart_requested:
         return "empty", "Data Summary"
 
     # Explicit user choice overrides
@@ -31,6 +39,14 @@ def select_chart_type(intent, df, query_text):
         user_requested_type = "line"
     elif "radar" in q or "spider" in q:
         user_requested_type = "radar"
+    elif "scatter" in q or "correlation" in q:
+        user_requested_type = "scatter"
+    elif "box" in q or "boxplot" in q:
+        user_requested_type = "box"
+    elif "violin" in q:
+        user_requested_type = "violin"
+    elif "area" in q or "stackplot" in q:
+        user_requested_type = "area"
 
     # Base selection defaults
     inferred_type = "horizontal_bar"
@@ -47,7 +63,7 @@ def select_chart_type(intent, df, query_text):
         title = "Mileage (Using km) Distribution"
 
     # Model Comparisons
-    elif intent == "COMPARE" or "compare" in q or "vs" in q or "versus" in q:
+    elif intent == "COMPARE" or any(w in q for w in ["compare", "vs", "versus", "difference", "diff"]):
         if "resolution_rate" in columns and "avg_mileage" in columns:
             inferred_type = "radar"
             title = "Model Polar Comparison"

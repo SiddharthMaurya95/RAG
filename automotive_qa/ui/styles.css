@@ -1,0 +1,1081 @@
+/*
+ * ═══════════════════════════════════════════════════════════════════
+ *  Maruti Suzuki — Enterprise Design System  (styles.css)
+ * ═══════════════════════════════════════════════════════════════════
+ *
+ *  Reusable CSS classes for the MQ Quality Analytics System.
+ *  Token values mirror those in ui/design_tokens.py so that CSS
+ *  and Python stay in sync.
+ *
+ *  Organisation:
+ *    0. CSS Custom Properties (variables)
+ *    1. Typography
+ *    2. Buttons
+ *    3. Cards
+ *    4. Forms / Inputs
+ *    5. Badges
+ *    6. Metric Cards
+ *    7. Alerts / Status
+ *    8. Layout Helpers
+ *    9. Icons
+ *   10. Brand Header
+ *   11. Login Screen
+ *   12. Streamlit Overrides
+ *
+ *  Usage:
+ *    Inject via  ui/theme.py → inject_design_system()
+ * ═══════════════════════════════════════════════════════════════════
+ */
+
+
+/* ─────────────────────────────────────────────────────────────────
+   0.  CSS CUSTOM PROPERTIES
+   ───────────────────────────────────────────────────────────────── */
+
+:root {
+    /* Brand / Primary */
+    --msds-primary-900:  #0A1E40;
+    --msds-primary-800:  #0F2A5E;
+    --msds-primary-700:  #15347A;
+    --msds-primary-600:  #1B3D87;
+    --msds-primary-500:  #2952A3;
+    --msds-primary-400:  #3A6BBF;
+    --msds-primary-300:  #6B94D4;
+    --msds-primary-200:  #A3BDE6;
+    --msds-primary-100:  #D1DEEF;
+    --msds-primary-50:   #EBF0F7;
+
+    /* Neutral */
+    --msds-neutral-900:  #0F172A;
+    --msds-neutral-800:  #1E293B;
+    --msds-neutral-700:  #334155;
+    --msds-neutral-600:  #475569;
+    --msds-neutral-500:  #64748B;
+    --msds-neutral-400:  #94A3B8;
+    --msds-neutral-300:  #CBD5E1;
+    --msds-neutral-200:  #E2E8F0;
+    --msds-neutral-100:  #F1F5F9;
+    --msds-neutral-50:   #F8FAFC;
+    --msds-white:        #FFFFFF;
+
+    /* Semantic */
+    --msds-success-600:  #059669;
+    --msds-success-500:  #10B981;
+    --msds-success-100:  #D1FAE5;
+    --msds-success-50:   #ECFDF5;
+
+    --msds-warning-600:  #D97706;
+    --msds-warning-500:  #F59E0B;
+    --msds-warning-100:  #FEF3C7;
+    --msds-warning-50:   #FFFBEB;
+
+    --msds-error-600:    #DC2626;
+    --msds-error-500:    #EF4444;
+    --msds-error-100:    #FEE2E2;
+    --msds-error-50:     #FEF2F2;
+
+    --msds-info-600:     #0284C7;
+    --msds-info-500:     #0EA5E9;
+    --msds-info-100:     #E0F2FE;
+    --msds-info-50:      #F0F9FF;
+
+    /* Typography */
+    --msds-font-family:      'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --msds-font-family-mono: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+
+    --msds-text-xs:   11px;
+    --msds-text-sm:   12px;
+    --msds-text-base: 14px;
+    --msds-text-md:   15px;
+    --msds-text-lg:   16px;
+    --msds-text-xl:   18px;
+    --msds-text-2xl:  20px;
+    --msds-text-3xl:  24px;
+    --msds-text-4xl:  28px;
+    --msds-text-5xl:  32px;
+    --msds-text-6xl:  36px;
+
+    /* Spacing */
+    --msds-sp-0:   0px;
+    --msds-sp-0-5: 2px;
+    --msds-sp-1:   4px;
+    --msds-sp-1-5: 6px;
+    --msds-sp-2:   8px;
+    --msds-sp-2-5: 10px;
+    --msds-sp-3:   12px;
+    --msds-sp-4:   16px;
+    --msds-sp-5:   20px;
+    --msds-sp-6:   24px;
+    --msds-sp-8:   32px;
+    --msds-sp-10:  40px;
+    --msds-sp-12:  48px;
+    --msds-sp-16:  64px;
+
+    /* Border Radius */
+    --msds-radius-none: 0px;
+    --msds-radius-sm:   4px;
+    --msds-radius-md:   6px;
+    --msds-radius-lg:   8px;
+    --msds-radius-xl:   12px;
+    --msds-radius-2xl:  16px;
+    --msds-radius-full: 9999px;
+
+    /* Shadows */
+    --msds-shadow-none:  none;
+    --msds-shadow-xs:    0 1px 2px 0 rgba(0, 0, 0, 0.03);
+    --msds-shadow-sm:    0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.03);
+    --msds-shadow-md:    0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.03);
+    --msds-shadow-lg:    0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -4px rgba(0, 0, 0, 0.03);
+    --msds-shadow-xl:    0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.03);
+    --msds-shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.04);
+
+    /* Transitions */
+    --msds-transition-fast:   150ms ease;
+    --msds-transition-normal: 200ms ease;
+    --msds-transition-slow:   300ms ease-in-out;
+}
+
+
+/* ─────────────────────────────────────────────────────────────────
+   1.  TYPOGRAPHY
+   ───────────────────────────────────────────────────────────────── */
+
+/* Import Inter (design system base font) */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+/* Typographic scale classes */
+.msds-heading-1 {
+    font-family: var(--msds-font-family);
+    font-size: var(--msds-text-5xl);
+    font-weight: 700;
+    color: var(--msds-neutral-900);
+    letter-spacing: -0.025em;
+    line-height: 1.2;
+    margin: 0;
+}
+
+.msds-heading-2 {
+    font-family: var(--msds-font-family);
+    font-size: var(--msds-text-3xl);
+    font-weight: 700;
+    color: var(--msds-neutral-900);
+    letter-spacing: -0.02em;
+    line-height: 1.25;
+    margin: 0;
+}
+
+.msds-heading-3 {
+    font-family: var(--msds-font-family);
+    font-size: var(--msds-text-2xl);
+    font-weight: 600;
+    color: var(--msds-neutral-900);
+    letter-spacing: -0.01em;
+    line-height: 1.3;
+    margin: 0;
+}
+
+.msds-heading-4 {
+    font-family: var(--msds-font-family);
+    font-size: var(--msds-text-lg);
+    font-weight: 600;
+    color: var(--msds-neutral-900);
+    letter-spacing: -0.01em;
+    line-height: 1.35;
+    margin: 0;
+}
+
+.msds-body {
+    font-family: var(--msds-font-family);
+    font-size: var(--msds-text-base);
+    font-weight: 400;
+    color: var(--msds-neutral-700);
+    line-height: 1.5;
+}
+
+.msds-body-sm {
+    font-family: var(--msds-font-family);
+    font-size: var(--msds-text-sm);
+    font-weight: 400;
+    color: var(--msds-neutral-600);
+    line-height: 1.5;
+}
+
+.msds-caption {
+    font-family: var(--msds-font-family);
+    font-size: var(--msds-text-xs);
+    font-weight: 500;
+    color: var(--msds-neutral-500);
+    line-height: 1.4;
+}
+
+.msds-overline {
+    font-family: var(--msds-font-family);
+    font-size: var(--msds-text-xs);
+    font-weight: 600;
+    color: var(--msds-neutral-400);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    line-height: 1.4;
+}
+
+.msds-brand-text {
+    font-family: var(--msds-font-family);
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--msds-neutral-900);
+}
+
+.msds-brand-subtitle {
+    font-family: var(--msds-font-family);
+    font-size: var(--msds-text-sm);
+    font-weight: 500;
+    color: var(--msds-neutral-500);
+    letter-spacing: 0.02em;
+}
+
+.msds-mono {
+    font-family: var(--msds-font-family-mono);
+    font-size: var(--msds-text-sm);
+    color: var(--msds-neutral-700);
+}
+
+
+/* ─────────────────────────────────────────────────────────────────
+   2.  BUTTONS
+   ───────────────────────────────────────────────────────────────── */
+
+/* Primary button — corporate blue fill */
+.msds-btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--msds-sp-2);
+    background-color: var(--msds-primary-600) !important;
+    color: var(--msds-white) !important;
+    border: none !important;
+    font-family: var(--msds-font-family);
+    font-size: var(--msds-text-base);
+    font-weight: 600;
+    border-radius: var(--msds-radius-md);
+    padding: var(--msds-sp-2-5) var(--msds-sp-5);
+    box-shadow: var(--msds-shadow-sm);
+    cursor: pointer;
+    transition: background-color var(--msds-transition-fast),
+                box-shadow var(--msds-transition-fast);
+}
+.msds-btn-primary:hover {
+    background-color: var(--msds-primary-500) !important;
+    box-shadow: var(--msds-shadow-md);
+}
+.msds-btn-primary:active {
+    background-color: var(--msds-primary-700) !important;
+    box-shadow: var(--msds-shadow-xs);
+}
+.msds-btn-primary:disabled {
+    background-color: var(--msds-neutral-300) !important;
+    color: var(--msds-neutral-500) !important;
+    box-shadow: none;
+    cursor: not-allowed;
+}
+
+/* Secondary button — outline / ghost */
+.msds-btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--msds-sp-2);
+    background-color: var(--msds-white) !important;
+    color: var(--msds-neutral-700) !important;
+    border: 1px solid var(--msds-neutral-200) !important;
+    font-family: var(--msds-font-family);
+    font-size: var(--msds-text-base);
+    font-weight: 500;
+    border-radius: var(--msds-radius-md);
+    padding: var(--msds-sp-2-5) var(--msds-sp-5);
+    cursor: pointer;
+    transition: border-color var(--msds-transition-fast),
+                color var(--msds-transition-fast),
+                background-color var(--msds-transition-fast);
+}
+.msds-btn-secondary:hover {
+    border-color: var(--msds-neutral-400) !important;
+    color: var(--msds-neutral-900) !important;
+    background-color: var(--msds-neutral-50) !important;
+}
+.msds-btn-secondary:active {
+    background-color: var(--msds-neutral-100) !important;
+}
+
+/* Danger button — destructive actions */
+.msds-btn-danger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--msds-sp-2);
+    background-color: var(--msds-white) !important;
+    color: var(--msds-error-600) !important;
+    border: 1px solid var(--msds-error-100) !important;
+    font-family: var(--msds-font-family);
+    font-size: var(--msds-text-base);
+    font-weight: 500;
+    border-radius: var(--msds-radius-md);
+    padding: var(--msds-sp-2-5) var(--msds-sp-5);
+    cursor: pointer;
+    transition: background-color var(--msds-transition-fast),
+                border-color var(--msds-transition-fast);
+}
+.msds-btn-danger:hover {
+    background-color: var(--msds-error-50) !important;
+    border-color: var(--msds-error-500) !important;
+}
+
+/* Ghost button — minimal, no border */
+.msds-btn-ghost {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--msds-sp-2);
+    background-color: transparent !important;
+    color: var(--msds-neutral-600) !important;
+    border: none !important;
+    font-family: var(--msds-font-family);
+    font-size: var(--msds-text-base);
+    font-weight: 500;
+    border-radius: var(--msds-radius-md);
+    padding: var(--msds-sp-2) var(--msds-sp-3);
+    cursor: pointer;
+    transition: background-color var(--msds-transition-fast),
+                color var(--msds-transition-fast);
+}
+.msds-btn-ghost:hover {
+    background-color: var(--msds-neutral-100) !important;
+    color: var(--msds-neutral-900) !important;
+}
+
+/* Button sizes */
+.msds-btn-sm {
+    font-size: var(--msds-text-sm) !important;
+    padding: var(--msds-sp-1-5) var(--msds-sp-3) !important;
+}
+.msds-btn-lg {
+    font-size: var(--msds-text-lg) !important;
+    padding: var(--msds-sp-3) var(--msds-sp-6) !important;
+}
+
+
+/* ─────────────────────────────────────────────────────────────────
+   3.  CARDS
+   ───────────────────────────────────────────────────────────────── */
+
+.msds-card {
+    background: var(--msds-white);
+    border: 1px solid var(--msds-neutral-200);
+    border-radius: var(--msds-radius-xl);
+    padding: var(--msds-sp-6);
+    box-shadow: var(--msds-shadow-xs);
+}
+
+.msds-card-hover {
+    transition: border-color var(--msds-transition-fast),
+                box-shadow var(--msds-transition-fast);
+}
+.msds-card-hover:hover {
+    border-color: var(--msds-primary-300);
+    box-shadow: var(--msds-shadow-md);
+}
+
+/* Elevated card — slightly more shadow */
+.msds-card-elevated {
+    background: var(--msds-white);
+    border: 1px solid var(--msds-neutral-200);
+    border-radius: var(--msds-radius-xl);
+    padding: var(--msds-sp-6);
+    box-shadow: var(--msds-shadow-sm);
+}
+
+/* Flat card — no shadow at all */
+.msds-card-flat {
+    background: var(--msds-white);
+    border: 1px solid var(--msds-neutral-200);
+    border-radius: var(--msds-radius-lg);
+    padding: var(--msds-sp-5);
+    box-shadow: none;
+}
+
+/* Glass card — subtle frosted surface */
+.msds-card-glass {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--msds-neutral-200);
+    border-radius: var(--msds-radius-xl);
+    padding: var(--msds-sp-6);
+    box-shadow: var(--msds-shadow-xs);
+}
+
+/* Card sections */
+.msds-card-header {
+    padding-bottom: var(--msds-sp-4);
+    margin-bottom: var(--msds-sp-4);
+    border-bottom: 1px solid var(--msds-neutral-200);
+}
+.msds-card-body {
+    /* flex-grow context */
+}
+.msds-card-footer {
+    padding-top: var(--msds-sp-4);
+    margin-top: var(--msds-sp-4);
+    border-top: 1px solid var(--msds-neutral-200);
+}
+
+
+/* ─────────────────────────────────────────────────────────────────
+   4.  FORMS / INPUTS
+   ───────────────────────────────────────────────────────────────── */
+
+.msds-input {
+    width: 100%;
+    padding: var(--msds-sp-2-5) var(--msds-sp-3);
+    font-family: var(--msds-font-family);
+    font-size: var(--msds-text-base);
+    font-weight: 400;
+    color: var(--msds-neutral-700);
+    background: var(--msds-white);
+    border: 1px solid var(--msds-neutral-200);
+    border-radius: var(--msds-radius-md);
+    outline: none;
+    box-sizing: border-box;
+    transition: border-color var(--msds-transition-fast),
+                box-shadow var(--msds-transition-fast);
+}
+.msds-input::placeholder {
+    color: var(--msds-neutral-400);
+}
+.msds-input:focus {
+    border-color: var(--msds-primary-500);
+    box-shadow: 0 0 0 3px var(--msds-primary-50);
+}
+.msds-input:disabled {
+    background-color: var(--msds-neutral-100);
+    color: var(--msds-neutral-400);
+    cursor: not-allowed;
+}
+
+/* Input with icon wrapper */
+.msds-input-group {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+.msds-input-group .msds-input-icon {
+    position: absolute;
+    left: var(--msds-sp-3);
+    color: var(--msds-neutral-400);
+    font-size: var(--msds-text-lg);
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+}
+.msds-input-group .msds-input {
+    padding-left: var(--msds-sp-10);
+}
+
+/* Form label */
+.msds-label {
+    display: block;
+    font-family: var(--msds-font-family);
+    font-size: var(--msds-text-sm);
+    font-weight: 600;
+    color: var(--msds-neutral-700);
+    margin-bottom: var(--msds-sp-1-5);
+    letter-spacing: -0.01em;
+}
+
+/* Form helper text */
+.msds-helper {
+    font-family: var(--msds-font-family);
+    font-size: var(--msds-text-xs);
+    color: var(--msds-neutral-500);
+    margin-top: var(--msds-sp-1);
+}
+
+/* Form group (label + input + helper) */
+.msds-form-group {
+    margin-bottom: var(--msds-sp-5);
+}
+
+/* Form divider */
+.msds-form-divider {
+    height: 1px;
+    background-color: var(--msds-neutral-200);
+    border: none;
+    margin: var(--msds-sp-6) 0;
+}
+
+
+/* ─────────────────────────────────────────────────────────────────
+   5.  BADGES
+   ───────────────────────────────────────────────────────────────── */
+
+.msds-badge {
+    display: inline-block;
+    font-family: var(--msds-font-family);
+    font-size: var(--msds-text-xs);
+    font-weight: 600;
+    padding: 3px var(--msds-sp-2-5);
+    border-radius: var(--msds-radius-sm);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    line-height: 1.4;
+}
+
+.msds-badge-primary {
+    background: var(--msds-primary-50);
+    color: var(--msds-primary-700);
+}
+.msds-badge-success {
+    background: var(--msds-success-50);
+    color: var(--msds-success-600);
+}
+.msds-badge-warning {
+    background: var(--msds-warning-50);
+    color: var(--msds-warning-600);
+}
+.msds-badge-error {
+    background: var(--msds-error-50);
+    color: var(--msds-error-600);
+}
+.msds-badge-info {
+    background: var(--msds-info-50);
+    color: var(--msds-info-600);
+}
+.msds-badge-neutral {
+    background: var(--msds-neutral-100);
+    color: var(--msds-neutral-600);
+}
+
+/* Pill variant */
+.msds-badge-pill {
+    border-radius: var(--msds-radius-full);
+    padding: 2px var(--msds-sp-3);
+}
+
+
+/* ─────────────────────────────────────────────────────────────────
+   6.  METRIC CARDS
+   ───────────────────────────────────────────────────────────────── */
+
+.msds-metric-card {
+    background: var(--msds-white);
+    border: 1px solid var(--msds-neutral-200);
+    border-radius: var(--msds-radius-lg);
+    padding: var(--msds-sp-4) var(--msds-sp-5);
+    box-shadow: var(--msds-shadow-xs);
+}
+
+/* Colored top-border variants */
+.msds-metric-card-primary { border-top: 3px solid var(--msds-primary-600); }
+.msds-metric-card-success { border-top: 3px solid var(--msds-success-500); }
+.msds-metric-card-warning { border-top: 3px solid var(--msds-warning-500); }
+.msds-metric-card-error   { border-top: 3px solid var(--msds-error-500);   }
+.msds-metric-card-info    { border-top: 3px solid var(--msds-info-500);    }
+
+.msds-metric-value {
+    font-family: var(--msds-font-family);
+    font-size: var(--msds-text-4xl);
+    font-weight: 700;
+    color: var(--msds-neutral-900);
+    letter-spacing: -0.02em;
+    margin-top: var(--msds-sp-1-5);
+    line-height: 1.2;
+}
+
+.msds-metric-label {
+    font-family: var(--msds-font-family);
+    font-size: var(--msds-text-xs);
+    font-weight: 600;
+    color: var(--msds-neutral-500);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.msds-metric-delta {
+    font-family: var(--msds-font-family);
+    font-size: var(--msds-text-sm);
+    font-weight: 600;
+    margin-top: var(--msds-sp-1);
+}
+.msds-metric-delta-up   { color: var(--msds-success-600); }
+.msds-metric-delta-down { color: var(--msds-error-600);   }
+
+
+/* ─────────────────────────────────────────────────────────────────
+   7.  ALERTS / STATUS
+   ───────────────────────────────────────────────────────────────── */
+
+.msds-alert {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--msds-sp-3);
+    padding: var(--msds-sp-3) var(--msds-sp-4);
+    border-radius: var(--msds-radius-lg);
+    font-family: var(--msds-font-family);
+    font-size: var(--msds-text-sm);
+    line-height: 1.5;
+}
+.msds-alert-success {
+    background: var(--msds-success-50);
+    border: 1px solid var(--msds-success-100);
+    color: var(--msds-success-600);
+}
+.msds-alert-warning {
+    background: var(--msds-warning-50);
+    border: 1px solid var(--msds-warning-100);
+    color: var(--msds-warning-600);
+}
+.msds-alert-error {
+    background: var(--msds-error-50);
+    border: 1px solid var(--msds-error-100);
+    color: var(--msds-error-600);
+}
+.msds-alert-info {
+    background: var(--msds-info-50);
+    border: 1px solid var(--msds-info-100);
+    color: var(--msds-info-600);
+}
+
+/* Status dot — live / offline indicator */
+.msds-status-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+.msds-status-dot-online  { background: var(--msds-success-500); box-shadow: 0 0 0 2px var(--msds-success-100); }
+.msds-status-dot-offline { background: var(--msds-neutral-400); box-shadow: 0 0 0 2px var(--msds-neutral-200); }
+.msds-status-dot-warning { background: var(--msds-warning-500); box-shadow: 0 0 0 2px var(--msds-warning-100); }
+.msds-status-dot-error   { background: var(--msds-error-500);   box-shadow: 0 0 0 2px var(--msds-error-100);   }
+
+/* Status chip — pill with dot */
+.msds-status-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--msds-sp-1-5);
+    font-family: var(--msds-font-family);
+    font-size: var(--msds-text-sm);
+    font-weight: 500;
+    color: var(--msds-neutral-600);
+    background: var(--msds-white);
+    border: 1px solid var(--msds-neutral-200);
+    border-radius: var(--msds-radius-full);
+    padding: var(--msds-sp-1) var(--msds-sp-3);
+    box-shadow: var(--msds-shadow-xs);
+}
+
+
+/* ─────────────────────────────────────────────────────────────────
+   8.  LAYOUT HELPERS
+   ───────────────────────────────────────────────────────────────── */
+
+.msds-flex          { display: flex; }
+.msds-flex-col      { display: flex; flex-direction: column; }
+.msds-flex-center   { display: flex; align-items: center; justify-content: center; }
+.msds-flex-between  { display: flex; align-items: center; justify-content: space-between; }
+.msds-flex-wrap     { flex-wrap: wrap; }
+
+.msds-gap-1  { gap: var(--msds-sp-1);  }
+.msds-gap-2  { gap: var(--msds-sp-2);  }
+.msds-gap-3  { gap: var(--msds-sp-3);  }
+.msds-gap-4  { gap: var(--msds-sp-4);  }
+.msds-gap-5  { gap: var(--msds-sp-5);  }
+.msds-gap-6  { gap: var(--msds-sp-6);  }
+.msds-gap-8  { gap: var(--msds-sp-8);  }
+
+.msds-text-center  { text-align: center; }
+.msds-text-left    { text-align: left;   }
+.msds-text-right   { text-align: right;  }
+
+.msds-w-full { width: 100%; }
+.msds-mx-auto { margin-left: auto; margin-right: auto; }
+
+/* Divider */
+.msds-divider {
+    height: 1px;
+    background: var(--msds-neutral-200);
+    border: none;
+    margin: var(--msds-sp-4) 0;
+}
+.msds-divider-lg {
+    margin: var(--msds-sp-6) 0;
+}
+
+/* Section label (section headers) */
+.msds-section-label {
+    font-family: var(--msds-font-family);
+    font-size: var(--msds-text-xs);
+    font-weight: 600;
+    color: var(--msds-neutral-400);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: var(--msds-sp-2);
+}
+
+
+/* ─────────────────────────────────────────────────────────────────
+   9.  ICONS
+   ───────────────────────────────────────────────────────────────── */
+
+.msds-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.msds-icon-xs  { width: 14px; height: 14px; font-size: 14px; }
+.msds-icon-sm  { width: 16px; height: 16px; font-size: 16px; }
+.msds-icon-md  { width: 20px; height: 20px; font-size: 20px; }
+.msds-icon-lg  { width: 24px; height: 24px; font-size: 24px; }
+.msds-icon-xl  { width: 28px; height: 28px; font-size: 28px; }
+.msds-icon-2xl { width: 32px; height: 32px; font-size: 32px; }
+.msds-icon-3xl { width: 40px; height: 40px; font-size: 40px; }
+.msds-icon-4xl { width: 48px; height: 48px; font-size: 48px; }
+.msds-icon-5xl { width: 56px; height: 56px; font-size: 56px; }
+
+/* Icon container — rounded bg behind an icon */
+.msds-icon-container {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--msds-radius-xl);
+    flex-shrink: 0;
+}
+.msds-icon-container-sm { width: 36px; height: 36px; }
+.msds-icon-container-md { width: 44px; height: 44px; }
+.msds-icon-container-lg { width: 56px; height: 56px; }
+.msds-icon-container-xl { width: 68px; height: 68px; }
+
+.msds-icon-container-primary {
+    background: var(--msds-primary-50);
+    border: 1px solid var(--msds-primary-100);
+    color: var(--msds-primary-600);
+}
+.msds-icon-container-success {
+    background: var(--msds-success-50);
+    border: 1px solid var(--msds-success-100);
+    color: var(--msds-success-600);
+}
+.msds-icon-container-warning {
+    background: var(--msds-warning-50);
+    border: 1px solid var(--msds-warning-100);
+    color: var(--msds-warning-600);
+}
+.msds-icon-container-error {
+    background: var(--msds-error-50);
+    border: 1px solid var(--msds-error-100);
+    color: var(--msds-error-600);
+}
+.msds-icon-container-info {
+    background: var(--msds-info-50);
+    border: 1px solid var(--msds-info-100);
+    color: var(--msds-info-600);
+}
+.msds-icon-container-neutral {
+    background: var(--msds-neutral-100);
+    border: 1px solid var(--msds-neutral-200);
+    color: var(--msds-neutral-600);
+}
+
+
+/* ─────────────────────────────────────────────────────────────────
+   10. BRAND HEADER BAR
+   ───────────────────────────────────────────────────────────────── */
+
+.msds-header-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--msds-white);
+    border-bottom: 1px solid var(--msds-neutral-200);
+    padding: var(--msds-sp-3) var(--msds-sp-6);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.msds-header-brand {
+    display: flex;
+    align-items: center;
+    gap: var(--msds-sp-3);
+}
+
+.msds-header-logo {
+    width: 36px;
+    height: 36px;
+    object-fit: contain;
+}
+
+.msds-header-title {
+    font-family: var(--msds-font-family);
+    font-size: var(--msds-text-md);
+    font-weight: 800;
+    color: var(--msds-neutral-900);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    line-height: 1.2;
+}
+
+.msds-header-tagline {
+    font-family: var(--msds-font-family);
+    font-size: var(--msds-text-xs);
+    font-weight: 500;
+    color: var(--msds-neutral-500);
+    letter-spacing: 0.02em;
+    line-height: 1.3;
+}
+
+.msds-header-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--msds-sp-3);
+}
+
+
+/* ─────────────────────────────────────────────────────────────────
+   11. LOGIN SCREEN  (reusable classes for future login redesign)
+   ───────────────────────────────────────────────────────────────── */
+
+.msds-login-bg {
+    background: linear-gradient(135deg, var(--msds-neutral-50) 0%, var(--msds-primary-50) 100%);
+    min-height: 100vh;
+}
+
+.msds-login-hero {
+    text-align: center;
+    padding-top: var(--msds-sp-16);
+    padding-bottom: var(--msds-sp-8);
+}
+
+.msds-login-logo-container {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 72px;
+    height: 72px;
+    background: var(--msds-white);
+    border-radius: var(--msds-radius-2xl);
+    border: 1px solid var(--msds-neutral-200);
+    box-shadow: var(--msds-shadow-sm);
+    margin-bottom: var(--msds-sp-5);
+}
+
+.msds-login-title {
+    font-family: var(--msds-font-family);
+    font-size: var(--msds-text-4xl);
+    font-weight: 700;
+    color: var(--msds-primary-600);
+    margin-bottom: var(--msds-sp-1);
+    letter-spacing: -0.025em;
+}
+
+.msds-login-subtitle {
+    font-family: var(--msds-font-family);
+    font-size: var(--msds-text-lg);
+    font-weight: 500;
+    color: var(--msds-neutral-700);
+    margin-bottom: var(--msds-sp-2);
+}
+
+.msds-login-desc {
+    font-family: var(--msds-font-family);
+    font-size: var(--msds-text-sm);
+    color: var(--msds-neutral-500);
+    margin-bottom: var(--msds-sp-8);
+}
+
+/* Horizontal rule under subtitle */
+.msds-login-rule {
+    width: 48px;
+    height: 3px;
+    background: var(--msds-primary-600);
+    border: none;
+    border-radius: 2px;
+    margin: var(--msds-sp-4) auto var(--msds-sp-6);
+}
+
+.msds-login-card {
+    background: var(--msds-white);
+    border: 1px solid var(--msds-neutral-200);
+    border-radius: var(--msds-radius-xl);
+    padding: var(--msds-sp-8);
+    box-shadow: var(--msds-shadow-sm);
+    text-align: left;
+}
+
+.msds-login-card-header {
+    display: flex;
+    align-items: center;
+    gap: var(--msds-sp-3);
+    margin-bottom: var(--msds-sp-5);
+}
+
+.msds-login-card-title {
+    font-family: var(--msds-font-family);
+    font-size: var(--msds-text-lg);
+    font-weight: 600;
+    color: var(--msds-neutral-900);
+    margin-bottom: var(--msds-sp-1);
+}
+
+.msds-login-card-desc {
+    font-family: var(--msds-font-family);
+    font-size: var(--msds-text-sm);
+    color: var(--msds-neutral-500);
+    line-height: 1.5;
+}
+
+/* Feature cards row (bottom of login) */
+.msds-feature-row {
+    display: flex;
+    justify-content: center;
+    gap: var(--msds-sp-6);
+    flex-wrap: wrap;
+    padding: var(--msds-sp-8) var(--msds-sp-6);
+}
+
+.msds-feature-card {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--msds-sp-3);
+    max-width: 220px;
+}
+
+.msds-feature-title {
+    font-family: var(--msds-font-family);
+    font-size: var(--msds-text-sm);
+    font-weight: 600;
+    color: var(--msds-neutral-900);
+    margin-bottom: 2px;
+}
+
+.msds-feature-desc {
+    font-family: var(--msds-font-family);
+    font-size: var(--msds-text-xs);
+    color: var(--msds-neutral-500);
+    line-height: 1.4;
+}
+
+/* Footer */
+.msds-footer {
+    text-align: center;
+    padding: var(--msds-sp-4) var(--msds-sp-6);
+    font-family: var(--msds-font-family);
+    font-size: var(--msds-text-xs);
+    color: var(--msds-neutral-400);
+    border-top: 1px solid var(--msds-neutral-200);
+}
+
+.msds-footer-version {
+    float: right;
+    font-weight: 500;
+}
+
+
+/* ─────────────────────────────────────────────────────────────────
+   12. STREAMLIT OVERRIDES  (only when this design system is active)
+   ───────────────────────────────────────────────────────────────── */
+
+/* Override Streamlit primary buttons to match brand */
+.msds-active .element-container button[kind="primary"] {
+    background-color: var(--msds-primary-600) !important;
+    color: var(--msds-white) !important;
+    border: none !important;
+    font-family: var(--msds-font-family);
+    font-weight: 600;
+    border-radius: var(--msds-radius-md);
+    padding: var(--msds-sp-2-5) var(--msds-sp-5);
+    box-shadow: var(--msds-shadow-sm);
+    transition: background-color var(--msds-transition-fast),
+                box-shadow var(--msds-transition-fast);
+}
+.msds-active .element-container button[kind="primary"]:hover {
+    background-color: var(--msds-primary-500) !important;
+    box-shadow: var(--msds-shadow-md);
+}
+
+/* Override Streamlit secondary buttons */
+.msds-active .element-container button[kind="secondary"] {
+    background-color: var(--msds-white) !important;
+    color: var(--msds-neutral-700) !important;
+    border: 1px solid var(--msds-neutral-200) !important;
+    font-family: var(--msds-font-family);
+    font-weight: 500;
+    border-radius: var(--msds-radius-md);
+    transition: border-color var(--msds-transition-fast),
+                color var(--msds-transition-fast);
+}
+.msds-active .element-container button[kind="secondary"]:hover {
+    border-color: var(--msds-neutral-400) !important;
+    color: var(--msds-neutral-900) !important;
+}
+
+/* Override Streamlit text inputs */
+.msds-active [data-testid="stTextInput"] input {
+    border: 1px solid var(--msds-neutral-200) !important;
+    border-radius: var(--msds-radius-md) !important;
+    font-family: var(--msds-font-family) !important;
+    transition: border-color var(--msds-transition-fast),
+                box-shadow var(--msds-transition-fast) !important;
+}
+.msds-active [data-testid="stTextInput"] input:focus {
+    border-color: var(--msds-primary-500) !important;
+    box-shadow: 0 0 0 3px var(--msds-primary-50) !important;
+}
+
+
+/* ─────────────────────────────────────────────────────────────────
+   13. STREAMLIT HEADER INTEGRATION
+   ───────────────────────────────────────────────────────────────── */
+
+/* (Streamlit header overrides moved to conditional injection in main.py) */
+
+/* Make the header bar span exactly the screen width and stick to the top */
+.msds-header-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 999999;
+    padding: var(--msds-sp-3) var(--msds-sp-6);
+    box-sizing: border-box;
+    box-shadow: var(--msds-shadow-sm); /* subtle shadow for separation */
+}
+
+/* Spacer to prevent fixed header from covering Streamlit content */
+.msds-header-spacer {
+    height: 64px;
+    width: 100%;
+    display: block;
+}
+
+/* Three-dot overflow menu icon */
+.msds-three-dot-menu {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--msds-neutral-500);
+    cursor: pointer;
+    border-radius: var(--msds-radius-md);
+    transition: background-color var(--msds-transition-fast),
+                color var(--msds-transition-fast);
+    user-select: none;
+    line-height: 1;
+}
+.msds-three-dot-menu:hover {
+    background-color: var(--msds-neutral-100);
+    color: var(--msds-neutral-700);
+}
