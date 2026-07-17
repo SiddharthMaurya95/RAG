@@ -1,17 +1,28 @@
 # =====================================================
-# ✅ DOCUMENT BUILDER FOR EMBEDDINGS
+# ✅ DOCUMENT BUILDER
 # =====================================================
+from core.utils.decorators import with_logging_and_exceptions
 
+@with_logging_and_exceptions
 def build_document_text(record):
     """
     Concatenates the key descriptive columns of a record into a single structured text block.
     This creates an informative text document for generating vector embeddings.
     """
+    root_cause = str(record.get('root_cause', '')).strip()
+    repair_contents = str(record.get('repair_contents', '') or record.get('Repair Contents', '')).strip()
+    repair_contents = repair_contents if repair_contents.lower() != 'nan' else ''
+    
+    if root_cause and root_cause.lower() != 'nan':
+        doc_parts = [f"Root Cause: {root_cause}"]
+        if repair_contents:
+            doc_parts.append(f"Repair Contents: {repair_contents}")
+        return "\n".join(doc_parts)
+
     subject = str(record.get('subject', '') or record.get('Subject', '')).strip()
     complaint = str(record.get('customer_complaint', '') or record.get('Customer Complaint', '')).strip()
     checked_contents = str(record.get('checked_contents', '') or record.get('Checked Contents', '')).strip()
     checked_results = str(record.get('checked_results', '') or record.get('Checked Results', '')).strip()
-    repair_contents = str(record.get('repair_contents', '') or record.get('Repair Contents', '')).strip()
     causal_parts_name = str(record.get('causal_parts_name', '') or record.get('Causal Parts Name', '')).strip()
 
     # Normalize nan strings
@@ -19,7 +30,6 @@ def build_document_text(record):
     complaint = complaint if complaint.lower() != 'nan' else ''
     checked_contents = checked_contents if checked_contents.lower() != 'nan' else ''
     checked_results = checked_results if checked_results.lower() != 'nan' else ''
-    repair_contents = repair_contents if repair_contents.lower() != 'nan' else ''
     causal_parts_name = causal_parts_name if causal_parts_name.lower() != 'nan' else ''
 
     doc_parts = []

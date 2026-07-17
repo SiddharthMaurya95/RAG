@@ -1,23 +1,22 @@
 # =====================================================
-# ✅ CHAT SESSIONS & USER AUTHENTICATION
+# ✅ SESSION & MEMORY MANAGEMENT
 # =====================================================
 import datetime
 from core.database import Base, get_engine, get_session, User, ChatSession, ChatHistory
 
-def migrate_db_for_sessions(db_path=None):
-    """Ensures database tables are initialized."""
-    if db_path is None:
-        from core.config import DB_PATH
-        db_path = DB_PATH
+def migrate_db_for_sessions(db_path="data/automotive.db"):
+    """
+    Ensures that the database tables and schema exist by calling Base.metadata.create_all().
+    """
     engine = get_engine(db_path)
     Base.metadata.create_all(engine)
 
-def verify_or_create_user(username, db_path=None):
-    """Verifies user login, inserts new user if not exists."""
-    if db_path is None:
-        from core.config import DB_PATH
-        db_path = DB_PATH
-        
+def verify_or_create_user(username, db_path="data/automotive.db"):
+    """
+    Checks if a username exists in the users table.
+    If it does, returns its user_id.
+    If it does not, inserts it and returns the newly generated user_id.
+    """
     migrate_db_for_sessions(db_path)
     cleaned_username = str(username).strip()
     if not cleaned_username:
@@ -28,11 +27,13 @@ def verify_or_create_user(username, db_path=None):
         user = session.query(User).filter(User.username == cleaned_username).first()
         if user:
             user_id = user.id
+            print(f"User '{cleaned_username}' logged in (ID: {user_id}).")
         else:
             user = User(username=cleaned_username)
             session.add(user)
             session.commit()
             user_id = user.id
+            print(f"Created new user '{cleaned_username}' (ID: {user_id}).")
         return user_id
     except Exception as e:
         session.rollback()
@@ -41,12 +42,8 @@ def verify_or_create_user(username, db_path=None):
     finally:
         session.close()
 
-def create_chat_session(user_id, title="New Chat", db_path=None):
-    """Creates a new chat session for a user."""
-    if db_path is None:
-        from core.config import DB_PATH
-        db_path = DB_PATH
-        
+def create_chat_session(user_id, title="New Chat", db_path="data/automotive.db"):
+    """Creates a new chat session for a user and returns its ID."""
     session = get_session(db_path)
     try:
         chat_sess = ChatSession(user_id=user_id, title=title)
@@ -60,12 +57,8 @@ def create_chat_session(user_id, title="New Chat", db_path=None):
     finally:
         session.close()
 
-def get_user_chat_sessions(user_id, db_path=None):
+def get_user_chat_sessions(user_id, db_path="data/automotive.db"):
     """Loads all chat sessions for a specific user ID."""
-    if db_path is None:
-        from core.config import DB_PATH
-        db_path = DB_PATH
-        
     migrate_db_for_sessions(db_path)
     session = get_session(db_path)
     try:
@@ -82,12 +75,8 @@ def get_user_chat_sessions(user_id, db_path=None):
     finally:
         session.close()
 
-def get_session_chat_history(user_id, session_id, db_path=None, limit=100):
+def get_session_chat_history(user_id, session_id, db_path="data/automotive.db", limit=100):
     """Loads previous chat history for a specific session ID."""
-    if db_path is None:
-        from core.config import DB_PATH
-        db_path = DB_PATH
-        
     session = get_session(db_path)
     try:
         rows = session.query(ChatHistory).filter(
@@ -97,29 +86,17 @@ def get_session_chat_history(user_id, session_id, db_path=None, limit=100):
         
         history = []
         for r in rows:
-            history.append({"id": r.id, "role": r.role, "content": r.content})
+            history.append({"id": r.id, "role": r.role, "content": r.content, "intent": r.intent})
         return history
     finally:
         session.close()
 
-def delete_chat_message(message_id, db_path=None):
-    """Deletes a specific chat message by its ID and removes its query cache."""
-    if db_path is None:
-        from core.config import DB_PATH
-        db_path = DB_PATH
-        
-    import hashlib
-    from core.database import QueryCache as DBQueryCache
+def delete_chat_message(message_id, db_path="data/automotive.db"):
+    """Deletes a specific chat message by its ID."""
     session = get_session(db_path)
     try:
         msg = session.query(ChatHistory).filter(ChatHistory.id == message_id).first()
         if msg:
-            if msg.role == "user":
-                query_hash = hashlib.md5(msg.content.encode('utf-8')).hexdigest()
-                session.query(DBQueryCache).filter(
-                    DBQueryCache.query_hash == query_hash,
-                    DBQueryCache.user_id == msg.user_id
-                ).delete()
             session.delete(msg)
             session.commit()
     except Exception as e:
@@ -128,12 +105,8 @@ def delete_chat_message(message_id, db_path=None):
     finally:
         session.close()
 
-def update_chat_session_title(session_id, title, db_path=None):
+def update_chat_session_title(session_id, title, db_path="data/automotive.db"):
     """Updates the title of a specific chat session."""
-    if db_path is None:
-        from core.config import DB_PATH
-        db_path = DB_PATH
-        
     session = get_session(db_path)
     try:
         session.query(ChatSession).filter(ChatSession.id == session_id).update({
@@ -146,16 +119,13 @@ def update_chat_session_title(session_id, title, db_path=None):
     finally:
         session.close()
 
-def delete_chat_session(session_id, db_path=None):
+def delete_chat_session(session_id, db_path="data/automotive.db"):
     """Deletes a specific chat session, all its associated chat history, and any associated query caches."""
-    if db_path is None:
-        from core.config import DB_PATH
-        db_path = DB_PATH
-        
     import hashlib
     from core.database import QueryCache as DBQueryCache
     session = get_session(db_path)
     try:
+        # Retrieve all user messages in this session first to clear their query caches
         user_msgs = session.query(ChatHistory).filter(
             ChatHistory.session_id == session_id,
             ChatHistory.role == "user"
@@ -176,15 +146,11 @@ def delete_chat_session(session_id, db_path=None):
     finally:
         session.close()
 
-def add_chat_message(user_id, session_id, role, content, db_path=None):
+def add_chat_message(user_id, session_id, role, content, intent=None, db_path="data/automotive.db"):
     """Saves a new chat message to the database under a session and returns its ID."""
-    if db_path is None:
-        from core.config import DB_PATH
-        db_path = DB_PATH
-        
     session = get_session(db_path)
     try:
-        msg = ChatHistory(user_id=user_id, session_id=session_id, role=role, content=content)
+        msg = ChatHistory(user_id=user_id, session_id=session_id, role=role, content=content, intent=intent)
         session.add(msg)
         session.commit()
         return msg.id
@@ -195,12 +161,8 @@ def add_chat_message(user_id, session_id, role, content, db_path=None):
     finally:
         session.close()
 
-def get_user_chat_history(user_id, db_path=None, limit=50):
+def get_user_chat_history(user_id, db_path="data/automotive.db", limit=50):
     """Fallback function for loading chat history globally or for the first session."""
-    if db_path is None:
-        from core.config import DB_PATH
-        db_path = DB_PATH
-        
     migrate_db_for_sessions(db_path)
     session = get_session(db_path)
     try:
@@ -211,7 +173,7 @@ def get_user_chat_history(user_id, db_path=None, limit=50):
             return get_session_chat_history(user_id, session_id, db_path, limit)
         
         rows = session.query(ChatHistory).filter(ChatHistory.user_id == user_id).order_by(ChatHistory.timestamp.asc()).limit(limit).all()
-        return [{"id": r.id, "role": r.role, "content": r.content} for r in rows]
+        return [{"id": r.id, "role": r.role, "content": r.content, "intent": r.intent} for r in rows]
     finally:
         try:
             session.close()

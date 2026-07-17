@@ -1,84 +1,125 @@
-# =====================================================
-# ✅ MAIN EXECUTION PIPELINE & ROUTER
-# =====================================================
-import pandas as pd
+import sqlite3
 import datetime
-import os
-
-# Agents
-from core.agents.code_agent import generate_code
-from core.agents.debug_agent import fix_code
-from core.agents.insight_agent import generate_insights
-from core.agents.summary_agent import summarize
-from core.agents.visualization_agent import VisualizationAgent
-
-# Engine
-from core.engine.validator import ensure_result_assignment
-from core.engine.executor import CodeExecutor
-from core.engine.intent.intent_classifier import Intent_classification
+import pandas as pd
+import sys
 from core.engine.intent.nlp import NLPProcessor
-
-# SQL
-from core.sql.sql_agent import generate_sql
-from core.sql.sql_executor import execute_sql, AnalyticsEngine
-from core.utils.charts import apply_premium_layout
-
-# Memory / Cache
-from core.memory.chat_memory import ChatMemory
+from core.sql.sql_executor import AnalyticsEngine
+from core.agents.visualization_agent import select_chart_type
+from core.singletons import get_embedder, get_llm, get_db_connection
 from core.cache import QueryCache
-from core.singletons import get_embedder, get_llm
+from core.paths import get_db_path
+import faiss
+from core.logger import get_logger
+from core.custom_exception import CustomException
+from core.utils.progress_tracker import ProgressTracker
 
-# Init globals
-memory = ChatMemory()
-executor = CodeExecutor()
-intent_engine = Intent_classification()
-visualizer = VisualizationAgent()
+logger = get_logger(__name__)
 
+def _clean_df_for_streamlit(df: pd.DataFrame) -> pd.DataFrame:
+    """Sanitizes DataFrames to prevent PyArrow serialization crashes (e.g., mixed types in object cols)."""
+    if df is None or df.empty:
+        return df
+    
+    # Fill NA on object/string cols and force them to string to ensure pure types
+    object_cols = df.select_dtypes(include=['object', 'string']).columns
+    if len(object_cols) > 0:
+        df[object_cols] = df[object_cols].fillna("")
+        df[object_cols] = df[object_cols].astype(str)
+        # Clean up any literal 'nan' strings that might have resulted from astype(str)
+        df[object_cols] = df[object_cols].replace(["None", "none", "NaN", "nan", "NULL", "null", "NaT", "nat"], "")
+    return df
 
 class QueryRouter:
-    def __init__(self, db_path=None):
-        if db_path is None:
-            from core.config import DB_PATH
-            db_path = DB_PATH
-        self.db_path = db_path
+    def __init__(self, db_path="data/automotive.db"):
+        self.db_path = get_db_path(db_path)
         self.nlp = NLPProcessor()
         self.analytics_engine = AnalyticsEngine(self.db_path)
         self.cache = QueryCache(self.db_path)
-
-    def dispatch_query(self, query_text, user_id=0, override_intent=None, threshold=None, max_results=15):
-        """Main routing entry point for RAG, Analytics, and Report generation."""
-        is_explicit_override = override_intent not in (None, "Auto (NLP Pipeline)")
+        
+    def dispatch_query(self, query_text, user_id=0, override_intent=None, threshold=None, chat_history=None):
+        """
+        Main entry point for processing query.
+        Returns a dict containing:
+          'intent': the classified intent,
+          'type': 'text_stream' | 'table_stream' | 'table_only' | 'report',
+          'data': raw dataframe or formatted text (depends on type),
+          'citations': list of source FTIR records (if SEARCH),
+          'chart_type': plotly chart type (if visualization/analytics),
+          'chart_title': plotly chart title
+        """
+        logger.info(f"QueryRouter dispatching query: '{query_text}' (user_id={user_id}, override_intent={override_intent})")
+        # 1. Check Query Cache (L1/L2)
+        is_explicit_override = override_intent not in (None, "ANALYTICS")
         if not is_explicit_override and threshold is None:
             cached_result = self.cache.get(query_text, user_id)
             if cached_result:
-                print(f"Cache HIT for query: {query_text}")
+                logger.info(f"Cache HIT for query: '{query_text}'")
                 return cached_result
 
+        # 2. Parse Query using NLP Processor
         parsed_query = self.nlp.parse_query(query_text)
         
-        if override_intent and override_intent != "Auto (NLP Pipeline)":
-            if override_intent == "Intent via LLM":
-                intent = self._classify_intent_via_llm(query_text)
-                intent_score = 1.0
-            else:
-                intent = override_intent
-                if intent == "COMPARE":
-                    intent = "VISUALIZE+EXPLAIN"
-                intent_score = 1.0
+        # Apply intent override if specified
+        if override_intent and override_intent != "ANALYTICS":
+            intent = override_intent
+
+            intent_score = 1.0
             parsed_query["intent"] = intent
             parsed_query["intent_score"] = intent_score
         else:
             intent = parsed_query["intent"]
             intent_score = parsed_query["intent_score"]
             
-        filters = parsed_query["filters"]
+
+            
+        # Check if the query references any database columns or entity types
+        has_col_ref = False
+        entities = parsed_query.get("entities", {})
         
-        print(f"Routed Query: '{query_text}' | Intent: {intent}")
+        # Clean entities: remove common English 3-letter stop words from SALES_MODEL
+        cleaned_sales_models = []
+        stop_words = {"can", "you", "the", "one", "and", "for", "not", "any", "all", "get", "how", "who", "why", "has", "had", "was", "are", "but", "out", "now", "new", "top", "use", "way", "its", "our", "day", "few"}
+        for sm in entities.get("SALES_MODEL", []):
+            if sm.lower() not in stop_words:
+                cleaned_sales_models.append(sm)
+                
+        has_actual_entities = False
+        for k, v in entities.items():
+            if k == "SALES_MODEL":
+                if cleaned_sales_models:
+                    has_actual_entities = True
+            else:
+                if v:
+                    has_actual_entities = True
+                    
+        actual_filters = {k: v for k, v in parsed_query.get("filters", {}).items() if k != "limit"}
+        if has_actual_entities:
+            has_col_ref = True
+        elif actual_filters:
+            has_col_ref = True
+        else:
+            column_keywords = [
+                "part", "component", "model", "vin", "dealer", "company", "country", "nation",
+                "dtc", "code", "complaint", "repair", "quality", "rank", "milage", "mileage",
+                "km", "time", "date", "year", "month", "incident", "status", "factory", "person",
+                "investigator", "department", "dept", "judgement", "action", "sbpr", "ftir"
+            ]
+            q = query_text.lower()
+            if any(kw in q for kw in column_keywords):
+                has_col_ref = True
+
+        parsed_query["has_col_ref"] = has_col_ref
+            
+        filters = parsed_query["filters"]
+        entities = parsed_query["entities"]
+        
+        logger.info(f"Routed Query: '{query_text}' | Selected Intent: {intent} (has_col_ref={has_col_ref})")
         
         result = {
             "query": query_text,
             "intent": intent,
             "intent_score": intent_score,
+            "has_col_ref": has_col_ref,
             "type": "text_stream",
             "data": None,
             "citations": [],
@@ -86,21 +127,46 @@ class QueryRouter:
             "chart_title": None
         }
 
+        # 3. Route based on Intent
+        tracker = None
         try:
+            logger.info(f"Routing query to handler for intent: {intent}")
             if intent == "SEARCH":
-                self._handle_search(parsed_query, result, threshold=threshold, max_results=max_results)
-            elif intent in ("ANALYTICS", "VISUALIZE+EXPLAIN", "COMPARE"):
-                self._handle_analytics(parsed_query, result)
-            elif intent == "REPORT":
-                result.update({
-                    "type": "report",
-                    "data": {
-                        "year": filters.get("year", datetime.datetime.now().year),
-                        "month": filters.get("month", datetime.datetime.now().month)
-                    }
-                })
+                tracker = ProgressTracker([
+                    "Understanding Search Query",
+                    "Executing SQL Prefilter",
+                    "Loading Candidate Records",
+                    "Generating Query Embedding",
+                    "Performing Semantic Search",
+                    "Computing Cosine Similarity",
+                    "Filtering Relevant Records",
+                    "Preparing Search Results",
+                    "Displaying Results"
+                ], title="Processing Search Request")
+                tracker.start_stage("Understanding Search Query")
+                tracker.complete_stage("Understanding Search Query")
+                self._handle_search(parsed_query, result, threshold=threshold, chat_history=chat_history, tracker=tracker)
+                
+            elif intent == "ANALYTICS":
+                tracker = ProgressTracker([
+                    "Understanding Analytics Query",
+                    "Generating SQL",
+                    "Executing SQL",
+                    "Loading Data",
+                    "Computing KPIs",
+                    "Generating Charts",
+                    "Generating Report",
+                    "Rendering Dashboard"
+                ], title="Processing Analytics Request")
+                tracker.start_stage("Understanding Analytics Query")
+                tracker.complete_stage("Understanding Analytics Query")
+                self._handle_analytics(parsed_query, result, tracker=tracker)
+            
+            logger.info("Query processing completed successfully.")
         except Exception as e:
-            print(f"Error during query execution: {e}")
+            logger.error(f"Error during query execution: {e}")
+            if tracker:
+                tracker.fail_stage(tracker.stages[tracker.current_stage_idx] if tracker.current_stage_idx < len(tracker.stages) else "Execution", str(e))
             suggestion = self.suggest_corrected_query(query_text)
             if suggestion:
                 result.update({
@@ -109,54 +175,43 @@ class QueryRouter:
                     "citations": []
                 })
             else:
-                raise e
+                raise CustomException(e, sys)
             
         return result
 
-    def _classify_intent_via_llm(self, query_text):
-        """Uses the LLM to classify the query's intent."""
-        system_prompt = (
-            "You are an AI classifier that maps queries to one of the following exact intents:\n"
-            "- VISUALIZE+EXPLAIN (asking for a chart/graph/plot, comparing product models, categories, trouble codes, or failure rates)\n"
-            "- REPORT (asking for monthly or annual quality reports, PDF/Word files, or exporting reports)\n"
-            "- ANALYTICS (asking for metrics, statistics, top counts, total failures, frequencies, percentages, or averages)\n"
-            "- SEARCH (finding specific incidents, looking up repair steps, search details of a trouble code or VIN)\n\n"
-            "Return ONLY the exact intent name from the list above. Do not output anything else."
-        )
-        prompt = f"<|system|>\n{system_prompt}<|end|>\n<|user|>\nQuery: {query_text}\nIntent:<|end|>\n<|assistant|>\n"
-        try:
-            llm_client = get_llm()
-            intent_raw = llm_client.generate_summary(prompt, max_tokens=15).upper().strip()
-            for possible_intent in ["VISUALIZE+EXPLAIN", "COMPARE", "REPORT", "ANALYTICS", "SEARCH"]:
-                if possible_intent in intent_raw:
-                    if possible_intent == "COMPARE":
-                        return "VISUALIZE+EXPLAIN"
-                    return possible_intent
-            return "SEARCH"
-        except Exception as e:
-            print(f"Error classifying intent via LLM: {e}")
-            return "SEARCH"
+
 
     def suggest_corrected_query(self, query_text):
         """Uses the LLM to suggest a valid alternative query based on the database context."""
         schema_info = (
             "Actual SQLite Database Schema:\n"
             "- Table 'records': contains columns [id, ftir_no, product_model_code, sales_model_code, segmentation, vin, engine_no, transmission_no, reported_company, issued_company, outbreak_country, subject, customer_complaint, trouble_code_complaint, trouble_code_defect, checked_contents, checked_results, repair_status, repair_contents, problem_solved, causal_parts_no, causal_parts_name, quality, using_km_int, report_year, report_month, is_resolved]\n"
+            "- Table 'mv_country_month': columns [outbreak_country, report_year, report_month, record_count]\n"
+            "- Table 'mv_trouble_codes': columns [trouble_code, record_count]\n"
+            "- Table 'mv_dealer_summary': columns [reported_company, record_count]\n"
+            "- Table 'mv_quality_dist': columns [quality, record_count]\n"
         )
         system_prompt = (
             "You are an expert technical QA assistant. The user asked a query that returned no results, threw an error, or was not understood. "
             "Recommend a valid alternative query that matches the actual schema patterns in the database.\n"
             f"{schema_info}\n"
             "Rules:\n"
-            "1. The suggested query MUST ALWAYS be written in user-friendly natural language. Do NOT output SQL syntax.\n"
-            "2. Translate SQL queries into clean natural language questions.\n"
-            "3. Return ONLY the suggested query string inside double quotes. Do not output anything else."
+            "1. The suggested query MUST ALWAYS be written in user-friendly natural language (e.g. \"show all distinct countries\" or \"show the monthly failure trend\"). Do NOT output SQL syntax, SELECT statements, or database code blocks under any circumstances.\n"
+            "2. Translate SQL queries into clean natural language questions that target valid database schemas.\n"
+            "3. If they misspelled trouble codes (e.g. 'P030' instead of 'P0300'), correct it.\n"
+            "4. Return ONLY the suggested query string inside double quotes (e.g. \"show all unique countries where incidents occurred\" or \"show the trend of DTC complaint codes in 2025\"). Do not output anything else."
         )
-        prompt = f"<|system|>\n{system_prompt}<|end|>\n<|user|>\nFailed Query: {query_text}<|end|>\n<|assistant|>\n"
+        prompt = (
+            f"<|system|>\n{system_prompt}<|end|>\n"
+            f"<|user|>\nFailed Query: {query_text}<|end|>\n"
+            f"<|assistant|>\n"
+        )
         try:
-            llm_client = get_llm()
+            from core.singletons import get_llm
             import re
+            llm_client = get_llm()
             suggestion = llm_client.generate_summary(prompt, max_tokens=30).strip()
+            # Extract content between double quotes if present
             match = re.search(r'"([^"]+)"', suggestion)
             if match:
                 return match.group(1)
@@ -165,13 +220,22 @@ class QueryRouter:
             print(f"Error suggesting corrected query: {e}")
             return None
 
-    def _handle_search(self, parsed_query, result, threshold=None, max_results=15):
-        """Processes hybrid vector search + LLM response generation."""
+
+    def _handle_search(self, parsed_query, result, threshold=None, chat_history=None, tracker=None):
+        """Processes hybrid vector search: SQL pre-filter -> FAISS subset -> llm generation."""
         query_text = parsed_query["query"]
+        
         from core.rag.rag_retriever import Retriever
+        # Pass self.nlp to avoid creating a second NLPProcessor with duplicate DB scans.
         retriever = Retriever(db_path=self.db_path, nlp=self.nlp)
         
-        retrieval_res = retriever.retrieve(query_text, threshold=threshold, max_results=max_results, parsed_query=parsed_query)
+        # Pass the already-computed parsed_query to avoid re-parsing the query a second time.
+        retrieval_res = retriever.retrieve(query_text, threshold=threshold,
+                                           parsed_query=parsed_query, tracker=tracker)
+        
+        if tracker:
+            tracker.start_stage("Preparing Search Results")
+        
         records = retrieval_res["records"]
         threshold_used = retrieval_res["threshold"]
         scores = retrieval_res["scores"]
@@ -180,35 +244,69 @@ class QueryRouter:
         
         if count == 0:
             query_intent = result.get("intent", "SEARCH")
-            if query_intent == "SEARCH":
+            has_col_ref = parsed_query.get("has_col_ref", True)
+            
+            if query_intent == "SEARCH" and has_col_ref:
                 suggestion = self.suggest_corrected_query(query_text)
-                msg = f"No sufficiently similar technical incidents found (threshold={threshold_used:.2f})."
                 if suggestion:
-                    msg += f" Do you mean \"{suggestion}\"?"
-                result.update({
-                    "type": "text_stream",
-                    "data": [msg],
-                    "citations": [],
-                    "threshold_used": threshold_used,
-                    "row_count": 0,
-                    "score_range": "0.0 - 0.0"
-                })
+                    result.update({
+                        "type": "text_stream",
+                        "data": [f"No sufficiently similar technical incidents found (threshold={threshold_used:.2f}). Do you mean \"{suggestion}\"?"],
+                        "citations": [],
+                        "threshold_used": threshold_used,
+                        "row_count": 0,
+                        "score_range": "0.0 - 0.0",
+                        "scores_list": []
+                    })
+                else:
+                    result.update({
+                        "type": "text_stream",
+                        "data": [f"No sufficiently similar technical incidents found (threshold={threshold_used:.2f})."],
+                        "citations": [],
+                        "threshold_used": threshold_used,
+                        "row_count": 0,
+                        "score_range": "0.0 - 0.0",
+                        "scores_list": []
+                    })
             else:
-                system_prompt = "You are a helpful automotive engineering assistant. Answer the user's question using your general knowledge."
-                messages = [
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": query_text}
-                ]
+                # Conversational follow-up (no column ref) OR general conversation:
+                # Answer using LLM's own knowledge + conversation history!
+                system_prompt = (
+                    "You are a helpful automotive engineering assistant. Answer the user's question using your general knowledge "
+                    "and the previous conversation history.\n\n"
+                    "Rules:\n"
+                    "1. If the user is asking to explain the previous query, the last query, or the SQL query shown above, "
+                    "look at the conversation history and clearly explain what that query was doing and why.\n"
+                    "2. Be technical, precise, and direct."
+                )
+                messages = [{"role": "system", "content": system_prompt}]
+                if chat_history:
+                    relevant_history = [
+                        {"role": m["role"], "content": m["content"]}
+                        for m in chat_history
+                        if m.get("role") in ("user", "assistant") and m.get("content")
+                    ]
+                    messages.extend(relevant_history[-8:])
+                
+                if tracker:
+                    tracker.complete_stage("Preparing Search Results")
+                    tracker.start_stage("Displaying Results")
+                    tracker.complete_stage("Displaying Results")
+                
+                messages.append({"role": "user", "content": query_text})
+                
                 result.update({
                     "type": "text_stream",
                     "data": messages,
                     "citations": [],
                     "threshold_used": threshold_used,
                     "row_count": 0,
-                    "score_range": "0.0 - 0.0"
+                    "score_range": "0.0 - 0.0",
+                    "scores_list": []
                 })
             return
             
+        # Citations list
         citations = []
         for rec in records:
             citations.append({
@@ -219,215 +317,142 @@ class QueryRouter:
                 "outbreak_country": rec["outbreak_country"]
             })
             
-        MAX_LLM_CASES = 5
-        MAX_FIELD_CHARS = 200
-
-        def _truncate(text, max_chars):
-            if not text:
-                return ""
-            return str(text)[:max_chars] + "..." if len(str(text)) > max_chars else str(text)
-
-        llm_records = records[:MAX_LLM_CASES]
-        llm_scores = scores[:MAX_LLM_CASES]
-
-        cases_text = []
-        for rank, (rec, score) in enumerate(zip(llm_records, llm_scores), 1):
-            cases_text.append(
-                f"--- Case {rank} | FTIR No: {rec['ftir_no']} | Similarity: {score:.3f} ---\n"
-                f"Model: {rec['product_model_code']} | Country: {rec['outbreak_country']}\n"
-                f"Complaint: {_truncate(rec['customer_complaint'], MAX_FIELD_CHARS)}\n"
-                f"DTC/Checked: {_truncate(rec['checked_results'], MAX_FIELD_CHARS)}\n"
-                f"Repair: {_truncate(rec['repair_contents'], MAX_FIELD_CHARS)}\n"
-                f"Causal Part: {rec['causal_parts_name']}\n"
-            )
-            
-        context = f"Retrieved FTIR Cases (threshold={threshold_used:.2f}, {count} cases matched):\n\n" + "\n".join(cases_text)
+        # Determine chart selection and run analytics SQL if needed FIRST
+        chart_type = "empty"
+        chart_title = None
+        sql_query_used = None
+        aggregated_df = None
         
-        # Optimization: Return static text instead of LLM messages to skip streaming latency
-        data = [f"Found {count} relevant cases for your query. Please review the details below."]
+        display_cols = list(retrieval_res["flagged_df"].columns)
+        final_df = retrieval_res["flagged_df"][display_cols].copy()
+        final_df = _clean_df_for_streamlit(final_df)
+        
+        try:
+            from core.agents.visualization_agent import select_chart_type
+            intent = parsed_query["intent"]
+            chart_type, chart_title = select_chart_type(intent, final_df, query_text)
+            
+            # If a chart is requested in Search intent, run the analytics engine on the flagged rows!
+            if chart_type != "empty":
+                aggregated_df, sql_query_used = self.analytics_engine.query_via_llm(query_text, target_df=retrieval_res["flagged_df"])
+                if aggregated_df is not None and not aggregated_df.empty:
+                    aggregated_df = _clean_df_for_streamlit(aggregated_df)
+                    chart_type, chart_title = select_chart_type(intent, aggregated_df, query_text) # Re-evaluate chart on aggregated df
+        except Exception as e:
+            logger.warning(f"Failed to run analytics on flagged_df: {e}")
+            pass
+
+        # Call the new InsightGenerator to produce Business Summary insights from the retrieved/aggregated dataframe
+        from core.agents.insight_agent import InsightGenerator
+        insight_gen = InsightGenerator()
+        
+        # Use the SQL-generated/aggregated columns if available, otherwise fall back to search results
+        insight_target_df = aggregated_df if (aggregated_df is not None and not aggregated_df.empty) else retrieval_res["flagged_df"]
+        messages = insight_gen.generate_insight(query_text, insight_target_df)
         
         score_range = f"{min(scores):.3f} - {max(scores):.3f}" if scores else "0.000 - 0.000"
         
         result.update({
-            "type": "text_stream",
-            "data": data,
+            "type": "table_stream",
+            "data": {
+                "df": final_df, # Keep original search results for the table
+                "messages": messages
+            },
             "citations": citations,
             "threshold_used": threshold_used,
             "row_count": count,
             "score_range": score_range,
-            "scores_list": scores
+            "scores_list": scores,
+            "chart_type": chart_type,
+            "chart_title": chart_title,
+            "chart_data": aggregated_df,
+            "sql_query": sql_query_used
         })
 
-    def _handle_analytics(self, parsed_query, result):
-        """Processes SQL queries for analytics & plotting."""
+    def _handle_analytics(self, parsed_query, result, tracker=None):
+        """Processes analytics metrics, groups data, selects Plotly format, and invokes LLM narration."""
         query_text = parsed_query["query"]
         intent = parsed_query["intent"]
         filters = parsed_query["filters"]
         entities = parsed_query["entities"]
         
-        df = pd.DataFrame()
+        # Determine target of analytics
+        q = query_text.lower()
+        df = None
         sql_query_used = None
         
-        # Try static query engine first for speed
-        model = entities.get("PRODUCT_MODEL")[0] if entities.get("PRODUCT_MODEL") else None
-        segment = filters.get("segmentation")
-        q = query_text.lower()
-        
-        if "dealer" in q or "company" in q:
-            df, sql_query_used = self.analytics_engine.get_top_dealers_or_countries("dealer", limit=filters.get("limit", 10), country=entities.get("COUNTRY")[0] if entities.get("COUNTRY") else None)
-        elif "country" in q or "nation" in q:
-            df, sql_query_used = self.analytics_engine.get_top_dealers_or_countries("country", limit=filters.get("limit", 10))
-        elif "trouble" in q or "dtc" in q or "code" in q:
-            df, sql_query_used = self.analytics_engine.get_trouble_code_frequency(limit=filters.get("limit", 10), model=model, segmentation=segment)
-        elif "trend" in q or "month" in q or "time" in q:
-            df, sql_query_used = self.analytics_engine.get_monthly_failure_trend(year=filters.get("year"), model=model)
-        elif "compare" in q or "versus" in q or "vs" in q:
-            df, sql_query_used = self.analytics_engine.get_model_comparison()
-        elif "mileage" in q or "km" in q:
-            df, sql_query_used = self.analytics_engine.get_using_km_distribution(model=model)
-        elif "quality" in q:
-            df, sql_query_used = self.analytics_engine.get_quality_distribution(model=model)
-        elif "success" in q or "resolution" in q or "solved" in q:
-            if "total" in q or "overall" in q or "global" in q:
-                df, sql_query_used = self.analytics_engine.get_overall_resolution_stats()
-            else:
-                df, sql_query_used = self.analytics_engine.get_repair_success_rate()
-        elif "part" in q or "component" in q or "causal" in q:
-            df, sql_query_used = self.analytics_engine.get_failed_parts_frequency(limit=filters.get("limit", 10), model=model, segmentation=segment)
+        # Try dynamic LLM SQL generation first
+        try:
+            df, sql_query_used = self.analytics_engine.query_via_llm(query_text, tracker=tracker)
+            import logging
+            logging.getLogger(__name__).info("Successfully executed LLM-generated SQL query from AnalyticsEngine.")
+        except Exception as e:
+            import logging
+            import pandas as pd
+            logging.getLogger(__name__).warning(f"LLM-generated SQL failed or was invalid: {e}")
+            df = pd.DataFrame()
+            sql_query_used = getattr(e, "failed_sql", None)
 
-        # Fallback to dynamic SQL if static query returned empty data
-        if df is None or df.empty:
-            try:
-                print("Static query returned empty, falling back to dynamic SQL generation...")
-                sql_query_used = generate_sql(query_text)
-                df, err = execute_sql(None, sql_query_used)
-                if err or df is None or df.empty:
-                    df = pd.DataFrame()
-            except Exception as e:
-                print(f"Dynamic SQL failed: {e}")
-                df = pd.DataFrame()
+        # Clean out null/NaN/None/Unknown rows/cells from the DataFrame
+        if not df.empty:
+            if tracker:
+                tracker.start_stage("Loading Data")
+            df = df.dropna(how='all')
+            if len(df.columns) > 0:
+                first_col = df.columns[0]
+                df = df.dropna(subset=[first_col])
+                df = df[df[first_col].apply(lambda x: str(x).strip().lower() not in ('', 'none', 'nan', 'null', 'nat', 'unknown'))]
+            
+            df = _clean_df_for_streamlit(df)
+            
+            # Guardrail: Never expose VIN numbers
+            for col in df.columns:
+                if str(col).lower() in ("vin", "vin_no", "vin no", "vehicle identification number"):
+                    df[col] = "********"
 
         if df.empty:
             suggestion = self.suggest_corrected_query(query_text)
-            msg = "No data available to analyze."
             if suggestion:
-                msg = f"No data available to analyze. Do you mean \"{suggestion}\"?"
+                msg = f"No data available to analyze for the specified filters. Do you mean \"{suggestion}\"?"
+            else:
+                msg = "No data available to analyze for the specified filters."
             result.update({
                 "type": "text_stream",
                 "data": [msg]
             })
+            if sql_query_used:
+                result["sql_query"] = sql_query_used
             return
 
-        # Select Chart Type
-        from core.sql.sql_executor import AnalyticsEngine as AE
-        from analytics.graph_selector import select_chart_type
+        if tracker:
+            tracker.complete_stage("Loading Data")
+            tracker.add_metric("Rows returned", len(df))
+            tracker.start_stage("Computing KPIs")
+            tracker.complete_stage("Computing KPIs")
+            tracker.start_stage("Generating Charts")
+
+        # Select Plotly chart type dynamically
+        from core.agents.visualization_agent import select_chart_type
         chart_type, chart_title = select_chart_type(intent, df, query_text)
             
-        df_for_llm = df.iloc[:20, :6]
-        if len(df) > 20 or len(df.columns) > 6:
-            if "mileage" in df.columns or "km" in df.columns:
-                markdown_table = df.describe().to_markdown()
-            else:
-                markdown_table = df_for_llm.to_markdown(index=False) + f"\n\n*(Table truncated to top 20 rows of {len(df)} results)*"
-        else:
-            markdown_table = df.to_markdown(index=False)
-            
-        if len(markdown_table) > 6000:
-            markdown_table = markdown_table[:6000] + "\n\n*(Truncated)*"
-        
-        # Optimization: skip LLM explanation to significantly improve latency
-        messages = []
+        # Call the new InsightGenerator
+        from core.agents.insight_agent import InsightGenerator
+        insight_gen = InsightGenerator()
+        final_insights = insight_gen.generate_insight(query_text, df)
         
         result.update({
             "type": "table_stream",
             "data": {
                 "df": df,
-                "messages": messages
+                "messages": final_insights  # passed as string directly to frontend
             },
             "chart_type": chart_type,
             "chart_title": chart_title
         })
         if sql_query_used:
             result["sql_query"] = sql_query_used
-
-
-# =====================================================
-# ✅ SAFE EXECUTION
-# =====================================================
-def safe_execute(code, df):
-    for attempt in range(2):
-        try:
-            exec_result = executor.execute(code, df)
-            if exec_result["success"]:
-                return exec_result["result"], {}, [], None
-            else:
-                error = exec_result["error"]
-        except Exception as e:
-            error = str(e)
-
-        print(f"\n❌ Execution Error (attempt {attempt+1}):\n{error}")
-        try:
-            code = fix_code(code, error)
-            code = ensure_result_assignment(code)
-        except Exception as fix_err:
-            return None, None, [], str(fix_err)
-
-    return None, None, [], error
-
-
-def select_best_data(result, env):
-    if isinstance(result, (pd.DataFrame, pd.Series)):
-        return result
-    candidates = [v for v in env.values() if isinstance(v, (pd.DataFrame, pd.Series))]
-    if candidates:
-        return max(candidates, key=lambda x: len(x))
-    return result
-
-
-# =====================================================
-# ✅ MAIN PIPELINE (DataFrame-based Agentic)
-# =====================================================
-def run_pipeline(query, df):
-    print("\n🔹 Starting Pandas Pipeline...\n")
-    base_instructions = "Analyze dataset and extract insights"
-
-    intents, kpis, filters, aggregations = intent_engine.build_intent_prompt(
-        base_instructions=base_instructions,
-        question=query
-    )
-
-    code_raw = generate_code(query, df.columns)
-    code = ensure_result_assignment(code_raw)
-
-    result, env, images, error = safe_execute(code, df)
-    if error:
-        return {"error": error}
-
-    best_data = select_best_data(result, env)
-
-    viz_output = None
-    try:
-        viz_output = visualizer.visualize(best_data, intents=intents, kpis=kpis)
-    except Exception as e:
-        print("⚠️ Visualization failed:", e)
-
-    insights = generate_insights(query, best_data)
-    summary = summarize(insights)
-
-    output = {
-        "mode": "PYTHON",
-        "code": code,
-        "result": result,
-        "images": images,
-        "visualization": viz_output,
-        "insights": insights,
-        "summary": summary,
-        "intent": intents,
-        "kpis": kpis,
-        "filters": filters,
-        "aggregations": aggregations
-    }
-
-    memory.add(query, str(result))
-    print("\n✅ Pipeline completed successfully\n")
-    return output
+        
+        if tracker:
+            tracker.complete_stage("Generating Charts")
+            tracker.start_stage("Rendering Dashboard")
+            tracker.complete_stage("Rendering Dashboard")

@@ -1,72 +1,338 @@
-from core.ollama_client import get_client
-from core.config import MODEL_NAME
+# =====================================================
+# ✅ INSIGHT AGENT (Engine & Generator)
+# =====================================================
 import pandas as pd
+import numpy as np
+import logging
+from core.singletons import get_llm
+from .summary_agent import SummaryBuilder
+from core.utils.decorators import with_logging_and_exceptions
 
-client = get_client()
+logger = logging.getLogger(__name__)
 
-# def generate_insights(query, data):
-#     if isinstance(data, pd.DataFrame):
-#         d = data.head(20).to_string()
-#     else:
-#         d = str(data)
+class InsightEngine:
+    """Extracts useful analytics from Pandas DataFrame for Business Summary generation."""
+    
+    @with_logging_and_exceptions
+    def extract_metrics(self, df: pd.DataFrame) -> dict:
+        if df is None or df.empty:
+            return {}
+            
+        metrics = {
+            "overview": self._get_overview(df),
+            "top_categories": self._get_top_categories(df),
+            "kpis": self._get_kpis(df),
+            "trends": self._get_trends(df),
+            "relationships": self._get_relationships(df),
+            "anomalies": self._get_anomalies(df),
+            "examples": self._get_examples(df)
+        }
+        return metrics
 
-#     prompt = f"""
-# Analyze data:
+    def _get_overview(self, df: pd.DataFrame) -> dict:
+        total_records = len(df)
+        total_columns = len(df.columns)
+        missing_values = df.isna().sum().sum()
+        duplicate_records = df.duplicated().sum()
+        
+        date_cols = df.select_dtypes(include=['datetime64']).columns
+        date_range = None
+        if not date_cols.empty:
+            first_date_col = date_cols[0]
+            date_range = {
+                "start": str(df[first_date_col].min()),
+                "end": str(df[first_date_col].max())
+            }
+        elif 'report_year' in df.columns and 'report_month' in df.columns:
+            try:
+                df_dates = df.dropna(subset=['report_year', 'report_month']).copy()
+                df_dates['report_year'] = pd.to_numeric(df_dates['report_year'], errors='coerce')
+                df_dates['report_month'] = pd.to_numeric(df_dates['report_month'], errors='coerce')
+                df_dates = df_dates.dropna(subset=['report_year', 'report_month'])
+                
+                if not df_dates.empty:
+                    min_row = df_dates.sort_values(['report_year', 'report_month']).iloc[0]
+                    max_row = df_dates.sort_values(['report_year', 'report_month']).iloc[-1]
+                    date_range = {
+                        "start": f"{int(min_row['report_year'])}-{int(min_row['report_month']):02d}",
+                        "end": f"{int(max_row['report_year'])}-{int(max_row['report_month']):02d}"
+                    }
+            except Exception as e:
+                logger.warning(f"Failed to parse date range from year/month columns: {e}")
+            
+        return {
+            "total_records": total_records,
+            "total_columns": total_columns,
+            "missing_values": int(missing_values),
+            "duplicate_records": int(duplicate_records),
+            "date_range": date_range
+        }
+        
+    def _get_top_categories(self, df: pd.DataFrame) -> dict:
+        cat_cols = df.select_dtypes(include=['object', 'string', 'category']).columns
+        top_cats = {}
+        for col in cat_cols:
+            n_unique = df[col].nunique()
+            if 1 < n_unique < len(df) and n_unique < 100:
+                counts = df[col].value_counts().head(5)
+                percentages = df[col].value_counts(normalize=True).head(5) * 100
+                top_cats[col] = [
+                    {"value": str(val), "count": int(count), "percentage": round(float(pct), 2)}
+                    for val, count, pct in zip(counts.index, counts.values, percentages.values)
+                ]
+        return top_cats
 
-# Query: {query}
+    def _get_kpis(self, df: pd.DataFrame) -> list:
+        kpis = []
+        kpi_mapping = {
+            "Most Affected Model": ["product_model_code", "sales_model_code", "model", "sales_model", "vehicle_model"],
+            "Most Common Root Cause": ["causal_parts_name", "root_cause", "trouble_code_defect", "causal_part"],
+            "Most Common Complaint": ["customer_complaint", "complaint"],
+            "Most Affected Supplier": ["reported_company", "supplier", "company"],
+            "Most Affected Country": ["outbreak_country", "country", "nation"],
+            "Most Affected Plant": ["issued_company", "plant", "factory"],
+            "Most Frequent Failure": ["trouble_code_complaint", "trouble_code_defect", "failure", "dtc"]
+        }
+        
+        used_cols = set()
+        for kpi_name, possible_cols in kpi_mapping.items():
+            if len(kpis) >= 10:
+                break
+            for col in df.columns:
+                if col.lower() in possible_cols and col not in used_cols:
+                    if not df[col].empty and df[col].notna().any():
+                        counts = df[col].value_counts()
+                        if not counts.empty:
+                            top_val = counts.idxmax()
+                            count = counts.max()
+                            kpis.append({"name": kpi_name, "value": str(top_val), "count": int(count), "column": col})
+                            used_cols.add(col)
+                            break
+        return kpis
 
-# Data:
-# {d}
+    def _get_trends(self, df: pd.DataFrame) -> dict:
+        date_cols = df.select_dtypes(include=['datetime64']).columns
+        monthly = pd.Series(dtype=int)
+        
+        if not date_cols.empty:
+            date_col = date_cols[0]
+            s = df[date_col].dropna()
+            if not s.empty:
+                monthly = s.groupby(s.dt.to_period('M')).size()
+        elif "report_year" in df.columns and "report_month" in df.columns:
+            df_valid = df.dropna(subset=['report_year', 'report_month']).copy()
+            df_valid['report_year'] = pd.to_numeric(df_valid['report_year'], errors='coerce')
+            df_valid['report_month'] = pd.to_numeric(df_valid['report_month'], errors='coerce')
+            df_valid = df_valid.dropna(subset=['report_year', 'report_month'])
+            if not df_valid.empty:
+                try:
+                    df_valid['period'] = df_valid['report_year'].astype(int).astype(str) + "-" + df_valid['report_month'].astype(int).astype(str).str.zfill(2)
+                    monthly = df_valid.groupby('period').size().sort_index()
+                except Exception as e:
+                    logger.warning(f"Failed to calculate monthly trends: {e}")
+                    
+        if len(monthly) < 2:
+            return {}
+            
+        first_val, last_val = monthly.iloc[0], monthly.iloc[-1]
+        overall_trend = "Stable"
+        if last_val > first_val * 1.1:
+            overall_trend = "Increasing"
+        elif last_val < first_val * 0.9:
+            overall_trend = "Decreasing"
+            
+        monthly_dict = {str(k): int(v) for k, v in monthly.items()}
+        if len(monthly_dict) > 12:
+            keys = list(monthly_dict.keys())
+            indices = np.linspace(0, len(keys)-1, 12, dtype=int)
+            monthly_dict = {keys[i]: monthly_dict[keys[i]] for i in indices}
+            
+        return {
+            "earliest_date": str(monthly.index[0]),
+            "latest_date": str(monthly.index[-1]),
+            "monthly_counts": monthly_dict,
+            "overall_trend": overall_trend
+        }
 
-# Give:
-# - Insights with numbers
-# - Trends
-# - anomalies
-# """
+    def _get_relationships(self, df: pd.DataFrame) -> list:
+        rels = []
+        cat_cols = df.select_dtypes(include=['object', 'string', 'category']).columns
+        if len(cat_cols) < 2:
+            return rels
+            
+        source_cols = [c for c in cat_cols if any(x in c.lower() for x in ["model", "country", "supplier", "plant", "company"])]
+        target_cols = [c for c in cat_cols if any(x in c.lower() for x in ["root_cause", "complaint", "defect", "causal", "trouble"])]
+        
+        for sc in source_cols:
+            for tc in target_cols:
+                if sc == tc: continue
+                if len(rels) >= 5: break
+                
+                crosstab = pd.crosstab(df[sc], df[tc])
+                if crosstab.empty: continue
+                
+                max_val = crosstab.values.max()
+                if max_val > 0:
+                    max_idx = np.unravel_index(crosstab.values.argmax(), crosstab.values.shape)
+                    source_val = crosstab.index[max_idx[0]]
+                    target_val = crosstab.columns[max_idx[1]]
+                    rels.append({
+                        "source_col": sc, "target_col": tc,
+                        "source_val": str(source_val), "target_val": str(target_val),
+                        "count": int(max_val)
+                    })
+        return rels
 
-#     res = client.chat(
-#         model=MODEL_NAME,
-#         messages=[{"role": "user", "content": prompt}]
-#     )
+    def _get_anomalies(self, df: pd.DataFrame) -> list:
+        anomalies = []
+        if df.isna().sum().sum() > (len(df) * len(df.columns) * 0.2):
+            anomalies.append("High missing data: Over 20% of the dataset values are missing.")
+            
+        cat_cols = df.select_dtypes(include=['object', 'string', 'category']).columns
+        for col in cat_cols:
+            if len(anomalies) >= 5: break
+            counts = df[col].value_counts()
+            if len(counts) > 2:
+                mean = counts.mean()
+                std = counts.std()
+                if std > 0:
+                    max_count = counts.iloc[0]
+                    if (max_count - mean) / std > 3:
+                        anomalies.append(f"Spike detected in {col}: '{counts.index[0]}' has exceptionally high occurrences ({max_count}).")
+                        
+        return anomalies
 
-#     return res["message"]["content"]
+    def _get_examples(self, df: pd.DataFrame) -> list:
+        examples = []
+        possible_cols = []
+        for target in ["complaint", "subject", "root_cause", "trouble_code", "repair", "causal_parts"]:
+            for col in df.columns:
+                if target in col.lower() and col not in possible_cols:
+                    possible_cols.append(col)
+                    
+        if not possible_cols:
+            return examples
+            
+        sample_df = df[possible_cols].dropna(how='all').head(5)
+        for _, row in sample_df.iterrows():
+            examples.append({col: str(val) for col, val in row.items() if pd.notna(val) and val != "" and str(val).lower() != "nan"})
+            
+        return examples
 
 
+class PromptBuilder:
+    """Constructs the optimized runtime prompt for the LLM."""
+    
+    def build_prompt(self, user_query: str, business_summary: str, is_raw_rows: bool = False) -> list:
+        system_prompt = (
+            "You are a Senior Automotive Quality Assurance Manager. "
+            "Generate concise business insights using ONLY the provided information.\n\n"
+            "Rules:\n"
+            "- Never invent facts.\n"
+            "- Never estimate values.\n"
+            "- Never fabricate trends.\n"
+            "- Never mention SQL.\n"
+            "- Never mention Python.\n"
+            "- Never mention AI.\n"
+            "- Never explain calculations.\n\n"
+            "Output Format Constraints:\n"
+            "- Return strictly plain text bullet points.\n"
+            "- DO NOT use any markdown formatting (no asterisks `**`, no ````markdown`).\n"
+            "- NOT JSON. NOT Markdown tables. NOT HTML.\n"
+            "- Generate exactly 4 to 8 professional bullet points, starting with a dash `- `.\n"
+            "- Each bullet must be one or two short sentences.\n"
+            "- Each bullet must be maximum 35 words.\n"
+            "- Mention numbers whenever available.\n"
+            "- Mention percentages whenever available.\n"
+            "- Mention trends only if supported.\n"
+            "- Mention recommendations only if supported.\n"
+            "- Every bullet must provide unique information."
+        )
+        
+        context_type = "Raw Data Records" if is_raw_rows else "Business Summary"
+        
+        user_message = (
+            f"User Query: {user_query}\n\n"
+            f"Provided {context_type}:\n{business_summary}\n\n"
+            "Based on the provided information, generate the executive insights following the constraints."
+        )
+        
+        return [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_message}
+        ]
 
-def generate_insights(query, data):
-    if isinstance(data, pd.DataFrame):
-        d = data.head(20).to_string()
-    else:
-        d = str(data)
 
-    prompt = f"""
-You are a data analyst.
-
-Analyze the data based on the query.
-
-Query:
-{query}
-
-Data:
-{d}
-
-Instructions:
-- Give ONLY short insights (max 5 points)
-- Each insight must be 1 line
-- Include numbers where possible
-- No explanation
-- No introduction or conclusion
-- No headings
-
-Output format:
-- Insight 1
-- Insight 2
-- Insight 3
-"""
-
-    res = client.chat(
-        model=MODEL_NAME,
-        messages=[{"role": "user", "content": prompt}]
-    )
-
-    return res["message"]["content"]
+class InsightGenerator:
+    """Orchestrates the entire insight generation pipeline."""
+    
+    def __init__(self):
+        self.engine = InsightEngine()
+        self.summary_builder = SummaryBuilder()
+        self.prompt_builder = PromptBuilder()
+        
+    @with_logging_and_exceptions
+    def generate_insight(self, query: str, df: pd.DataFrame):
+        try:
+            if df is None or df.empty:
+                yield "No data available to generate insights."
+                return
+                
+            if len(df) <= 20:
+                df_clean = df.copy()
+                month_names = {
+                    1: 'January', 2: 'February', 3: 'March', 4: 'April',
+                    5: 'May', 6: 'June', 7: 'July', 8: 'August',
+                    9: 'September', 10: 'October', 11: 'November', 12: 'December'
+                }
+                
+                for col in df_clean.columns:
+                    if str(col).lower() in ('report_month', 'month'):
+                        try:
+                            df_clean[col] = pd.to_numeric(df_clean[col], errors='coerce').map(month_names).fillna(df_clean[col])
+                        except Exception:
+                            pass
+                
+                context = df_clean.iloc[:, :6].to_markdown(index=False)
+                
+                hints = []
+                numeric_cols = df_clean.select_dtypes(include=[np.number]).columns
+                for col in numeric_cols:
+                    if any(x in str(col).lower() for x in ('year', 'month', 'id', 'code')):
+                        continue
+                    try:
+                        max_idx = df_clean[col].idxmax()
+                        min_idx = df_clean[col].idxmin()
+                        
+                        label_col = df_clean.columns[0]
+                        max_label = df_clean.loc[max_idx, label_col]
+                        min_label = df_clean.loc[min_idx, label_col]
+                        
+                        hints.append(f"- Highest value in {col}: {df_clean.loc[max_idx, col]} (associated with {label_col}='{max_label}')")
+                        hints.append(f"- Lowest value in {col}: {df_clean.loc[min_idx, col]} (associated with {label_col}='{min_label}')")
+                        hints.append(f"- Total sum of {col}: {df_clean[col].sum()}")
+                    except Exception:
+                        pass
+                
+                if hints:
+                    context += "\n\nPre-calculated statistics for reference:\n" + "\n".join(hints)
+                    
+                is_raw = True
+            else:
+                metrics = self.engine.extract_metrics(df)
+                context = self.summary_builder.build(metrics)
+                is_raw = False
+                
+            if len(context) > 5000:
+                context = context[:5000] + "\n... (Truncated due to length)"
+                
+            messages = self.prompt_builder.build_prompt(query, context, is_raw)
+            
+            llm_client = get_llm()
+            
+            for chunk in llm_client.generate_chat_stream(messages):
+                yield chunk
+                
+        except Exception as e:
+            logger.error(f"Error in InsightGenerator: {e}")
+            yield "Failed to generate business insights due to an internal error."

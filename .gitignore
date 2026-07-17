@@ -31,3 +31,8 @@ automotive_qa/scratch/test_report.pdf
 *.whl
 *.gguf
 *.part*
+
+# MQ Analytics Logs and Models
+MQ Analytics System/models/
+*.log
+MQ Analytics System/data/

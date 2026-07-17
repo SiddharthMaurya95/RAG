@@ -1,9 +1,13 @@
+# =====================================================
+# ✅ SEMANTIC SEARCH & VECTOR EMBEDDINGS
+# =====================================================
 import os
 import json
 import sqlite3
 import numpy as np
 import faiss
 from core.paths import get_db_path, get_index_path, get_metadata_path
+from core.utils.decorators import with_logging_and_exceptions
 
 from dataclasses import dataclass, field
 from typing import List
@@ -57,6 +61,7 @@ class SemanticSearcher:
         positions = [pos for pos, db_id in enumerate(self.id_map) if db_id in db_ids_set]
         return positions
 
+    @with_logging_and_exceptions
     def search(self, query: str, threshold: float = 0.60, candidate_ids: List[int] = None) -> ThresholdSearchResults:
         # 1. Encode query with normalization
         query_embedding = self.model.encode([query], show_progress_bar=False, convert_to_numpy=True)
@@ -115,6 +120,7 @@ class SemanticSearcher:
         print(f"Threshold search complete: {len(results)} rows matched threshold >= {threshold:.2f} (from {len(positions)} total candidates)")
         return ThresholdSearchResults(query=query, threshold_used=threshold, results=results)
 
+    @with_logging_and_exceptions
     def search_with_auto_threshold(self, query: str, ladder=DEFAULT_THRESHOLD_LADDER, target_min: int = 3, target_max: int = 15, candidate_ids: List[int] = None) -> ThresholdSearchResults:
         best = None
         for threshold in ladder:
@@ -145,6 +151,7 @@ class VectorEmbedder:
             self.model = SentenceTransformer(self.model_name, device="cpu")
         return self.model
 
+    @with_logging_and_exceptions
     def encode(self, texts):
         """Generates embeddings for a list of texts. Returns normalized numpy arrays."""
         self.load_model()
@@ -177,6 +184,7 @@ class VectorEmbedder:
                 
         return np.array(embeddings, dtype=np.float32)
 
+    @with_logging_and_exceptions
     def build_index(self, record_ids, texts, metadatas, nlist=100):
         """
         Builds the FAISS Flat IndexIDMap on the provided dataset.
@@ -197,6 +205,7 @@ class VectorEmbedder:
         self.save_index()
         print("FAISS IndexIDMap built and saved.")
 
+    @with_logging_and_exceptions
     def append_to_index(self, record_ids, texts, metadatas):
         """Appends new vectors to the existing FAISS index incrementally."""
         if self.index is None:
@@ -216,6 +225,7 @@ class VectorEmbedder:
         self.save_index()
         print("FAISS index updated and saved.")
 
+    @with_logging_and_exceptions
     def save_index(self):
         """Saves the FAISS index and parallel metadata list to disk."""
         os.makedirs(os.path.dirname(self.index_path), exist_ok=True)
@@ -223,6 +233,7 @@ class VectorEmbedder:
         with open(self.metadata_path, 'w') as f:
             json.dump(self.metadata, f)
 
+    @with_logging_and_exceptions
     def rebuild_index_from_db(self):
         """Rebuilds the FAISS IndexIDMap from the SQLite database records."""
         db_path = get_db_path("data/automotive.db")
@@ -274,6 +285,7 @@ class VectorEmbedder:
             
         self.build_index(record_ids, texts, metadatas)
 
+    @with_logging_and_exceptions
     def load_index(self):
         """Loads the FAISS index and metadata list from disk."""
         if os.path.exists(self.index_path) and os.path.exists(self.metadata_path):
@@ -290,6 +302,7 @@ class VectorEmbedder:
             print("FAISS index or metadata files do not exist on disk.")
             return False
 
+    @with_logging_and_exceptions
     def search_subset(self, query_text, whitelisted_ids, k=None, nprobe=20, threshold=0.30):
         """
         Searches the FAISS index using a query embedding, restricted to a whitelist of IDs,

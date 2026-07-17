@@ -1,131 +1,120 @@
-import matplotlib.pyplot as plt
-import seaborn as sns
-import pandas as pd
+# =====================================================
+# ✅ VISUALIZATION AGENT (Graph Selector)
+# =====================================================
+from core.utils.decorators import with_logging_and_exceptions
 
+@with_logging_and_exceptions
+def select_chart_type(intent, df, query_text):
+    """
+    Infers the most appropriate chart type and title based on the NLP intent,
+    retrieved dataframe columns, and query text.
+    """
+    q = query_text.lower()
+    
+    if df.empty:
+        return "empty", "No Data Available"
 
-class VisualizationAgent:
+    columns = [c.lower() for c in df.columns]
 
-    def __init__(self):
-        sns.set(style="whitegrid")
+    import re
+    chart_keywords = [
+        "chart", "graph", "plot", "visualize", "visual", "trend", "compare", "vs", "versus",
+        "distribution", "pie", "bar", "histogram", "line", "radar", "scatter", "box", "boxplot",
+        "violin", "area", "stackplot"
+    ]
+    
+    # Check if a chart is explicitly requested using word boundaries
+    is_chart_requested = any(re.search(r'\b' + re.escape(w) + r'\b', q) for w in chart_keywords)
+    
+    # CRITICAL: Suppress all charts unless explicitly requested in the query
+    if not is_chart_requested:
+        return "empty", "Data Summary"
 
-    def visualize(self, result, intents=None, kpis=None):
+    # Explicit user choice overrides
+    user_requested_type = None
+    if "pie" in q or "donut" in q:
+        user_requested_type = "donut"
+    elif "bar" in q or "histogram" in q:
+        if "mileage" in columns or "using_km" in q:
+            user_requested_type = "histogram"
+        elif len(columns) > 2:
+            user_requested_type = "grouped_bar"
+        else:
+            user_requested_type = "horizontal_bar"
+    elif "line" in q or "trend" in q:
+        user_requested_type = "line"
+    elif "radar" in q or "spider" in q:
+        user_requested_type = "radar"
+    elif "scatter" in q or "correlation" in q:
+        user_requested_type = "scatter"
+    elif "box" in q or "boxplot" in q:
+        user_requested_type = "box"
+    elif "violin" in q:
+        user_requested_type = "violin"
+    elif "area" in q or "stackplot" in q:
+        user_requested_type = "area"
 
-        try:
-            intents = intents or []
-            kpis = kpis or []
+    # Base selection defaults
+    inferred_type = "horizontal_bar"
+    title = "Claims Aggregations"
 
-            # =====================================================
-            # ✅ 1. INTENT-DRIVEN VISUALIZATION (PRIMARY LOGIC)
-            # =====================================================
+    # Chronological Trend Analysis
+    if "period" in columns or "report_year" in columns or "trend" in q or "monthly" in q or "over time" in q:
+        inferred_type = "line"
+        title = "Monthly Claims Trend" if "failures" in columns else "Chronological Trend"
 
-            # ✅ TREND → Line chart
-            if "trend" in intents:
-                self._plot_line(result, title="Trend Analysis")
-                return "✅ Line chart (trend)"
+    # Mileage / Numeric Distribution
+    elif "mileage" in columns or "using_km" in q or "distribution" in q and ("km" in q or "mileage" in q):
+        inferred_type = "histogram"
+        title = "Mileage (Using km) Distribution"
 
-            # ✅ RANKING → Bar chart
-            if "ranking" in intents:
-                self._plot_bar(result, title="Top / Bottom Analysis")
-                return "✅ Bar chart (ranking)"
+    # Model Comparisons
+    elif intent == "COMPARE" or any(w in q for w in ["compare", "vs", "versus", "difference", "diff"]):
+        if "resolution_rate" in columns and "avg_mileage" in columns:
+            inferred_type = "radar"
+            title = "Model Polar Comparison"
+        else:
+            inferred_type = "grouped_bar"
+            title = "Grouped Claims Comparison"
 
-            # ✅ DISTRIBUTION → Histogram
-            if "distribution" in intents:
-                self._plot_hist(result, title="Distribution Analysis")
-                return "✅ Histogram"
+    # Success / Resolution Rates
+    elif "success_rate" in columns or "resolution" in q or "success" in q:
+        inferred_type = "grouped_bar"
+        title = "Repair Resolution Success Rate (%)"
 
-            # ✅ COMPARISON → Grouped bar
-            if "comparison" in intents:
-                self._plot_comparison(result)
-                return "✅ Comparison chart"
+    # Quality Distribution
+    elif "quality" in columns:
+        inferred_type = "donut"
+        title = "Quality Rating Distribution"
 
-            # ✅ ANOMALY → Boxplot
-            if "anomaly" in intents:
-                self._plot_box(result)
-                return "✅ Boxplot"
+    # Ranking (Dealers, Countries, Trouble Codes, Failed Parts)
+    elif "failures" in columns or "count" in columns:
+        if "dealer" in columns:
+            inferred_type = "horizontal_bar"
+            title = "Top Dealers by Failure Claims"
+        elif "country" in columns:
+            inferred_type = "horizontal_bar"
+            title = "Top Outbreak Countries by Claims"
+        elif "trouble_code" in columns:
+            inferred_type = "horizontal_bar"
+            title = "Most Common Failure Trouble Codes"
+        elif "part_name" in columns:
+            inferred_type = "horizontal_bar"
+            title = "Most Common Failed Parts"
+        else:
+            inferred_type = "horizontal_bar"
+            title = "Claims Aggregations"
 
-            # =====================================================
-            # ✅ 2. FALLBACK (DATA-DRIVEN)
-            # =====================================================
-            return self._auto_visualize(result)
+    else:
+        # Default fallback
+        inferred_type = "grouped_bar"
+        title = "Summary Data Comparison"
 
-        except Exception as e:
-            return f"❌ Visualization error: {str(e)}"
-
-    # =====================================================
-    # ✅ INTENT-BASED FUNCTIONS
-    # =====================================================
-
-    def _plot_line(self, result, title="Line Chart"):
-        result.plot(kind="line", figsize=(10, 5))
-        plt.title(title)
-        plt.xlabel("Time / Index")
-        plt.ylabel("Value")
-        plt.grid(True)
-        plt.show()
-
-    def _plot_bar(self, result, title="Bar Chart"):
-        result.plot(kind="bar", figsize=(10, 5))
-        plt.title(title)
-        plt.xlabel("Category")
-        plt.ylabel("Value")
-        plt.xticks(rotation=30)
-        plt.show()
-
-    def _plot_hist(self, result, title="Histogram"):
-        if isinstance(result, pd.Series):
-            result.plot(kind="hist", bins=20)
-
-        elif isinstance(result, pd.DataFrame):
-            result.select_dtypes(include="number").plot(kind="hist", bins=20)
-
-        plt.title(title)
-        plt.xlabel("Values")
-        plt.ylabel("Frequency")
-        plt.show()
-
-    def _plot_comparison(self, result):
-        if isinstance(result, pd.DataFrame) and len(result.columns) >= 2:
-            sns.barplot(data=result, x=result.columns[0], y=result.columns[1])
-            plt.xticks(rotation=30)
-            plt.title("Comparison Analysis")
-            plt.show()
-
-    def _plot_box(self, result):
-        if isinstance(result, pd.DataFrame):
-            sns.boxplot(data=result)
-            plt.title("Anomaly Detection (Boxplot)")
-            plt.show()
-
-    # =====================================================
-    # ✅ FALLBACK AUTO VISUALIZATION
-    # =====================================================
-
-    def _auto_visualize(self, result):
-
-        if isinstance(result, pd.Series):
-            result.plot(kind="bar")
-            plt.title("Auto Bar Chart")
-            plt.show()
-            return "✅ Auto bar chart"
-
-        elif isinstance(result, pd.DataFrame):
-
-            if len(result.columns) == 1:
-                result.plot(kind="hist")
-                plt.title("Auto Histogram")
-                plt.show()
-                return "✅ Auto histogram"
-
-            elif len(result.columns) == 2:
-                result.plot(kind="bar")
-                plt.title("Auto Comparison")
-                plt.show()
-                return "✅ Auto bar comparison"
-
-            else:
-                sns.heatmap(result.corr(), annot=True)
-                plt.title("Auto Correlation Heatmap")
-                plt.show()
-                return "✅ Auto heatmap"
-
-        return "⚠️ No visualization applied"
+    # Override chart type if explicitly requested by user, but validate column limits
+    final_type = user_requested_type if user_requested_type else inferred_type
+    
+    # Donut chart requires exactly categorical label + numeric value (2 columns)
+    if final_type == "donut" and len(columns) > 2:
+        final_type = inferred_type
+        
+    return final_type, f"{title} ({final_type.replace('_', ' ').title()})"

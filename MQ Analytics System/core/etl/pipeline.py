@@ -1,3 +1,6 @@
+# =====================================================
+# ✅ ETL PIPELINE & DATA INGESTION
+# =====================================================
 import sqlite3
 import hashlib
 import re
@@ -5,33 +8,20 @@ import os
 import datetime
 import pandas as pd
 import numpy as np
-# from analytics.views import refresh_materialized_views
-def refresh_materialized_views(db_path):
-    pass
+from core.sql.views import refresh_materialized_views
+from core.utils.decorators import with_logging_and_exceptions
 
 def clean_km(val):
     """Cleans using time mileage string into an integer."""
-    if pd.isna(val) or val is None:
+    try:
+        if pd.isna(val) or val is None:
+            return 0
+        val_str = str(val).replace(",", "").strip()
+        if not val_str:
+            return 0
+        return int(float(val_str.split()[0]))
+    except Exception:
         return 0
-    val_str = str(val).lower()
-    digits = "".join([c for c in val_str if c.isdigit()])
-    return int(digits) if digits else 0
-
-def parse_date(date_val):
-    """Parses date string or object into standard YYYY-MM-DD or returns empty."""
-    if pd.isna(date_val) or date_val is None:
-        return None
-    if isinstance(date_val, (datetime.date, datetime.datetime)):
-        return date_val.strftime("%Y-%m-%d")
-    
-    date_str = str(date_val).strip()
-    for fmt in ("%d-%m-%Y", "%Y-%m-%d", "%d/%m/%Y", "%Y/%m/%d"):
-        try:
-            dt = datetime.datetime.strptime(date_str, fmt)
-            return dt.strftime("%Y-%m-%d")
-        except ValueError:
-            continue
-    return date_str
 
 def extract_year_month(date_str):
     """Extracts (year, month) integers from standard YYYY-MM-DD string."""
@@ -73,6 +63,52 @@ def generate_heuristic_summary(row):
     
     return f"{sentence1} {sentence2}"
 
+def generate_root_cause(row):
+    """
+    Derives a concise root-cause statement from structured FTIR fields.
+    Priority order:
+      1. Checked Results  — technician's direct inspection finding
+      2. Checked Contents + Causal Parts Name — what was checked and what part failed
+      3. Customer Complaint — the originally reported symptom
+      4. Subject — the FTIR header description
+    Produces a single, clean declarative sentence such as:
+      "Root cause: worn brake pad (causal part: disc brake pad) identified during
+       inspection — customer reported noise during braking."
+    """
+    checked_results = str(row.get('Checked Results', '')).strip()
+    checked_contents = str(row.get('Checked Contents', '')).strip()
+    part = str(row.get('Causal Parts Name', '')).strip()
+    complaint = str(row.get('Customer Complaint', '')).strip()
+    subject = str(row.get('Subject', '')).strip()
+
+    # Sanitise nan strings
+    def _clean(val):
+        return val if val and val.lower() not in ('nan', 'none', '') else ''
+
+    checked_results   = _clean(checked_results)
+    checked_contents  = _clean(checked_contents)
+    part              = _clean(part)
+    complaint         = _clean(complaint)
+    subject           = _clean(subject)
+
+    # Build the root-cause sentence progressively
+    primary = checked_results.split('.')[0] if checked_results else ''
+    secondary = checked_contents.split('.')[0] if checked_contents else ''
+    symptom = (complaint or subject or 'unspecified complaint').split('.')[0]
+    part_clause = f" (causal part: {part.lower()})" if part else ''
+
+    if primary:
+        root_cause = f"{primary.rstrip('.').lower()}{part_clause}, as reported: {symptom.lower()}."
+    elif secondary:
+        root_cause = f"{secondary.rstrip('.').lower()}{part_clause}, as reported: {symptom.lower()}."
+    else:
+        root_cause = f"unconfirmed — reported issue: {symptom.lower()}{part_clause}."
+
+    # Normalise spacing
+    import re
+    root_cause = re.sub(r'\s+', ' ', root_cause).strip()
+    return root_cause
+
 def calculate_row_hash(row):
     """Calculates MD5 hash of critical fields to uniquely identify records."""
     ftir_no = str(row.get('FTIR No', '')).strip()
@@ -81,6 +117,7 @@ def calculate_row_hash(row):
     concat_str = f"{ftir_no}|{subject}|{complaint}"
     return hashlib.md5(concat_str.encode('utf-8')).hexdigest()
 
+@with_logging_and_exceptions
 def ingest_excel(excel_path, db_path, llm_client=None):
     """
     Reads an Excel file, cleans columns, deduplicates, generates summaries,
@@ -94,6 +131,25 @@ def ingest_excel(excel_path, db_path, llm_client=None):
     # Read Excel
     df = pd.read_excel(excel_path, sheet_name=0)
     
+    # Strip whitespace from column names
+    df.columns = df.columns.str.strip()
+
+    # Skip files that are not valid FTIR datasets (e.g. scorecards, custom dashboards)
+    if 'FTIR No.' not in df.columns and 'FTIR No' not in df.columns:
+        print(f"Skipping {excel_path} - not a valid FTIR dataset (missing FTIR No column).")
+        return []
+    
+    # Handle both dash and slash variants of the mileage column to prevent duplicates
+    if 'Mileage - Using Time' in df.columns and 'Mileage / Using Time' in df.columns:
+        df['Mileage - Using Time'] = df['Mileage - Using Time'].fillna(df['Mileage / Using Time'])
+        df = df.drop(columns=['Mileage / Using Time'])
+        
+    # Filter out rows where FTIR No is null or empty before we do any processing
+    if 'FTIR No.' in df.columns:
+        df = df[df['FTIR No.'].notna() & (df['FTIR No.'].astype(str).str.strip() != '')]
+    elif 'FTIR No' in df.columns:
+        df = df[df['FTIR No'].notna() & (df['FTIR No'].astype(str).str.strip() != '')]
+        
     # Rename columns to normalize raw Excel sheets
     df = df.rename(columns={
         'SBPR No.': 'SBPR No',
@@ -158,28 +214,27 @@ def ingest_excel(excel_path, db_path, llm_client=None):
         axis=1
     )
     
-    # Standardize dates
-    df['FTIR Report Date'] = df['FTIR Report Date'].apply(parse_date)
-    df['Reply Date'] = df['Reply Date'].apply(parse_date)
-    df['Date Registered'] = df['Date Registered'].apply(parse_date)
-    df['Date of Incident'] = df['Date of Incident'].apply(parse_date)
-    # New date columns
-    df['Collection Request Date'] = df['Collection Request Date'].apply(parse_date)
-    df['Parts Retrieved Date']    = df['Parts Retrieved Date'].apply(parse_date)
-    df['Judgement Date']          = df['Judgement Date'].apply(parse_date)
-    df['Approval Judgement Date'] = df['Approval Judgement Date'].apply(parse_date)
+    # Standardize dates using vectorized pandas to_datetime
+    date_columns = [
+        'FTIR Report Date', 'Reply Date', 'Date Registered', 
+        'Date of Incident', 'Collection Request Date', 
+        'Parts Retrieved Date', 'Judgement Date', 'Approval Judgement Date'
+    ]
+    df[date_columns] = df[date_columns].apply(pd.to_datetime, format='mixed', errors='coerce')
+    for col in date_columns:
+        df[col] = df[col].dt.strftime('%Y-%m-%d').where(df[col].notnull(), None)
     
     # Computed columns
     df['using_km_int'] = df['Using Time (km)'].apply(clean_km)
     
-    # Days Used — coerce to integer, preserve None for nulls
-    def safe_int(val):
-        try:
-            f = float(val)
-            return int(f) if not pd.isna(f) else None
-        except (TypeError, ValueError):
-            return None
-    df['Days Used'] = df['Days Used'].apply(safe_int)
+    # Days Used — robust regex extraction
+    df['Days Used'] = df['Days Used'].astype(str).str.extract(r'(\d+)', expand=False)
+    df['Days Used'] = pd.to_numeric(df['Days Used'], errors='coerce')
+    df['Days Used'] = df['Days Used'].where(pd.notna(df['Days Used']), None)
+    
+    # Product MODEL Code — slice to first 3 chars
+    if 'Product MODEL Code' in df.columns:
+        df['Product MODEL Code'] = df['Product MODEL Code'].str.slice(0, 3)
     
     # Year/month extraction
     df['extracted_ym'] = df['FTIR Report Date'].apply(extract_year_month)
@@ -209,8 +264,9 @@ def ingest_excel(excel_path, db_path, llm_client=None):
         
         # Insert new records
         for idx, row in df_new.iterrows():
-            # Generate summary using heuristic only
+            # Generate summary and root cause using heuristic only
             summary = generate_heuristic_summary(row)
+            root_cause = generate_root_cause(row)
                 
             record = Record(
                 sbpr_no=row['SBPR No'],
@@ -272,7 +328,8 @@ def ingest_excel(excel_path, db_path, llm_client=None):
                 report_month=row['report_month'],
                 is_resolved=row['is_resolved'],
                 has_sbpr=row['has_sbpr'],
-                summary=summary
+                summary=summary,
+                root_cause=root_cause
             )
             session.add(record)
             session.flush()  # Populate record.id

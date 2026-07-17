@@ -1,7 +1,7 @@
-# =====================================================
-# ✅ NLP PROCESSOR MODULE
-# =====================================================
 import re
+from core.logger import get_logger
+
+logger = get_logger(__name__)
 
 class NLPProcessor:
     def __init__(self):
@@ -19,6 +19,7 @@ class NLPProcessor:
             db_path = get_db_path("data/automotive.db")
             conn = get_engine(db_path).raw_connection()
             cursor = conn.cursor()
+
             
             # Load countries and build mapping for case preservation
             cursor.execute("SELECT DISTINCT outbreak_country FROM records WHERE outbreak_country IS NOT NULL;")
@@ -68,8 +69,11 @@ class NLPProcessor:
             
         try:
             import spacy
+            from spacy.pipeline import EntityRuler
+            # Try loading English small model
             self.nlp = spacy.load("en_core_web_sm")
         except Exception as e:
+            # Fallback if model not downloaded or spacy is not installed
             print(f"spaCy could not be loaded ({e}), running regex-only NER.")
             return
 
@@ -78,59 +82,25 @@ class NLPProcessor:
         
         # Define entity patterns
         patterns = [
+            # Trouble Code (e.g. P0500, C0035, P03)
             {"label": "TROUBLE_CODE", "pattern": [{"TEXT": {"REGEX": "(?i)^[PBCU]\\d{1,4}$"}}]},
+            # Product Model Code (Starts with Y followed by 2 to 9 alphanumeric chars)
             {"label": "PRODUCT_MODEL", "pattern": [{"TEXT": {"REGEX": "(?i)^Y[A-Z0-9]{2,9}$"}}]},
+            # Sales Model Code (e.g. ERT701, ATM)
             {"label": "SALES_MODEL", "pattern": [{"TEXT": {"REGEX": "(?i)^[A-Z]{3}\\d{0,4}$"}}]},
+            # Outbreak Country
             {"label": "COUNTRY", "pattern": [{"LOWER": {"IN": self.countries}}]},
+            # FTIR No (e.g. FTIR/2024/1018)
             {"label": "FTIR_NO", "pattern": [{"TEXT": {"REGEX": "^FTIR/\\d{4}/\\d{4}$"}}]},
         ]
         ruler.add_patterns(patterns)
 
     def classify_intent(self, query):
-        """Classifies intent into one of the 4 categories based on keywords."""
-        q = query.lower()
-        
-        scores = {
-            "VISUALIZE+EXPLAIN": 0,
-            "REPORT": 0,
-            "ANALYTICS": 0,
-            "SEARCH": 0
-        }
-        
-        def has_word(kw):
-            return bool(re.search(r'\b' + re.escape(kw) + r'\b', q))
-
-        if has_word("chart") or has_word("graph") or has_word("plot") or has_word("visualize") or "show chart" in q or has_word("visual"):
-            scores["VISUALIZE+EXPLAIN"] = 4
-            
-        if has_word("compare") or has_word("versus") or "difference between" in q or (" vs " in q and not (has_word("total") or has_word("count") or "how many" in q)):
-            scores["VISUALIZE+EXPLAIN"] = max(scores["VISUALIZE+EXPLAIN"], 3)
-            
-        has_report_action = any(has_word(act) for act in ["generate", "create", "export"]) and has_word("report")
-        if "monthly report" in q or "annual report" in q or has_report_action or has_word("pdf") or "report pdf" in q or "summary pdf" in q:
-            scores["REPORT"] = 5
-        elif has_word("report") and (has_word("month") or has_word("year") or any(has_word(yr) for yr in ["2020", "2021", "2022", "2023", "2024", "2025", "2026", "2027", "2028", "2029", "2030"])):
-            db_centric_keywords = ["unresolved", "repair", "failure", "defect", "model", "trouble", "code", "claim", "claims", "ftir", "incident", "incidents"]
-            if not any(has_word(k) for k in db_centric_keywords):
-                scores["REPORT"] = 3
-            
-        analytics_keywords = ["top", "count", "how many", "total", "number", "frequency", "average", "stats", "ranking", "most common", "percent", "rate"]
-        if any(has_word(k) for k in analytics_keywords):
-            scores["ANALYTICS"] = 2.5
-            
-        search_keywords = ["similar", "find", "cases like", "search", "lookup", "glowing", "stalling", "rattling", "noise", "peeling", "jerky", "misfire", "corrosion", "shift", "solenoid", "dtc", "mil", "p0", "p1", "p2", "p3", "c1", "u0", "bumper", "rough", "light", "stalls", "stalled", "rust"]
-        if any(has_word(k) for k in search_keywords):
-            scores["SEARCH"] = 1
-        if has_word("similar") or has_word("find") or "cases like" in q or has_word("search") or has_word("lookup"):
-            scores["SEARCH"] = 3
-            
-        best_intent = max(scores, key=scores.get)
-        best_score = scores[best_intent]
-        
-        if best_score == 0:
-            return "SEARCH", 0.0
-            
-        return best_intent, float(best_score)
+        """
+        Always returns 'ANALYTICS' as the default intent.
+        Search intent is only triggered when explicitly overridden.
+        """
+        return "ANALYTICS", 1.0
 
     def extract_entities_regex(self, text):
         """Backup regex entity extraction."""
@@ -143,10 +113,11 @@ class NLPProcessor:
             "FTIR_NO": []
         }
         
+        # Regex definitions
         tc_pattern = re.compile(r'\b[PBCU]\d{1,4}\b', re.IGNORECASE)
         pm_pattern = re.compile(r'\bY[A-Z0-9]{2,9}\b', re.IGNORECASE)
         sm_pattern = re.compile(r'\b[A-Z]{3}\d{0,4}\b', re.IGNORECASE)
-        vin_pattern = re.compile(r'\bMA3[A-Z0-9]{14}\b', re.IGNORECASE)
+        vin_pattern = re.compile(r'\bMA3[A-Z0-9]{14}\b', re.IGNORECASE) # 17 chars VIN
         ftir_pattern = re.compile(r'\bFTIR/\d{4}/\d{4}\b', re.IGNORECASE)
         
         for m in tc_pattern.finditer(text):
@@ -154,11 +125,13 @@ class NLPProcessor:
             if not self.db_tcs or code_val in self.db_tcs or (len(code_val) < 5 and any(m.startswith(code_val) for m in self.db_tcs)):
                 entities["TROUBLE_CODE"].append(code_val)
             
+        # Match product models via regex
         for m in pm_pattern.finditer(text):
             model_val = m.group().upper()
             if not self.db_models or model_val in self.db_models or (len(model_val) < 5 and any(m.startswith(model_val) for m in self.db_models)):
                 entities["PRODUCT_MODEL"].append(model_val)
                 
+        # Also scan directly for known db_models to prevent regex omission
         if self.db_models:
             for model in self.db_models:
                 if re.search(r'\b' + re.escape(model) + r'\b', text, re.IGNORECASE):
@@ -174,6 +147,7 @@ class NLPProcessor:
         for m in ftir_pattern.finditer(text):
             entities["FTIR_NO"].append(m.group().upper())
             
+        # Country matching
         for country in self.countries:
             if re.search(r'\b' + re.escape(country) + r'\b', text, re.IGNORECASE):
                 db_casing = self.db_countries_map.get(country.lower(), country.title())
@@ -187,42 +161,58 @@ class NLPProcessor:
         filters = {}
         q = text.lower()
         
+        # 1. Year filters (2020-2030)
         years = re.findall(r'\b(202\d)\b', q)
         if years:
             filters["year"] = int(years[0])
             
+        # 2. Month filters
         months_map = {
-            "january": 1, "jan": 1, "february": 2, "feb": 2, "march": 3, "mar": 3,
-            "april": 4, "apr": 4, "may": 5, "june": 6, "jun": 6, "july": 7, "jul": 7,
-            "august": 8, "aug": 8, "september": 9, "sep": 9, "october": 10, "oct": 10,
-            "november": 11, "nov": 11, "december": 12, "dec": 12
+            "january": 1, "jan": 1,
+            "february": 2, "feb": 2,
+            "march": 3, "mar": 3,
+            "april": 4, "apr": 4,
+            "may": 5,
+            "june": 6, "jun": 6,
+            "july": 7, "jul": 7,
+            "august": 8, "aug": 8,
+            "september": 9, "sep": 9,
+            "october": 10, "oct": 10,
+            "november": 11, "nov": 11,
+            "december": 12, "dec": 12
         }
         for month_name, month_num in months_map.items():
             if re.search(r'\b' + month_name + r'\b', q):
                 filters["month"] = month_num
                 break
                 
+        # 3. Limit / Top N (e.g. "top 5", "top 10")
         top_n = re.findall(r'\btop\s+(\d+)\b', q)
         if top_n:
             filters["limit"] = int(top_n[0])
         else:
-            filters["limit"] = 5
+            filters["limit"] = 5 # default limit
             
+        # 4. Mileage filters (e.g., "under 30000 km", "less than 10k km", "before 10000 km")
+        # Handle "under X km" or "less than X km" or "before X km"
         under_match = re.search(r'(?:under|less than|below|within|before)\s+([\d,]+)\s*(?:k|km)?', q)
         if under_match:
             val_str = under_match.group(1).replace(',', '')
             filters["km_max"] = int(val_str)
             
+        # Handle "over X km" or "more than X km" or "after X km"
         over_match = re.search(r'(?:over|more than|above|greater than|after|exceeding)\s+([\d,]+)\s*(?:k|km)?', q)
         if over_match:
             val_str = over_match.group(1).replace(',', '')
             filters["km_min"] = int(val_str)
 
+        # 5. Quality rating
         if "good" in q:
             filters["quality"] = "Good"
         elif "poor" in q:
             filters["quality"] = "Poor"
             
+        # 6. Segmentation
         if "engine" in q:
             filters["segmentation"] = "Engine"
         elif "transmission" in q:
@@ -231,7 +221,7 @@ class NLPProcessor:
         return filters
 
     def extract_keywords(self, query):
-        """Extracts significant keywords from the query, ignoring stop words."""
+        """Extracts significant keywords (nouns, adjectives, codes) from the query, ignoring stop words."""
         self.load_spacy()
         
         stop_words = {"give", "me", "total", "number", "of", "ftir", "with", "problems", "related", "to", "show", "find", "search", "list", "all", "any", "the", "a", "an", "in", "on", "at", "for", "about", "cases", "reports", "incident", "incidents", "failure", "failures", "issue", "issues", "problem", "defect", "defects", "how", "many", "what", "where", "who", "tell", "explain", "get", "whose", "is", "was", "were", "are", "has", "have", "had", "company", "report", "country", "by", "from", "it", "its", "that", "this", "these", "those", "than", "or", "and"}
@@ -250,9 +240,20 @@ class NLPProcessor:
         return keywords
 
     def parse_query(self, query):
-        """Main entry point. Parse query and return a structured dict."""
+        """
+        Main entry point. Parse query and return a structured ParsedQuery object.
+        """
+        logger.info(f"NLPProcessor starting to parse query: '{query}'")
+        
+        # Load spaCy if not loaded
         self.load_spacy()
+        logger.info("spaCy model loaded or verified.")
+        
+        # Classify intent
         intent, intent_score = self.classify_intent(query)
+        logger.info(f"Query classified with intent '{intent}' (score: {intent_score})")
+        
+        # Extract entities (try spaCy, fallback/combine with regex)
         entities = self.extract_entities_regex(query)
         
         if self.nlp is not None:
@@ -263,7 +264,11 @@ class NLPProcessor:
                     if val not in entities[ent.label_]:
                         entities[ent.label_].append(val)
                         
+        logger.info(f"Extracted entities: {entities}")
+        
+        # Extract filters
         filters = self.extract_filters(query)
+        logger.info(f"Extracted filters: {filters}")
         
         return {
             "query": query,

@@ -1,3 +1,6 @@
+# =====================================================
+# ✅ CHARTS & VISUALIZATION
+# =====================================================
 import plotly.express as px
 import plotly.graph_objects as go
 import pandas as pd
@@ -282,6 +285,25 @@ def build_plotly_figure(chart_type, df, title):
         
     # Copy dataframe to prevent mutating original data
     df = df.copy()
+    
+    # Drop duplicate rows
+    df = df.drop_duplicates()
+    
+    # Drop rows that have proper NaN/None values
+    df = df.dropna()
+    
+    import pandas.api.types as ptypes
+    
+    # Also drop rows where any column contains literal "nan", "none", "null", "0", 0, or empty strings
+    for col in df.columns:
+        if ptypes.is_numeric_dtype(df[col]):
+            df = df[df[col] != 0]
+        else:
+            mask = df[col].astype(str).str.strip().str.lower().isin(['', 'nan', 'none', 'null', 'na', '0'])
+            df = df[~mask]
+            
+    if df.empty:
+        return None
     
     import pandas.api.types as ptypes
     

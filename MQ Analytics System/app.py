@@ -7,8 +7,8 @@ import sqlite3
 import streamlit as st
 import pandas as pd
 
-# Add the parent directory (automotive_qa root) to sys.path
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# Add the parent directory to sys.path
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from core.logger import get_logger
 from core.custom_exception import CustomException
@@ -17,7 +17,7 @@ logger = get_logger(__name__)
 
 # Import local modules
 import importlib
-for mod in ["core.memory.session", "core.singletons", "core.pipeline", "core.paths", "core.utils.charts", "core.utils.report_engine", "core.sql.sql_executor", "core.ollama_client"]:
+for mod in ["core.memory.session", "core.singletons", "core.pipeline", "core.paths", "core.utils.charts", "core.utils.report_engine", "core.sql.sql_executor", "core.agents.visualization_agent", "core.engine.intent.nlp", "core.ollama_client"]:
     if mod in sys.modules:
         try:
             importlib.reload(sys.modules[mod])
@@ -38,6 +38,7 @@ from core.memory.session import (
 from core.singletons import get_db_connection, get_embedder, get_llm, get_ingestion_tracker, get_router
 from core.pipeline import QueryRouter
 from core.paths import get_inbox_path, get_project_root
+from core.utils.ui_utils import inject_design_system, render_app_header
 from core.utils.charts import (
     plot_horizontal_bar, 
     plot_line_trend, 
@@ -51,7 +52,7 @@ from core.utils.charts import (
     plot_area_chart
 )
 
-MAX_FRONTEND_ROWS = 100
+MAX_FRONTEND_ROWS = 100000
 
 @st.cache_data(show_spinner=False)
 def convert_df_to_csv(df):
@@ -59,7 +60,7 @@ def convert_df_to_csv(df):
 
 # Set Page Config
 st.set_page_config(
-    page_title="MQ Quality & Analytics Intelligence",
+    page_title="Automotive QA Intelligence",
     page_icon="🚗",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -277,6 +278,10 @@ def inject_custom_styles():
         [data-testid="stDataFrame"] {
             border: 1px solid #e2e8f0;
             border-radius: 6px;
+            margin-left: auto !important;
+            margin-right: auto !important;
+            display: flex;
+            justify-content: center;
         }
 
         /* ── Chart container ── */
@@ -286,6 +291,17 @@ def inject_custom_styles():
             border-radius: 8px;
             padding: 12px 8px 4px 8px;
             margin-bottom: 16px;
+            margin-left: auto !important;
+            margin-right: auto !important;
+            display: flex;
+            justify-content: center;
+        }
+
+        [data-testid="stPlotlyChart"] {
+            margin-left: auto !important;
+            margin-right: auto !important;
+            display: flex;
+            justify-content: center;
         }
 
         /* ── Sidebar brand ── */
@@ -446,6 +462,7 @@ def inject_custom_styles():
             margin: 0 !important;
             line-height: 1.4 !important;
         }
+        
         </style>
     """, unsafe_allow_html=True)
 
@@ -456,7 +473,10 @@ def main():
     if "styles_injected" not in st.session_state:
         inject_custom_styles()
         st.session_state.styles_injected = True
-    
+
+    # Inject enterprise design system CSS
+    inject_design_system()
+
     # Eagerly warm up the LLM on startup
     if "llm_warmed_up" not in st.session_state:
         st.session_state.llm_warmed_up = True
@@ -465,8 +485,20 @@ def main():
 
     # 3. Handle Session Auth State
     if "user_id" not in st.session_state:
+        # Hide Streamlit's default header and remove top padding only on the login screen
+        st.markdown("""
+            <style>
+            header[data-testid="stHeader"] { display: none !important; }
+            [data-testid="stAppViewBlockContainer"], .stMainBlockContainer, .block-container { padding-top: 0 !important; }
+            </style>
+        """, unsafe_allow_html=True)
+        # Render the custom brand header bar ONLY on the login screen
+        render_app_header()
         show_login_screen()
         return
+
+    # Render the AI warning at the bottom on every rerun when logged in
+    st.markdown('<div class="ai-warning">This system uses AI and can make mistakes.</div>', unsafe_allow_html=True)
 
     # Load core singletons.
     db_path = get_db_connection()
@@ -608,23 +640,8 @@ def show_sidebar(username, router, user_sessions=None):
         # 3. LLM Configuration (Silent Sync)
         llm_client = get_llm()
         
-        # Self-healing cache clear if class definition is out-of-sync
-        if hasattr(llm_client, "gemini_client"):
-            st.cache_resource.clear()
-            st.rerun()
-            
-        # Load API key from session state or environment variable default
-        groq_default = st.session_state.get("groq_api_key", os.environ.get("GROQ_API_KEY", ""))
-        
-        # Sync key to LLM client on load
-        if groq_default and getattr(llm_client, "_groq_key", None) != groq_default:
-            llm_client.set_groq_key(groq_default)
-            
-        # Get provider for caption/status if needed
-        provider = llm_client.get_provider()
-        
-        caption_text = "v1.3 · Groq Online · FAISS Hybrid" if provider == "groq" else "v1.3 · Phi-3 Offline · FAISS Hybrid"
-        st.caption(caption_text)
+        # Caption status
+        st.caption("v1.3 · Offline LLM · FAISS Hybrid")
         
         # Log out button
         st.markdown("<div class='logout-btn-container'>", unsafe_allow_html=True)
@@ -636,23 +653,8 @@ def show_sidebar(username, router, user_sessions=None):
 
 
 def render_citations(citations):
-    """Renders visual citation cards for referenced FTIR records."""
-    if citations:
-        st.markdown("<div style='margin-top: 15px; margin-bottom: 5px; font-weight: 600; font-size: 13px; color: #0369a1;'>📚 Referenced Sources</div>", unsafe_allow_html=True)
-        c_cols = st.columns(len(citations) if len(citations) <= 3 else 3)
-        for idx, cite in enumerate(citations):
-            col_idx = idx % 3
-            with c_cols[col_idx]:
-                st.markdown(
-                    f"""
-                    <div class="citation-card">
-                        <div style="font-size: 11px; font-weight: bold; color: #0284c7;">FTIR: {cite['ftir_no']}</div>
-                        <div style="font-size: 10px; color: #475569; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{cite['subject']}">{cite['subject']}</div>
-                        <div style="font-size: 9px; color: #64748b; margin-top: 4px;">{cite['reported_company']} | {cite['outbreak_country']}</div>
-                    </div>
-                    """, 
-                    unsafe_allow_html=True
-                )
+    """Renders visual citation cards for referenced FTIR records. Disabled as per user request."""
+    return
 
 @st.dialog("Select Query Routing Intent")
 def select_intent_dialog():
@@ -663,7 +665,7 @@ def select_intent_dialog():
         "ANALYTICS",
         "SEARCH"
     ]
-    current = st.session_state.get("selected_intent", "ANALYTICS")
+    current = st.session_state.get("selected_intent", "Use Previous / Default")
     default_idx = options.index(current) if current in options else 0
     
     chosen = st.radio(
@@ -730,7 +732,7 @@ def render_chat_page(router):
         active_sid = st.session_state.get("active_session_id")
         current_title = st.session_state.get("active_session_title", "AI Chat")
         
-        st.caption("Offline Automotive QA Assistant backed by FAISS hybrid retrieval & Phi-3 LLM.")
+        st.caption("Offline Automotive QA Assistant backed by FAISS hybrid retrieval & Offline LLM.")
 
     # Render Chat History
     # Clean up any orphaned user message at the end of the history (if generation was interrupted)
@@ -787,6 +789,7 @@ def render_chat_page(router):
                 sql_query = msg.get("sql_query")
                 chart_type = msg.get("chart_type")
                 chart_title = msg.get("chart_title")
+                chart_data = msg.get("chart_data")
                 citations = msg.get("citations")
                 
                 if user_query and is_visual:
@@ -807,8 +810,10 @@ def render_chat_page(router):
                             st.dataframe(df.head(MAX_FRONTEND_ROWS), width="stretch")
                         else:
                             st.dataframe(df, width="stretch")
-                    if chart_type and chart_type != "empty" and df is not None:
-                        render_plotly_chart(chart_type, df, chart_title, key=f"hist_{i}_{chart_type}")
+                    if chart_type and chart_type != "empty":
+                        c_df = chart_data if chart_data is not None else df
+                        if c_df is not None:
+                            render_plotly_chart(chart_type, c_df, chart_title, key=f"hist_{i}_{chart_type}")
                         
                     if res_type == "table_stream":
                         st.markdown("**Analysis Explanation:**")
@@ -822,7 +827,7 @@ def render_chat_page(router):
                         pdf_path = os.path.join(reports_dir, f"QA_Report_{ryear}_{rmonth}.pdf")
                         docx_path = os.path.join(reports_dir, f"QA_Report_{ryear}_{rmonth}.docx")
                         if not (os.path.exists(pdf_path) and os.path.exists(docx_path)):
-                            from core.utils.report_engine import ReportEngine
+                            from reports.engine import ReportEngine
                             os.makedirs(reports_dir, exist_ok=True)
                             engine = ReportEngine()
                             engine.generate_pdf_report(ryear, rmonth, pdf_path)
@@ -859,7 +864,7 @@ def render_chat_page(router):
                     render_citations(citations)
 
     # Intent Selector Button and Status
-    selected_intent = st.session_state.get("selected_intent", "ANALYTICS")
+    selected_intent = st.session_state.get("selected_intent", "Use Previous / Default")
     
     col_status, col_btn = st.columns([7, 3], vertical_alignment="center")
     with col_status:
@@ -887,10 +892,6 @@ def render_chat_page(router):
         st.session_state[f"pdf_ready_{active_sid}"] = False
         
     if query:
-        # Display user message
-        with st.chat_message("user", avatar="👤"):
-            st.markdown(f"<div style='margin-bottom:10px; font-size: 15px;'>{query}</div>", unsafe_allow_html=True)
-            
         # Update session title if first query — use session state to avoid a DB query
         user_messages_count = sum(1 for m in st.session_state.chat_history if m["role"] == "user")
         if user_messages_count == 0 and active_sid:
@@ -900,12 +901,27 @@ def render_chat_page(router):
                 update_chat_session_title(active_sid, new_title)
                 st.session_state.active_session_title = new_title
             
-        # Append to DB and session history
+        # Append to DB and session history BEFORE rendering so we have the msg_id
         user_msg_id = add_chat_message(st.session_state.user_id, active_sid, "user", query)
         st.session_state.chat_history.append({"id": user_msg_id, "role": "user", "content": query})
+
+        # Display user message with the delete button
+        with st.chat_message("user", avatar="👤"):
+            col_text, col_del = st.columns([9.5, 0.5])
+            with col_text:
+                st.markdown(f"<div style='margin-bottom:10px; font-size: 15px;'>{query}</div>", unsafe_allow_html=True)
+            with col_del:
+                if st.button("❌", key=f"del_active_{user_msg_id}", help="Delete query and stop generation", use_container_width=True):
+                    # User clicked delete during generation
+                    delete_chat_message(user_msg_id)
+                    st.session_state.chat_history = [
+                        m for m in st.session_state.chat_history
+                        if m.get("id") != user_msg_id
+                    ]
+                    st.rerun()
         
         # Determine override intent
-        override_intent = st.session_state.get("selected_intent", "ANALYTICS")
+        override_intent = st.session_state.get("selected_intent", "Use Previous / Default")
         if override_intent == "Use Previous / Default":
             previous_intent = None
             for msg in reversed(st.session_state.chat_history):
@@ -914,10 +930,8 @@ def render_chat_page(router):
                     break
             override_intent = previous_intent
 
-        # RAG configuration is set to auto by default
-        threshold_val = None
-        max_results_val = 15
-
+        # RAG configuration is set to 0.1 as requested
+        threshold_val = 0.2
         # Execute query dispatch
         with st.chat_message("assistant", avatar="✨"):
             router_res = router.dispatch_query(
@@ -925,7 +939,6 @@ def render_chat_page(router):
                 user_id=st.session_state.user_id,
                 override_intent=override_intent,
                 threshold=threshold_val,
-                max_results=max_results_val,
                 chat_history=st.session_state.chat_history
             )
             intent = router_res["intent"]
@@ -978,14 +991,25 @@ def render_chat_page(router):
                 else:
                     st.dataframe(df, width="stretch")
                 
-                chart_type = router_res["chart_type"]
-                chart_title = router_res["chart_title"]
+                chart_type = router_res.get("chart_type")
+                chart_title = router_res.get("chart_title")
+                chart_df = router_res.get("chart_data")
+                if chart_df is None:
+                    chart_df = df
+                    
                 if chart_type and chart_type != "empty":
-                    render_plotly_chart(chart_type, df, chart_title, key=f"new_stream_{int(time.time())}_{chart_type}")
+                    render_plotly_chart(chart_type, chart_df, chart_title, key=f"new_stream_{int(time.time())}_{chart_type}")
                     
                 st.markdown("**Analysis Explanation:**")
-                llm_client = get_llm()
-                response_text = st.write_stream(llm_client.generate_chat_stream(messages))
+                import types
+                if isinstance(messages, str):
+                    st.write(messages)
+                    response_text = messages
+                elif isinstance(messages, types.GeneratorType):
+                    response_text = st.write_stream(messages)
+                else:
+                    llm_client = get_llm()
+                    response_text = st.write_stream(llm_client.generate_chat_stream(messages))
                 
             # Handle Table Only
             elif res_type == "table_only":
@@ -1021,7 +1045,7 @@ def render_chat_page(router):
                 year = router_res["data"]["year"]
                 month = router_res["data"]["month"]
                 
-                from core.utils.report_engine import ReportEngine
+                from reports.engine import ReportEngine
                 reports_dir = os.path.join(get_project_root(), "reports_cache")
                 os.makedirs(reports_dir, exist_ok=True)
                 pdf_path = os.path.join(reports_dir, f"QA_Report_{year}_{month}.pdf")
@@ -1059,7 +1083,7 @@ def render_chat_page(router):
                         )
                 
             # Save response to history and DB
-            assistant_msg_id = add_chat_message(st.session_state.user_id, active_sid, "assistant", response_text)
+            assistant_msg_id = add_chat_message(st.session_state.user_id, active_sid, "assistant", response_text, intent=intent)
             
             history_entry = {
                 "id": assistant_msg_id,
@@ -1073,6 +1097,7 @@ def render_chat_page(router):
                 "sql_query": router_res.get("sql_query"),
                 "chart_type": router_res.get("chart_type"),
                 "chart_title": router_res.get("chart_title"),
+                "chart_data": router_res.get("chart_data"),
                 "citations": citations,
                 "threshold_used": router_res.get("threshold_used"),
                 "row_count": router_res.get("row_count"),
@@ -1087,6 +1112,8 @@ def render_chat_page(router):
             # Cache the result for the query if it is not an error or fallback message
             if "An error occurred" not in response_text and "No sufficiently similar" not in response_text:
                 router_res["generated_response"] = response_text
+                if "data" in router_res and isinstance(router_res["data"], dict) and "messages" in router_res["data"]:
+                    router_res["data"]["messages"] = response_text
                 router.cache.set(query, st.session_state.user_id, router_res)
                 
         # Force refresh to update sidebar title
@@ -1105,7 +1132,12 @@ def pre_populate_history_metadata(router, history, user_id):
                 
             user_query = history[i-1]["content"] if (i > 0 and history[i-1]["role"] == "user") else None
             if user_query:
-                intent, _ = router.nlp.classify_intent(user_query)
+                # If intent was saved in database, use it directly to preserve overrides
+                if msg.get("intent"):
+                    intent = msg["intent"]
+                else:
+                    intent, _ = router.nlp.classify_intent(user_query)
+                    
                 msg["intent"] = intent
                 is_visual = intent == "ANALYTICS"
                 
@@ -1127,6 +1159,7 @@ def pre_populate_history_metadata(router, history, user_id):
                         msg["sql_query"] = router_res.get("sql_query")
                         msg["chart_type"] = router_res.get("chart_type")
                         msg["chart_title"] = router_res.get("chart_title")
+                        msg["chart_data"] = router_res.get("chart_data")
                         msg["citations"] = router_res.get("citations")
                         msg["threshold_used"] = router_res.get("threshold_used")
                         msg["row_count"] = router_res.get("row_count")
@@ -1137,6 +1170,9 @@ def pre_populate_history_metadata(router, history, user_id):
                         # Cache the result if it was a cache miss (i.e. executed dynamically during prepopulation)
                         if "generated_response" not in router_res:
                             router_res["generated_response"] = msg["content"]
+                            if res_type == "table_stream" and "messages" in router_res["data"]:
+                                # Replace generator with the final generated string so it can be JSON serialized
+                                router_res["data"]["messages"] = msg["content"]
                             router.cache.set(user_query, user_id, router_res)
                     except Exception as e:
                         print(f"Error pre-populating history item: {e}")
@@ -1152,13 +1188,35 @@ def render_plotly_chart(chart_type, df, title, key=None):
     # Copy dataframe to prevent mutating original data
     df = df.copy()
     
+    # Drop duplicate rows
+    df = df.drop_duplicates()
+    
+    # Drop rows that have proper NaN/None values
+    df = df.dropna()
+    
     import pandas.api.types as ptypes
+    
+    # Also drop rows where any column contains literal "nan", "none", "null", "0", 0, or empty strings
+    for col in df.columns:
+        if ptypes.is_numeric_dtype(df[col]):
+            df = df[df[col] != 0]
+        else:
+            mask = df[col].astype(str).str.strip().str.lower().isin(['', 'nan', 'none', 'null', 'na', '0'])
+            df = df[~mask]
+            
+    if df.empty:
+        return
     
     # If the dataframe has only 1 column and it is non-numeric, convert it to a frequency count so we can plot it
     if len(df.columns) == 1 and not ptypes.is_numeric_dtype(df[df.columns[0]]):
         col_name = df.columns[0]
         df = df[col_name].value_counts().reset_index()
         df.columns = [col_name, "count"]
+        
+    # If this is an unaggregated RAG search result, aggregate it by causal_parts_name
+    elif 'similarity' in df.columns and 'causal_parts_name' in df.columns:
+        df = df['causal_parts_name'].value_counts().reset_index()
+        df.columns = ['causal_parts_name', 'count']
         
     # Ensure numeric columns are properly cast and clean up non-numeric columns for y-axes
     x_col = "period" if "period" in df.columns else df.columns[0]
@@ -1492,7 +1550,7 @@ def render_reports_page():
         generate_btn = st.button("Generate Reports", type="primary", width="stretch")
 
     if generate_btn:
-        from core.utils.report_engine import ReportEngine
+        from reports.engine import ReportEngine
         reports_dir = os.path.join(get_project_root(), "reports_cache")
         os.makedirs(reports_dir, exist_ok=True)
         pdf_path = os.path.join(reports_dir, f"QA_Report_{year}_{month}.pdf")

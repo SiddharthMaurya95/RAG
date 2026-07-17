@@ -24,10 +24,7 @@ def custom_json_decoder(dct):
     return dct
 
 class QueryCache:
-    def __init__(self, db_path=None, max_ram_entries=200):
-        if db_path is None:
-            from core.config import DB_PATH
-            db_path = DB_PATH
+    def __init__(self, db_path="data/automotive.db", max_ram_entries=200):
         self.db_path = get_db_path(db_path)
         self.ram_cache = {} # L1: query_hash -> result_dict
         self.max_ram_entries = max_ram_entries
@@ -36,7 +33,10 @@ class QueryCache:
         return hashlib.md5(key_str.encode('utf-8')).hexdigest()
 
     def get(self, query_text, user_id=0):
-        """Gets cached query result from RAM (L1) or DB (L2)."""
+        """
+        Gets a cached query result for a given query text and user ID.
+        Checks L1 (RAM) first, then L2 (SQLite via SQLAlchemy).
+        """
         query_hash = self._get_hash(query_text)
         
         # Check L1 (RAM)
@@ -56,10 +56,12 @@ class QueryCache:
             ).first()
             
             if row:
-                expires_timestamp = row.expires_at.timestamp()
+                expires_at = row.expires_at
+                expires_timestamp = expires_at.timestamp()
+                    
                 if expires_timestamp > time.time():
                     data = json.loads(row.result_json, object_hook=custom_json_decoder)
-                    # Cache in L1
+                    # Store in L1
                     self.ram_cache[query_hash] = {
                         "data": data,
                         "expires_at": expires_timestamp
@@ -67,6 +69,7 @@ class QueryCache:
                     self._prune_ram_cache()
                     return data
                 else:
+                    # Expired: delete from DB
                     session.delete(row)
                     session.commit()
         except Exception as e:
@@ -74,23 +77,27 @@ class QueryCache:
             print(f"Error reading query cache: {e}")
         finally:
             session.close()
+                
         return None
 
     def set(self, query_text, user_id, data, ttl_seconds=30*86400):
-        """Caches query results in RAM (L1) and DB (L2)."""
+        """
+        Caches a query result for a given query text.
+        Writes to both L1 (RAM) and L2 (SQLite via SQLAlchemy).
+        """
         query_hash = self._get_hash(query_text)
         expires_timestamp = time.time() + ttl_seconds
         expires_dt = datetime.datetime.fromtimestamp(expires_timestamp)
         result_json = json.dumps(data, cls=CustomJSONEncoder)
 
-        # Cache in L1
+        # Write to L1 (RAM)
         self.ram_cache[query_hash] = {
             "data": data,
             "expires_at": expires_timestamp
         }
         self._prune_ram_cache()
 
-        # Cache in L2
+        # Write to L2 (SQLite via SQLAlchemy)
         session = get_session(self.db_path)
         try:
             cache_entry = session.query(DBQueryCache).filter(
@@ -112,11 +119,15 @@ class QueryCache:
             session.commit()
         except Exception as e:
             session.rollback()
-            print(f"Error saving query cache: {e}")
+            print(f"Error saving to query cache: {e}")
         finally:
             session.close()
 
     def delete(self, query_hash, user_id):
+        # Remove from L1 (RAM)
+        if query_hash in self.ram_cache:
+            del self.ram_cache[query_hash]
+            
         session = get_session(self.db_path)
         try:
             session.query(DBQueryCache).filter(
@@ -126,27 +137,27 @@ class QueryCache:
             session.commit()
         except Exception as e:
             session.rollback()
-            print(f"Error deleting cache: {e}")
+            print(f"Error deleting query cache entry: {e}")
         finally:
             session.close()
 
     def _prune_ram_cache(self):
         if len(self.ram_cache) > self.max_ram_entries:
+            # Simple FIFO or expiration pruning
+            # Prune expired entries first
             now = time.time()
             expired = [k for k, v in self.ram_cache.items() if v["expires_at"] <= now]
             for k in expired:
                 del self.ram_cache[k]
             
+            # If still too large, delete first key
             while len(self.ram_cache) > self.max_ram_entries:
                 first_key = next(iter(self.ram_cache))
                 del self.ram_cache[first_key]
 
 
 class EmbeddingCache:
-    def __init__(self, db_path=None):
-        if db_path is None:
-            from core.config import DB_PATH
-            db_path = DB_PATH
+    def __init__(self, db_path="data/automotive.db"):
         self.db_path = get_db_path(db_path)
 
     def _get_hash(self, text):
@@ -160,9 +171,10 @@ class EmbeddingCache:
             row = session.query(DBEmbeddingCache).filter(DBEmbeddingCache.text_hash == text_hash).first()
             if row:
                 blob = row.embedding_blob
-                return np.frombuffer(blob, dtype=np.float32)
+                embedding = np.frombuffer(blob, dtype=np.float32)
+                return embedding
         except Exception as e:
-            print(f"Error loading embedding cache: {e}")
+            print(f"Error loading embedding from cache: {e}")
         finally:
             session.close()
         return None
@@ -186,6 +198,6 @@ class EmbeddingCache:
             session.commit()
         except Exception as e:
             session.rollback()
-            print(f"Error saving embedding cache: {e}")
+            print(f"Error saving embedding to cache: {e}")
         finally:
             session.close()
