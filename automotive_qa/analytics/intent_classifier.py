@@ -4,6 +4,7 @@ from typing import List, Tuple, Dict
 from core.singletons import get_llm
 from core.logger import get_logger
 from core.custom_exception import CustomException
+from core.decorators import with_logging_and_exceptions
 
 logger = get_logger(__name__)
 
@@ -44,6 +45,7 @@ class Intent_classification:
     # =====================================================
     # RULE-BASED EXTRACTION
     # =====================================================
+    @with_logging_and_exceptions
     def extract_with_rules(self, question: str) -> Dict:
         q = question.lower()
 
@@ -106,6 +108,7 @@ class Intent_classification:
     # =====================================================
     # HYBRID SPACY + REGEX EXTRACTION
     # =====================================================
+    @with_logging_and_exceptions
     def extract_hybrid(self, question: str) -> Dict:
         """Uses spaCy for robust intent/KPI extraction, and regex for rigid filters/aggregations."""
         self.load_spacy()
@@ -155,6 +158,7 @@ class Intent_classification:
     # =====================================================
     # LLM EXTRACTION
     # =====================================================
+    @with_logging_and_exceptions
     def extract_with_llm(self, question: str) -> Dict:
         prompt = f"""<|system|>
 You are a senior data analyst mapping a user query to SQL query intents.
@@ -184,30 +188,26 @@ Rules:
 <|end|>
 <|assistant|>
 """
-        try:
-            llm_client = get_llm()
-            llm = llm_client.load_model()
+        llm_client = get_llm()
+        llm = llm_client.load_model()
+        
+        response = llm(
+            prompt,
+            max_tokens=256,
+            temperature=0.0,
+            stop=["<|end|>", "<|user|>"],
+            echo=False
+        )
+        
+        content = response["choices"][0]["text"].strip()
+        
+        # Find JSON block boundaries to handle any extra conversational wrapping
+        start_idx = content.find("{")
+        end_idx = content.rfind("}")
+        if start_idx != -1 and end_idx != -1:
+            content = content[start_idx:end_idx + 1]
             
-            response = llm(
-                prompt,
-                max_tokens=256,
-                temperature=0.0,
-                stop=["<|end|>", "<|user|>"],
-                echo=False
-            )
-            
-            content = response["choices"][0]["text"].strip()
-            
-            # Find JSON block boundaries to handle any extra conversational wrapping
-            start_idx = content.find("{")
-            end_idx = content.rfind("}")
-            if start_idx != -1 and end_idx != -1:
-                content = content[start_idx:end_idx + 1]
-                
-            return json.loads(content)
-        except Exception as e:
-            logger.warning(f"Intent LLM Extraction Failed: {e}")
-            raise CustomException(e, sys)
+        return json.loads(content)
 
     # =====================================================
     # COMBINE FUNCTION
@@ -254,46 +254,53 @@ Rules:
     # =====================================================
     # MAIN ENTRY
     # =====================================================
-    def build_intent_prompt(self, question: str) -> Tuple[List[str], List[str], List[str], List[str]]:
-        try:
-            # 1. Run the ultra-fast spaCy+Regex Hybrid method
-            hybrid_res = self.extract_hybrid(question)
-            hybrid_confidence = self.compute_confidence(hybrid_res)
+    @with_logging_and_exceptions
+    def build_intent_prompt(self, question: str, confidence_threshold: float = 0.8) -> Tuple[List[str], List[str], List[str], List[str]]:
+        # 1. Run the ultra-fast spaCy+Regex Hybrid method
+        hybrid_res = self.extract_hybrid(question)
+        hybrid_confidence = self.compute_confidence(hybrid_res)
 
-            hybrid_log = (f"--- HYBRID EXTRACTION ---\n"
-                          f"Intents: {hybrid_res.get('intents')}\n"
-                          f"KPIs: {hybrid_res.get('kpis')}\n"
-                          f"Filters: {hybrid_res.get('filters')}\n"
-                          f"Aggregations: {hybrid_res.get('aggregations')}\n"
-                          f"Confidence Score: {hybrid_confidence}\n")
-            
-            logger.info(f"Hybrid Extraction Results:\n{hybrid_log}")
+        hybrid_log = (f"--- HYBRID EXTRACTION ---\n"
+                      f"Intents: {hybrid_res.get('intents')}\n"
+                      f"KPIs: {hybrid_res.get('kpis')}\n"
+                      f"Filters: {hybrid_res.get('filters')}\n"
+                      f"Aggregations: {hybrid_res.get('aggregations')}\n"
+                      f"Confidence Score: {hybrid_confidence}\n")
+        
+        logger.info(f"Hybrid Extraction Results:\n{hybrid_log}")
 
-            # 2. Run LLM Extraction to show both as requested
-            logger.info(f"Running LLM extraction for comparison")
-            llm_res = self.extract_with_llm(question)
-            llm_confidence = self.compute_confidence(llm_res)
-
-            llm_log = (f"--- LLM EXTRACTION ---\n"
-                       f"Intents: {llm_res.get('intents')}\n"
-                       f"KPIs: {llm_res.get('kpis')}\n"
-                       f"Filters: {llm_res.get('filters')}\n"
-                       f"Aggregations: {llm_res.get('aggregations')}\n"
-                       f"Confidence Score: {llm_confidence}\n")
-            
-            logger.info(f"LLM Extraction Results:\n{llm_log}")
-                
-            final_res = self.merge_results(hybrid_res, llm_res)
-            confidence = self.compute_confidence(final_res)
-            logger.info(f"Intent classification complete with merged final confidence {confidence}")
-
+        # If hybrid confidence meets the threshold, skip LLM extraction to save time
+        if hybrid_confidence >= confidence_threshold:
+            logger.info(f"Hybrid confidence ({hybrid_confidence}) meets threshold ({confidence_threshold}). Skipping LLM extraction.")
             return (
-                final_res["intents"],
-                final_res["kpis"],
-                final_res["filters"],
-                final_res["aggregations"]
+                hybrid_res["intents"],
+                hybrid_res["kpis"],
+                hybrid_res["filters"],
+                hybrid_res["aggregations"]
             )
-        except Exception as e:
-            logger.error(f"Error in intent classifier: {e}")
-            raise CustomException(e, sys)
+
+        # 2. Run LLM Extraction to show both as requested
+        logger.info(f"Hybrid confidence ({hybrid_confidence}) below threshold ({confidence_threshold}). Running LLM extraction.")
+        llm_res = self.extract_with_llm(question)
+        llm_confidence = self.compute_confidence(llm_res)
+
+        llm_log = (f"--- LLM EXTRACTION ---\n"
+                   f"Intents: {llm_res.get('intents')}\n"
+                   f"KPIs: {llm_res.get('kpis')}\n"
+                   f"Filters: {llm_res.get('filters')}\n"
+                   f"Aggregations: {llm_res.get('aggregations')}\n"
+                   f"Confidence Score: {llm_confidence}\n")
+        
+        logger.info(f"LLM Extraction Results:\n{llm_log}")
+            
+        final_res = self.merge_results(hybrid_res, llm_res)
+        confidence = self.compute_confidence(final_res)
+        logger.info(f"Intent classification complete with merged final confidence {confidence}")
+
+        return (
+            final_res["intents"],
+            final_res["kpis"],
+            final_res["filters"],
+            final_res["aggregations"]
+        )
 

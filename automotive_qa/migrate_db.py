@@ -1,3 +1,4 @@
+from core.decorators import with_logging_and_exceptions
 """
 migrate_db.py
 =============
@@ -44,6 +45,7 @@ NEW_INDICES = [
 ]
 
 
+@with_logging_and_exceptions
 def migrate(db_path):
     if not os.path.exists(db_path):
         print(f"ERROR: Database not found at {db_path}")

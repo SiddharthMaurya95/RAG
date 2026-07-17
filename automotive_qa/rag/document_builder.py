@@ -1,3 +1,6 @@
+from core.decorators import with_logging_and_exceptions
+
+@with_logging_and_exceptions
 def build_document_text(record):
     """
     Concatenates the key descriptive columns of a record into a single structured text block.

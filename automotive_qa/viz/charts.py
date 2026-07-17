@@ -283,13 +283,20 @@ def build_plotly_figure(chart_type, df, title):
     # Copy dataframe to prevent mutating original data
     df = df.copy()
     
+    # Drop duplicate rows
+    df = df.drop_duplicates()
+    
     # Drop rows that have proper NaN/None values
     df = df.dropna()
     
-    # Also drop rows where any string column contains literal "nan", "none", "null", or empty strings
+    import pandas.api.types as ptypes
+    
+    # Also drop rows where any column contains literal "nan", "none", "null", "0", 0, or empty strings
     for col in df.columns:
-        if df[col].dtype == 'object':
-            mask = df[col].astype(str).str.strip().str.lower().isin(['', 'nan', 'none', 'null', 'na'])
+        if ptypes.is_numeric_dtype(df[col]):
+            df = df[df[col] != 0]
+        else:
+            mask = df[col].astype(str).str.strip().str.lower().isin(['', 'nan', 'none', 'null', 'na', '0'])
             df = df[~mask]
             
     if df.empty:

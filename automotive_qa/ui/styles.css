@@ -1079,3 +1079,24 @@
     background-color: var(--msds-neutral-100);
     color: var(--msds-neutral-700);
 }
+
+/* ─────────────────────────────────────────────────────────────────
+   14. AI WARNING AND CHAT INPUT SPACING
+   ───────────────────────────────────────────────────────────────── */
+
+.ai-warning {
+    position: fixed;
+    bottom: 8px;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    font-size: 11px;
+    color: #64748b;
+    z-index: 999999;
+    pointer-events: none;
+}
+
+/* Shift the chat input container up to make room for the warning text */
+.stChatInput, [data-testid="stChatInput"], .stChatInputContainer {
+    bottom: 24px !important;
+}

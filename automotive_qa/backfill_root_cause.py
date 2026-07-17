@@ -1,3 +1,4 @@
+from core.decorators import with_logging_and_exceptions
 """
 backfill_root_cause.py
 ======================
@@ -26,6 +27,7 @@ DB_PATH = os.path.join(PROJECT_ROOT, "data", "automotive.db")
 sys.path.insert(0, PROJECT_ROOT)
 
 
+@with_logging_and_exceptions
 def _clean(val):
     """Sanitise nan/None string values."""
     if val is None:
@@ -34,6 +36,7 @@ def _clean(val):
     return val if val.lower() not in ('nan', 'none', '') else ''
 
 
+@with_logging_and_exceptions
 def generate_root_cause(checked_results, checked_contents, causal_parts_name,
                         customer_complaint, subject):
     """
@@ -62,6 +65,7 @@ def generate_root_cause(checked_results, checked_contents, causal_parts_name,
     return root_cause
 
 
+@with_logging_and_exceptions
 def main():
     # Step 1: Ensure root_cause column exists via migration
     print("=" * 60)

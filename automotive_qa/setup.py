@@ -1,9 +1,11 @@
+from core.decorators import with_logging_and_exceptions
 import os
 import sys
 import sqlite3
 import subprocess
 import requests
 
+@with_logging_and_exceptions
 def create_folders(project_root):
     """Create directory structure for the application."""
     dirs = [
@@ -16,6 +18,7 @@ def create_folders(project_root):
         os.makedirs(d, exist_ok=True)
     print("Folder structure verified.")
 
+@with_logging_and_exceptions
 def init_database(db_path, schema_path):
     """Executes schema.sql to initialize database tables and indexes."""
     print(f"Initializing database at: {db_path}")
@@ -35,22 +38,7 @@ def init_database(db_path, schema_path):
         sys.exit(1)
     finally:
         conn.close()
-
-# def download_spacy_model():
-#     """Downloads the English small spaCy model."""
-#     print("Downloading spaCy model 'en_core_web_sm'...")
-#     try:
-#         subprocess.run(
-#             [sys.executable, "-m", "spacy", "download", "en_core_web_sm"],
-#             check=True
-#         )
-#         print("spaCy model downloaded successfully.")
-#     except Exception as e:
-#         print(f"Failed to download spaCy model: {e}")
-#         print("Proceeding - NLP processor will fall back to regex-based extraction.")
-
-
-
+@with_logging_and_exceptions
 def run_initial_etl(excel_source, db_path, project_root):
     """Ingests the initial Excel data sheet and builds the vector database index."""
     print("Starting initial ETL Ingestion...")
@@ -63,8 +51,13 @@ def run_initial_etl(excel_source, db_path, project_root):
     
     # 1. Ingest Excel rows into database
     new_rows = ingest_excel(excel_source, db_path)
-    if not new_rows:
-        print("No new records ingested or records already existed.")
+    
+    # Check if both FAISS index and Retriever embeddings already exist
+    index_exists = os.path.exists(os.path.join(project_root, "data", "faiss_index.bin"))
+    embeddings_exist = os.path.exists(os.path.join(project_root, "data", "embeddings.npy"))
+    
+    if not new_rows and index_exists and embeddings_exist:
+        print("No new records ingested and vector indexes/embeddings already exist. Skipping rebuild.")
         return
         
     # 2. Build initial FAISS Index
@@ -112,7 +105,13 @@ def run_initial_etl(excel_source, db_path, project_root):
     embedder = VectorEmbedder()
     # Build and train FAISS index on 384-dimensional cosine metrics
     embedder.build_index(record_ids, texts, metadatas, nlist=100)
-    print("Initial ETL and FAISS index setup complete.")
+    
+    # Also generate the embeddings.npy & embedding_ids.json for the Retriever
+    print("Building Retriever embeddings (embeddings.npy)...")
+    from rag.pipeline import build_offline_embeddings
+    build_offline_embeddings(db_path)
+    
+    print("Initial ETL, FAISS index, and Retriever embeddings setup complete.")
 
 if __name__ == "__main__":
     # Get absolute path to the directory containing setup.py (automotive_qa)
@@ -124,9 +123,9 @@ if __name__ == "__main__":
     model_dir = os.path.join(project_root, "models")
     
     # Check if ftir_dummy.xlsx exists in repository root or package folder
-    excel_source = os.path.join(repo_root, "ftir_dummy.xlsx")
+    excel_source = os.path.join(repo_root, "synthetic_ftir_data_v3.xlsx")
     if not os.path.exists(excel_source):
-        excel_source = os.path.join(project_root, "ftir_dummy.xlsx")
+        excel_source = os.path.join(project_root, "synthetic_ftir_data_v3.xlsx")
             
     print(f"Detected excel source path: {excel_source}")
     

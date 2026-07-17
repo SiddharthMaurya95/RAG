@@ -1,5 +1,7 @@
 import numpy as np
+from core.decorators import with_logging_and_exceptions
 
+@with_logging_and_exceptions
 def compute_cosine_similarity(query_embedding: np.ndarray, candidate_embeddings: np.ndarray) -> np.ndarray:
     """
     Computes vectorized cosine similarity between a single query embedding 

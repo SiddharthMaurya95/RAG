@@ -4,12 +4,14 @@ import os
 
 sys.path.append(os.path.abspath("."))
 
+from core.decorators import with_logging_and_exceptions
 from core.router import QueryRouter
 
 # Location: automotive_qa/scratch_test.py
 
 # Ensure we can import from core and analytics
 
+@with_logging_and_exceptions
 def main():
     router = QueryRouter()
     

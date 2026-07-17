@@ -8,6 +8,8 @@ from rag.embedding_service import EmbeddingService
 from rag.similarity import compute_cosine_similarity
 from core.paths import get_db_path, get_project_root
 
+from core.decorators import with_logging_and_exceptions
+
 class Retriever:
     THRESHOLD_LADDER = (0.40, 0.50, 0.60, 0.70, 0.80, 0.90)
 
@@ -45,6 +47,7 @@ class Retriever:
             return similarities, self.THRESHOLD_LADDER[0]
         return best_similarities, best_threshold
 
+    @with_logging_and_exceptions
     def retrieve(self, query: str, threshold: float | None = None,
                  parsed_query: dict | None = None, tracker=None) -> dict:
         """

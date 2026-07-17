@@ -1,0 +1,966 @@
+2026-07-16 11:57:28,854 - __main__ - INFO - Application Started
+2026-07-16 11:57:39,906 - llm.client - INFO - Local GGUF model loaded from C:\Users\maury\OneDrive\Documents\Internship\RAG\automotive_qa\models\Qwen2.5-7B-Instruct-Q4_K_M.gguf on GPU.
+2026-07-16 11:57:43,736 - __main__ - INFO - Application Started
+2026-07-16 11:57:44,074 - __main__ - INFO - Application Started
+2026-07-16 11:59:05,158 - __main__ - INFO - Application Started
+2026-07-16 11:59:05,413 - __main__ - INFO - Application Started
+2026-07-16 11:59:05,466 - core.router - INFO - QueryRouter dispatching query: 'give top 10 failed parts with reasons on graph' (user_id=1, override_intent=None)
+2026-07-16 11:59:05,480 - nlp.pipeline - INFO - NLPProcessor starting to parse query: 'give top 10 failed parts with reasons on graph'
+2026-07-16 11:59:20,395 - nlp.pipeline - INFO - spaCy model loaded or verified.
+2026-07-16 11:59:20,395 - nlp.pipeline - INFO - Query classified with intent 'ANALYTICS' (score: 1.0)
+2026-07-16 11:59:20,445 - nlp.pipeline - INFO - Extracted entities: {'TROUBLE_CODE': [], 'PRODUCT_MODEL': [], 'SALES_MODEL': ['TOP'], 'COUNTRY': [], 'VIN': [], 'FTIR_NO': []}
+2026-07-16 11:59:20,448 - nlp.pipeline - INFO - Extracted filters: {'limit': 10}
+2026-07-16 11:59:20,448 - core.router - INFO - Routed Query: 'give top 10 failed parts with reasons on graph' | Selected Intent: ANALYTICS (has_col_ref=True)
+2026-07-16 11:59:20,449 - core.router - INFO - Routing query to handler for intent: ANALYTICS
+2026-07-16 11:59:20,458 - analytics.engine - INFO - AnalyticsEngine starting query_via_llm for: 'give top 10 failed parts with reasons on graph'
+2026-07-16 11:59:20,470 - analytics.engine - INFO - Extracting intents via intent_engine for SQL generation.
+2026-07-16 11:59:21,227 - analytics.intent_classifier - INFO - Hybrid Extraction Results:
+--- HYBRID EXTRACTION ---
+Intents: ['ranking']
+KPIs: []
+Filters: []
+Aggregations: []
+Confidence Score: 0.3
+
+2026-07-16 11:59:21,227 - analytics.intent_classifier - INFO - Running LLM extraction for comparison
+2026-07-16 11:59:30,842 - analytics.intent_classifier - INFO - LLM Extraction Results:
+--- LLM EXTRACTION ---
+Intents: ['ranking']
+KPIs: ['count']
+Filters: []
+Aggregations: ['part', 'reason']
+Confidence Score: 0.8
+
+2026-07-16 11:59:30,843 - analytics.intent_classifier - INFO - Intent classification complete with merged final confidence 0.8
+2026-07-16 11:59:30,846 - analytics.engine - INFO - Invoking LLM for SQL generation (Attempt 1)
+2026-07-16 12:00:15,156 - analytics.engine - INFO - Generated and parsed Dynamic LLM SQL query (Attempt 1):
+SELECT causal_parts_name, COUNT(*) as count, GROUP_CONCAT(reason_not_sbpr) as reasons FROM records WHERE is_resolved = 1 GROUP BY causal_parts_name ORDER BY count DESC LIMIT 10
+2026-07-16 12:00:15,236 - analytics.engine - INFO - Successfully executed LLM SQL query.
+2026-07-16 12:00:15,247 - core.router - INFO - Successfully executed LLM-generated SQL query from AnalyticsEngine.
+2026-07-16 12:00:24,315 - core.router - INFO - Query processing completed successfully.
+2026-07-16 12:00:24,778 - __main__ - INFO - Application Started
+2026-07-16 12:07:07,918 - __main__ - INFO - Application Started
+2026-07-16 12:07:15,292 - llm.client - INFO - Local GGUF model loaded from C:\Users\maury\OneDrive\Documents\Internship\RAG\automotive_qa\models\Qwen2.5-7B-Instruct-Q4_K_M.gguf on GPU.
+2026-07-16 12:07:18,656 - __main__ - INFO - Application Started
+2026-07-16 12:07:18,838 - core.router - INFO - QueryRouter dispatching query: 'give top 10 failed parts with reasons on graph' (user_id=1, override_intent=None)
+2026-07-16 12:07:18,845 - core.router - INFO - Cache HIT for query: 'give top 10 failed parts with reasons on graph'
+2026-07-16 12:07:19,153 - __main__ - INFO - Application Started
+2026-07-16 12:07:28,673 - __main__ - INFO - Application Started
+2026-07-16 12:07:28,720 - core.router - INFO - QueryRouter dispatching query: 'give me entire ftir data' (user_id=1, override_intent=ANALYTICS)
+2026-07-16 12:07:28,721 - nlp.pipeline - INFO - NLPProcessor starting to parse query: 'give me entire ftir data'
+2026-07-16 12:07:35,845 - nlp.pipeline - INFO - spaCy model loaded or verified.
+2026-07-16 12:07:35,845 - nlp.pipeline - INFO - Query classified with intent 'ANALYTICS' (score: 1.0)
+2026-07-16 12:07:35,859 - nlp.pipeline - INFO - Extracted entities: {'TROUBLE_CODE': [], 'PRODUCT_MODEL': [], 'SALES_MODEL': [], 'COUNTRY': [], 'VIN': [], 'FTIR_NO': []}
+2026-07-16 12:07:35,862 - nlp.pipeline - INFO - Extracted filters: {'limit': 5}
+2026-07-16 12:07:35,862 - core.router - INFO - Routed Query: 'give me entire ftir data' | Selected Intent: ANALYTICS (has_col_ref=True)
+2026-07-16 12:07:35,864 - core.router - INFO - Routing query to handler for intent: ANALYTICS
+2026-07-16 12:07:35,874 - analytics.engine - INFO - AnalyticsEngine starting query_via_llm for: 'give me entire ftir data'
+2026-07-16 12:07:35,880 - analytics.engine - INFO - Extracting intents via intent_engine for SQL generation.
+2026-07-16 12:07:36,549 - analytics.intent_classifier - INFO - Hybrid Extraction Results:
+--- HYBRID EXTRACTION ---
+Intents: []
+KPIs: []
+Filters: []
+Aggregations: []
+Confidence Score: 0
+
+2026-07-16 12:07:36,549 - analytics.intent_classifier - INFO - Running LLM extraction for comparison
+2026-07-16 12:07:42,107 - analytics.intent_classifier - INFO - LLM Extraction Results:
+--- LLM EXTRACTION ---
+Intents: ['summary']
+KPIs: ['resolution']
+Filters: []
+Aggregations: []
+Confidence Score: 0.6
+
+2026-07-16 12:07:42,108 - analytics.intent_classifier - INFO - Intent classification complete with merged final confidence 0.6
+2026-07-16 12:07:42,111 - analytics.engine - INFO - Invoking LLM for SQL generation (Attempt 1)
+2026-07-16 12:07:59,888 - analytics.engine - INFO - Generated and parsed Dynamic LLM SQL query (Attempt 1):
+SELECT * FROM records
+2026-07-16 12:07:59,930 - analytics.engine - INFO - Successfully executed LLM SQL query.
+2026-07-16 12:07:59,936 - core.router - INFO - Successfully executed LLM-generated SQL query from AnalyticsEngine.
+2026-07-16 12:08:03,620 - core.router - INFO - Query processing completed successfully.
+2026-07-16 12:08:04,044 - __main__ - INFO - Application Started
+2026-07-16 12:08:54,984 - core.decorators - INFO - Starting create_folders
+2026-07-16 12:08:54,986 - core.decorators - INFO - Completed create_folders successfully.
+2026-07-16 12:08:54,987 - core.decorators - INFO - Starting init_database
+2026-07-16 12:08:55,052 - core.decorators - INFO - Completed init_database successfully.
+2026-07-16 12:08:55,053 - core.decorators - INFO - Starting run_initial_etl
+2026-07-16 12:10:37,546 - core.decorators - INFO - Completed run_initial_etl successfully.
+2026-07-16 12:12:45,624 - core.decorators - INFO - Starting create_folders
+2026-07-16 12:12:45,626 - core.decorators - INFO - Completed create_folders successfully.
+2026-07-16 12:12:45,627 - core.decorators - INFO - Starting init_database
+2026-07-16 12:12:45,651 - core.decorators - INFO - Completed init_database successfully.
+2026-07-16 12:12:45,652 - core.decorators - INFO - Starting run_initial_etl
+2026-07-16 12:13:34,714 - core.decorators - INFO - Completed run_initial_etl successfully.
+2026-07-16 12:13:46,455 - __main__ - INFO - Application Started
+2026-07-16 12:13:54,997 - llm.client - INFO - Local GGUF model loaded from C:\Users\maury\OneDrive\Documents\Internship\RAG\automotive_qa\models\Qwen2.5-7B-Instruct-Q4_K_M.gguf on GPU.
+2026-07-16 12:13:58,380 - __main__ - INFO - Application Started
+2026-07-16 12:13:58,507 - core.router - INFO - QueryRouter dispatching query: 'give top 10 failed parts with reasons on graph' (user_id=1, override_intent=None)
+2026-07-16 12:13:58,515 - core.router - INFO - Cache HIT for query: 'give top 10 failed parts with reasons on graph'
+2026-07-16 12:13:58,516 - core.router - INFO - QueryRouter dispatching query: 'give me entire ftir data' (user_id=1, override_intent=None)
+2026-07-16 12:13:58,519 - core.router - INFO - Cache HIT for query: 'give me entire ftir data'
+2026-07-16 12:13:58,737 - __main__ - INFO - Application Started
+2026-07-16 12:14:06,607 - __main__ - INFO - Application Started
+2026-07-16 12:14:06,679 - core.router - INFO - QueryRouter dispatching query: '
+give me entire ftir data' (user_id=1, override_intent=ANALYTICS)
+2026-07-16 12:14:06,681 - nlp.pipeline - INFO - NLPProcessor starting to parse query: '
+give me entire ftir data'
+2026-07-16 12:14:13,634 - nlp.pipeline - INFO - spaCy model loaded or verified.
+2026-07-16 12:14:13,635 - nlp.pipeline - INFO - Query classified with intent 'ANALYTICS' (score: 1.0)
+2026-07-16 12:14:13,693 - nlp.pipeline - INFO - Extracted entities: {'TROUBLE_CODE': [], 'PRODUCT_MODEL': [], 'SALES_MODEL': [], 'COUNTRY': [], 'VIN': [], 'FTIR_NO': []}
+2026-07-16 12:14:13,696 - nlp.pipeline - INFO - Extracted filters: {'limit': 5}
+2026-07-16 12:14:13,697 - core.router - INFO - Routed Query: '
+give me entire ftir data' | Selected Intent: ANALYTICS (has_col_ref=True)
+2026-07-16 12:14:13,698 - core.router - INFO - Routing query to handler for intent: ANALYTICS
+2026-07-16 12:14:13,706 - analytics.engine - INFO - AnalyticsEngine starting query_via_llm for: '
+give me entire ftir data'
+2026-07-16 12:14:13,711 - analytics.engine - INFO - Extracting intents via intent_engine for SQL generation.
+2026-07-16 12:14:14,510 - analytics.intent_classifier - INFO - Hybrid Extraction Results:
+--- HYBRID EXTRACTION ---
+Intents: []
+KPIs: []
+Filters: []
+Aggregations: []
+Confidence Score: 0
+
+2026-07-16 12:14:14,510 - analytics.intent_classifier - INFO - Running LLM extraction for comparison
+2026-07-16 12:14:22,134 - analytics.intent_classifier - INFO - LLM Extraction Results:
+--- LLM EXTRACTION ---
+Intents: ['summary']
+KPIs: ['resolution']
+Filters: []
+Aggregations: []
+Confidence Score: 0.6
+
+2026-07-16 12:14:22,134 - analytics.intent_classifier - INFO - Intent classification complete with merged final confidence 0.6
+2026-07-16 12:14:22,137 - analytics.engine - INFO - Invoking LLM for SQL generation (Attempt 1)
+2026-07-16 12:14:55,225 - analytics.engine - INFO - Generated and parsed Dynamic LLM SQL query (Attempt 1):
+SELECT * FROM records
+2026-07-16 12:14:55,372 - analytics.engine - INFO - Successfully executed LLM SQL query.
+2026-07-16 12:14:55,378 - core.router - INFO - Successfully executed LLM-generated SQL query from AnalyticsEngine.
+2026-07-16 12:14:55,645 - core.router - INFO - Query processing completed successfully.
+2026-07-16 12:16:59,267 - __main__ - INFO - Application Started
+2026-07-16 12:17:46,447 - __main__ - INFO - Application Started
+2026-07-16 12:17:46,860 - __main__ - INFO - Application Started
+2026-07-16 12:17:51,467 - __main__ - INFO - Application Started
+2026-07-16 12:17:51,519 - core.router - INFO - QueryRouter dispatching query: 'give top 10 failed parts with reasons on graph' (user_id=1, override_intent=None)
+2026-07-16 12:17:51,523 - core.router - INFO - Cache HIT for query: 'give top 10 failed parts with reasons on graph'
+2026-07-16 12:17:51,524 - core.router - INFO - QueryRouter dispatching query: 'give me entire ftir data' (user_id=1, override_intent=None)
+2026-07-16 12:17:51,527 - core.router - INFO - Cache HIT for query: 'give me entire ftir data'
+2026-07-16 12:17:51,527 - core.router - INFO - QueryRouter dispatching query: '
+give me entire ftir data' (user_id=1, override_intent=None)
+2026-07-16 12:17:51,694 - core.router - INFO - Cache HIT for query: '
+give me entire ftir data'
+2026-07-16 12:17:52,107 - __main__ - INFO - Application Started
+2026-07-16 12:22:21,005 - __main__ - INFO - Application Started
+2026-07-16 12:22:21,430 - __main__ - INFO - Application Started
+2026-07-16 12:25:25,430 - __main__ - INFO - Application Started
+2026-07-16 12:25:25,487 - core.router - INFO - QueryRouter dispatching query: '
+give me monthly trend for nepal' (user_id=1, override_intent=None)
+2026-07-16 12:25:25,488 - nlp.pipeline - INFO - NLPProcessor starting to parse query: '
+give me monthly trend for nepal'
+2026-07-16 12:25:25,488 - nlp.pipeline - INFO - spaCy model loaded or verified.
+2026-07-16 12:25:25,489 - nlp.pipeline - INFO - Query classified with intent 'ANALYTICS' (score: 1.0)
+2026-07-16 12:25:25,565 - nlp.pipeline - INFO - Extracted entities: {'TROUBLE_CODE': [], 'PRODUCT_MODEL': [], 'SALES_MODEL': ['FOR'], 'COUNTRY': ['Nepal'], 'VIN': [], 'FTIR_NO': []}
+2026-07-16 12:25:25,568 - nlp.pipeline - INFO - Extracted filters: {'limit': 5}
+2026-07-16 12:25:25,568 - core.router - INFO - Routed Query: '
+give me monthly trend for nepal' | Selected Intent: ANALYTICS (has_col_ref=True)
+2026-07-16 12:25:25,569 - core.router - INFO - Routing query to handler for intent: ANALYTICS
+2026-07-16 12:25:25,578 - analytics.engine - INFO - AnalyticsEngine starting query_via_llm for: '
+give me monthly trend for nepal'
+2026-07-16 12:25:25,579 - analytics.engine - INFO - Extracting intents via intent_engine for SQL generation.
+2026-07-16 12:25:26,511 - analytics.intent_classifier - INFO - Hybrid Extraction Results:
+--- HYBRID EXTRACTION ---
+Intents: ['trend']
+KPIs: []
+Filters: ["outbreak_country = 'Nepal'"]
+Aggregations: ['group by report_month']
+Confidence Score: 0.7
+
+2026-07-16 12:25:26,511 - analytics.intent_classifier - INFO - Running LLM extraction for comparison
+2026-07-16 12:25:36,746 - analytics.intent_classifier - INFO - LLM Extraction Results:
+--- LLM EXTRACTION ---
+Intents: ['trend']
+KPIs: ['resolution']
+Filters: ["country = 'Nepal'"]
+Aggregations: ['MONTH']
+Confidence Score: 1.0
+
+2026-07-16 12:25:36,746 - analytics.intent_classifier - INFO - Intent classification complete with merged final confidence 1.0
+2026-07-16 12:25:36,749 - analytics.engine - INFO - Invoking LLM for SQL generation (Attempt 1)
+2026-07-16 12:26:18,282 - analytics.engine - INFO - Generated and parsed Dynamic LLM SQL query (Attempt 1):
+SELECT report_month, COUNT(*) AS count FROM records WHERE LOWER(outbreak_country) LIKE '%nepal%' GROUP BY report_month ORDER BY report_month
+2026-07-16 12:26:18,307 - analytics.engine - INFO - Successfully executed LLM SQL query.
+2026-07-16 12:26:18,312 - core.router - INFO - Successfully executed LLM-generated SQL query from AnalyticsEngine.
+2026-07-16 12:26:18,338 - core.router - INFO - Query processing completed successfully.
+2026-07-16 12:26:39,122 - __main__ - INFO - Application Started
+2026-07-16 12:39:58,288 - __main__ - INFO - Application Started
+2026-07-16 12:40:02,118 - __main__ - INFO - Application Started
+2026-07-16 12:40:03,717 - __main__ - INFO - Application Started
+2026-07-16 12:40:03,909 - core.router - INFO - QueryRouter dispatching query: 'give me pie chart all the unique ftir related to noise handled by different department' (user_id=1, override_intent=SEARCH)
+2026-07-16 12:40:03,910 - nlp.pipeline - INFO - NLPProcessor starting to parse query: 'give me pie chart all the unique ftir related to noise handled by different department'
+2026-07-16 12:40:03,910 - nlp.pipeline - INFO - spaCy model loaded or verified.
+2026-07-16 12:40:03,911 - nlp.pipeline - INFO - Query classified with intent 'ANALYTICS' (score: 1.0)
+2026-07-16 12:40:03,969 - nlp.pipeline - INFO - Extracted entities: {'TROUBLE_CODE': [], 'PRODUCT_MODEL': [], 'SALES_MODEL': ['PIE', 'ALL', 'THE'], 'COUNTRY': [], 'VIN': [], 'FTIR_NO': []}
+2026-07-16 12:40:03,971 - nlp.pipeline - INFO - Extracted filters: {'limit': 5}
+2026-07-16 12:40:03,971 - core.router - INFO - Routed Query: 'give me pie chart all the unique ftir related to noise handled by different department' | Selected Intent: SEARCH (has_col_ref=True)
+2026-07-16 12:40:03,972 - core.router - INFO - Routing query to handler for intent: SEARCH
+2026-07-16 12:40:32,503 - analytics.engine - INFO - AnalyticsEngine starting query_via_llm for: 'give me pie chart all the unique ftir related to noise handled by different department'
+2026-07-16 12:40:32,504 - analytics.engine - INFO - Extracting intents via intent_engine for SQL generation.
+2026-07-16 12:40:33,475 - analytics.intent_classifier - INFO - Hybrid Extraction Results:
+--- HYBRID EXTRACTION ---
+Intents: []
+KPIs: []
+Filters: []
+Aggregations: []
+Confidence Score: 0
+
+2026-07-16 12:40:33,476 - analytics.intent_classifier - INFO - Running LLM extraction for comparison
+2026-07-16 12:40:42,961 - analytics.intent_classifier - INFO - LLM Extraction Results:
+--- LLM EXTRACTION ---
+Intents: ['distribution']
+KPIs: []
+Filters: ['ftir_related_to_noise']
+Aggregations: ['department']
+Confidence Score: 0.7
+
+2026-07-16 12:40:42,962 - analytics.intent_classifier - INFO - Intent classification complete with merged final confidence 0.7
+2026-07-16 12:40:42,962 - analytics.engine - INFO - Invoking LLM for SQL generation (Attempt 1)
+2026-07-16 12:41:25,861 - analytics.engine - INFO - Generated and parsed Dynamic LLM SQL query (Attempt 1):
+SELECT dept_of_action_judgement, COUNT(DISTINCT ftir_no) as count FROM records WHERE LOWER(subject) LIKE '%noise%' GROUP BY dept_of_action_judgement
+2026-07-16 12:41:25,919 - analytics.engine - INFO - Successfully executed LLM SQL query.
+2026-07-16 12:41:25,933 - core.router - INFO - Query processing completed successfully.
+2026-07-16 12:42:30,299 - __main__ - INFO - Application Started
+2026-07-16 13:02:18,450 - __main__ - INFO - Application Started
+2026-07-16 13:02:30,502 - llm.client - INFO - Local GGUF model loaded from C:\Users\maury\OneDrive\Documents\Internship\RAG\automotive_qa\models\Qwen2.5-7B-Instruct-Q4_K_M.gguf on GPU.
+2026-07-16 13:02:35,807 - __main__ - INFO - Application Started
+2026-07-16 13:02:36,033 - core.router - INFO - QueryRouter dispatching query: '
+give me monthly trend for nepal' (user_id=1, override_intent=None)
+2026-07-16 13:02:36,063 - core.router - INFO - Cache HIT for query: '
+give me monthly trend for nepal'
+2026-07-16 13:02:36,064 - core.router - INFO - QueryRouter dispatching query: 'give me pie chart all the unique ftir related to noise handled by different department' (user_id=1, override_intent=None)
+2026-07-16 13:02:36,078 - core.router - INFO - Cache HIT for query: 'give me pie chart all the unique ftir related to noise handled by different department'
+2026-07-16 13:02:36,264 - __main__ - INFO - Application Started
+2026-07-16 13:03:05,459 - __main__ - INFO - Application Started
+2026-07-16 13:03:05,639 - __main__ - INFO - Application Started
+2026-07-16 13:04:22,885 - __main__ - INFO - Application Started
+2026-07-16 13:04:26,940 - __main__ - INFO - Application Started
+2026-07-16 13:04:27,213 - __main__ - INFO - Application Started
+2026-07-16 13:08:43,889 - __main__ - INFO - Application Started
+2026-07-16 13:08:55,935 - __main__ - INFO - Application Started
+2026-07-16 13:08:59,839 - llm.client - INFO - Local GGUF model loaded from C:\Users\maury\OneDrive\Documents\Internship\RAG\automotive_qa\models\Qwen2.5-7B-Instruct-Q4_K_M.gguf on GPU.
+2026-07-16 13:09:09,117 - __main__ - INFO - Application Started
+2026-07-16 13:09:09,273 - __main__ - INFO - Application Started
+2026-07-16 13:11:30,195 - __main__ - INFO - Application Started
+2026-07-16 13:11:39,690 - __main__ - INFO - Application Started
+2026-07-16 13:11:43,361 - llm.client - INFO - Local GGUF model loaded from C:\Users\maury\OneDrive\Documents\Internship\RAG\automotive_qa\models\Qwen2.5-7B-Instruct-Q4_K_M.gguf on GPU.
+2026-07-16 13:11:46,625 - __main__ - INFO - Application Started
+2026-07-16 13:11:46,786 - __main__ - INFO - Application Started
+2026-07-16 13:13:25,951 - __main__ - INFO - Application Started
+2026-07-16 13:13:30,190 - __main__ - INFO - Application Started
+2026-07-16 13:13:30,309 - __main__ - INFO - Application Started
+2026-07-16 13:13:38,420 - __main__ - INFO - Application Started
+2026-07-16 13:13:38,454 - core.router - INFO - QueryRouter dispatching query: 'give me entire ftir' (user_id=1, override_intent=None)
+2026-07-16 13:13:38,454 - nlp.pipeline - INFO - NLPProcessor starting to parse query: 'give me entire ftir'
+2026-07-16 13:13:42,545 - nlp.pipeline - INFO - spaCy model loaded or verified.
+2026-07-16 13:13:42,545 - nlp.pipeline - INFO - Query classified with intent 'ANALYTICS' (score: 1.0)
+2026-07-16 13:13:42,584 - nlp.pipeline - INFO - Extracted entities: {'TROUBLE_CODE': [], 'PRODUCT_MODEL': [], 'SALES_MODEL': [], 'COUNTRY': [], 'VIN': [], 'FTIR_NO': []}
+2026-07-16 13:13:42,586 - nlp.pipeline - INFO - Extracted filters: {'limit': 5}
+2026-07-16 13:13:42,586 - core.router - INFO - Routed Query: 'give me entire ftir' | Selected Intent: ANALYTICS (has_col_ref=True)
+2026-07-16 13:13:42,586 - core.router - INFO - Routing query to handler for intent: ANALYTICS
+2026-07-16 13:13:42,591 - analytics.engine - INFO - AnalyticsEngine starting query_via_llm for: 'give me entire ftir'
+2026-07-16 13:13:42,594 - analytics.engine - INFO - Extracting intents via intent_engine for SQL generation.
+2026-07-16 13:13:43,075 - analytics.intent_classifier - INFO - Hybrid Extraction Results:
+--- HYBRID EXTRACTION ---
+Intents: []
+KPIs: []
+Filters: []
+Aggregations: []
+Confidence Score: 0
+
+2026-07-16 13:13:43,075 - analytics.intent_classifier - INFO - Running LLM extraction for comparison
+2026-07-16 13:13:48,850 - analytics.intent_classifier - INFO - LLM Extraction Results:
+--- LLM EXTRACTION ---
+Intents: ['summary']
+KPIs: []
+Filters: []
+Aggregations: []
+Confidence Score: 0.3
+
+2026-07-16 13:13:48,850 - analytics.intent_classifier - INFO - Intent classification complete with merged final confidence 0.3
+2026-07-16 13:13:48,852 - analytics.engine - INFO - Invoking LLM for SQL generation (Attempt 1)
+2026-07-16 13:14:06,761 - analytics.engine - INFO - Generated and parsed Dynamic LLM SQL query (Attempt 1):
+SELECT * FROM records
+2026-07-16 13:14:07,075 - analytics.engine - INFO - Successfully executed LLM SQL query.
+2026-07-16 13:14:07,078 - core.router - INFO - Successfully executed LLM-generated SQL query from AnalyticsEngine.
+2026-07-16 13:14:07,280 - core.router - INFO - Query processing completed successfully.
+2026-07-16 13:15:21,938 - __main__ - INFO - Application Started
+2026-07-16 13:15:35,730 - __main__ - INFO - Application Started
+2026-07-16 13:15:40,212 - llm.client - INFO - Local GGUF model loaded from C:\Users\maury\OneDrive\Documents\Internship\RAG\automotive_qa\models\Qwen2.5-7B-Instruct-Q4_K_M.gguf on GPU.
+2026-07-16 13:15:42,888 - __main__ - INFO - Application Started
+2026-07-16 13:15:43,057 - core.router - INFO - QueryRouter dispatching query: 'give me entire ftir' (user_id=1, override_intent=None)
+2026-07-16 13:15:43,697 - core.router - INFO - Cache HIT for query: 'give me entire ftir'
+2026-07-16 13:15:43,814 - __main__ - INFO - Application Started
+2026-07-16 13:15:53,624 - __main__ - INFO - Application Started
+2026-07-16 13:15:53,818 - __main__ - INFO - Application Started
+2026-07-16 13:16:33,655 - __main__ - INFO - Application Started
+2026-07-16 13:16:33,766 - __main__ - INFO - Application Started
+2026-07-16 13:16:34,868 - __main__ - INFO - Application Started
+2026-07-16 13:16:34,969 - __main__ - INFO - Application Started
+2026-07-16 13:16:36,370 - __main__ - INFO - Application Started
+2026-07-16 13:16:36,471 - __main__ - INFO - Application Started
+2026-07-16 13:18:22,225 - __main__ - INFO - Application Started
+2026-07-16 13:18:22,344 - __main__ - INFO - Application Started
+2026-07-16 15:03:26,897 - __main__ - INFO - Application Started
+2026-07-16 15:03:39,956 - llm.client - INFO - Local GGUF model loaded from C:\Users\maury\OneDrive\Documents\Internship\RAG\automotive_qa\models\Qwen2.5-7B-Instruct-Q4_K_M.gguf on GPU.
+2026-07-16 15:03:45,500 - __main__ - INFO - Application Started
+2026-07-16 15:03:45,969 - __main__ - INFO - Application Started
+2026-07-16 15:04:29,584 - __main__ - INFO - Application Started
+2026-07-16 15:04:29,690 - core.router - INFO - QueryRouter dispatching query: 'give me monthly trend of nepal' (user_id=1, override_intent=None)
+2026-07-16 15:04:29,691 - nlp.pipeline - INFO - NLPProcessor starting to parse query: 'give me monthly trend of nepal'
+2026-07-16 15:04:39,344 - nlp.pipeline - INFO - spaCy model loaded or verified.
+2026-07-16 15:04:39,345 - nlp.pipeline - INFO - Query classified with intent 'ANALYTICS' (score: 1.0)
+2026-07-16 15:04:39,423 - nlp.pipeline - INFO - Extracted entities: {'TROUBLE_CODE': [], 'PRODUCT_MODEL': [], 'SALES_MODEL': [], 'COUNTRY': ['Nepal'], 'VIN': [], 'FTIR_NO': []}
+2026-07-16 15:04:39,426 - nlp.pipeline - INFO - Extracted filters: {'limit': 5}
+2026-07-16 15:04:39,427 - core.router - INFO - Routed Query: 'give me monthly trend of nepal' | Selected Intent: ANALYTICS (has_col_ref=True)
+2026-07-16 15:04:39,427 - core.router - INFO - Routing query to handler for intent: ANALYTICS
+2026-07-16 15:04:39,437 - analytics.engine - INFO - AnalyticsEngine starting query_via_llm for: 'give me monthly trend of nepal'
+2026-07-16 15:04:39,442 - analytics.engine - INFO - Extracting intents via intent_engine for SQL generation.
+2026-07-16 15:04:40,324 - analytics.intent_classifier - INFO - Hybrid Extraction Results:
+--- HYBRID EXTRACTION ---
+Intents: ['trend']
+KPIs: []
+Filters: ["outbreak_country = 'Nepal'"]
+Aggregations: ['group by report_month']
+Confidence Score: 0.7
+
+2026-07-16 15:04:40,325 - analytics.intent_classifier - INFO - Running LLM extraction for comparison
+2026-07-16 15:04:47,736 - analytics.intent_classifier - INFO - LLM Extraction Results:
+--- LLM EXTRACTION ---
+Intents: ['trend']
+KPIs: ['resolution']
+Filters: ["country = 'Nepal'"]
+Aggregations: ['MONTH']
+Confidence Score: 1.0
+
+2026-07-16 15:04:47,737 - analytics.intent_classifier - INFO - Intent classification complete with merged final confidence 1.0
+2026-07-16 15:04:47,740 - analytics.engine - INFO - Invoking LLM for SQL generation (Attempt 1)
+2026-07-16 15:05:15,217 - analytics.engine - INFO - Generated and parsed Dynamic LLM SQL query (Attempt 1):
+SELECT report_month, COUNT(*) AS monthly_count FROM records WHERE LOWER(outbreak_country) LIKE '%nepal%' GROUP BY report_month ORDER BY report_month
+2026-07-16 15:05:15,303 - analytics.engine - INFO - Successfully executed LLM SQL query.
+2026-07-16 15:05:15,307 - core.router - INFO - Successfully executed LLM-generated SQL query from AnalyticsEngine.
+2026-07-16 15:05:15,373 - core.router - INFO - Query processing completed successfully.
+2026-07-16 15:05:25,016 - __main__ - INFO - Application Started
+2026-07-16 15:36:30,708 - __main__ - INFO - Application Started
+2026-07-16 15:36:31,907 - core.decorators - INFO - Starting load_model
+2026-07-16 15:36:39,781 - llm.client - INFO - Local GGUF model loaded from C:\Users\maury\OneDrive\Documents\Internship\RAG\automotive_qa\models\Qwen2.5-7B-Instruct-Q4_K_M.gguf on GPU.
+2026-07-16 15:36:39,781 - core.decorators - INFO - Completed load_model successfully.
+2026-07-16 15:36:44,236 - __main__ - INFO - Application Started
+2026-07-16 15:36:44,389 - core.router - INFO - QueryRouter dispatching query: 'give me monthly trend of nepal' (user_id=1, override_intent=None)
+2026-07-16 15:36:44,404 - core.router - INFO - Cache HIT for query: 'give me monthly trend of nepal'
+2026-07-16 15:36:44,558 - __main__ - INFO - Application Started
+2026-07-16 15:55:39,386 - core.decorators - INFO - Starting create_folders
+2026-07-16 15:55:39,388 - core.decorators - INFO - Completed create_folders successfully.
+2026-07-16 15:55:39,388 - core.decorators - INFO - Starting init_database
+2026-07-16 15:55:39,398 - core.decorators - INFO - Completed init_database successfully.
+2026-07-16 15:55:39,398 - core.decorators - INFO - Starting run_initial_etl
+2026-07-16 15:55:40,822 - core.decorators - INFO - Starting ingest_excel
+2026-07-16 15:55:43,845 - core.decorators - INFO - Completed ingest_excel successfully.
+2026-07-16 15:55:43,845 - core.decorators - INFO - Completed run_initial_etl successfully.
+2026-07-16 15:55:56,017 - core.decorators - INFO - Starting create_folders
+2026-07-16 15:55:56,020 - core.decorators - INFO - Completed create_folders successfully.
+2026-07-16 15:55:56,020 - core.decorators - INFO - Starting init_database
+2026-07-16 15:55:56,027 - core.decorators - INFO - Completed init_database successfully.
+2026-07-16 15:55:56,027 - core.decorators - INFO - Starting run_initial_etl
+2026-07-16 15:55:57,214 - core.decorators - INFO - Starting ingest_excel
+2026-07-16 15:56:00,274 - core.decorators - INFO - Completed ingest_excel successfully.
+2026-07-16 15:56:00,274 - core.decorators - INFO - Completed run_initial_etl successfully.
+2026-07-16 16:08:04,099 - core.decorators - INFO - Starting create_folders
+2026-07-16 16:08:04,101 - core.decorators - INFO - Completed create_folders successfully.
+2026-07-16 16:08:04,101 - core.decorators - INFO - Starting init_database
+2026-07-16 16:08:04,110 - core.decorators - INFO - Completed init_database successfully.
+2026-07-16 16:08:04,111 - core.decorators - INFO - Starting run_initial_etl
+2026-07-16 16:08:05,829 - core.decorators - INFO - Starting ingest_excel
+2026-07-16 16:08:08,905 - core.decorators - INFO - Completed ingest_excel successfully.
+2026-07-16 16:08:08,905 - core.decorators - INFO - Completed run_initial_etl successfully.
+2026-07-16 16:12:49,400 - __main__ - INFO - Application Started
+2026-07-16 16:12:50,563 - core.decorators - INFO - Starting load_model
+2026-07-16 16:12:59,485 - llm.client - INFO - Local GGUF model loaded from C:\Users\maury\OneDrive\Documents\Internship\RAG\automotive_qa\models\Qwen2.5-7B-Instruct-Q4_K_M.gguf on GPU.
+2026-07-16 16:12:59,486 - core.decorators - INFO - Completed load_model successfully.
+2026-07-16 16:13:04,339 - __main__ - INFO - Application Started
+2026-07-16 16:13:04,534 - core.router - INFO - QueryRouter dispatching query: 'give me monthly trend of nepal' (user_id=1, override_intent=None)
+2026-07-16 16:13:04,550 - core.router - INFO - Cache HIT for query: 'give me monthly trend of nepal'
+2026-07-16 16:13:04,718 - __main__ - INFO - Application Started
+2026-07-16 16:13:25,919 - __main__ - INFO - Application Started
+2026-07-16 16:13:26,123 - core.router - INFO - QueryRouter dispatching query: 'give me a pie chart on top 10 dealers' (user_id=1, override_intent=ANALYTICS)
+2026-07-16 16:13:26,124 - nlp.pipeline - INFO - NLPProcessor starting to parse query: 'give me a pie chart on top 10 dealers'
+2026-07-16 16:13:36,128 - nlp.pipeline - INFO - spaCy model loaded or verified.
+2026-07-16 16:13:36,128 - nlp.pipeline - INFO - Query classified with intent 'ANALYTICS' (score: 1.0)
+2026-07-16 16:13:36,237 - nlp.pipeline - INFO - Extracted entities: {'TROUBLE_CODE': [], 'PRODUCT_MODEL': [], 'SALES_MODEL': ['PIE', 'TOP'], 'COUNTRY': [], 'VIN': [], 'FTIR_NO': []}
+2026-07-16 16:13:36,240 - nlp.pipeline - INFO - Extracted filters: {'limit': 10}
+2026-07-16 16:13:36,240 - core.router - INFO - Routed Query: 'give me a pie chart on top 10 dealers' | Selected Intent: ANALYTICS (has_col_ref=True)
+2026-07-16 16:13:36,241 - core.router - INFO - Routing query to handler for intent: ANALYTICS
+2026-07-16 16:13:36,253 - analytics.engine - INFO - AnalyticsEngine starting query_via_llm for: 'give me a pie chart on top 10 dealers'
+2026-07-16 16:13:36,266 - core.router - WARNING - LLM-generated SQL failed or was invalid: unexpected indent (intent_classifier.py, line 192)
+2026-07-16 16:13:36,268 - core.decorators - INFO - Starting generate_summary
+2026-07-16 16:13:41,560 - core.decorators - INFO - Completed generate_summary successfully.
+2026-07-16 16:13:41,561 - core.router - INFO - Query processing completed successfully.
+2026-07-16 16:13:41,884 - __main__ - INFO - Application Started
+2026-07-16 16:14:59,884 - __main__ - INFO - Application Started
+2026-07-16 16:15:00,577 - __main__ - INFO - Application Started
+2026-07-16 16:15:02,827 - __main__ - INFO - Application Started
+2026-07-16 16:15:03,013 - core.router - INFO - QueryRouter dispatching query: '
+give me a pie chart on top 10 dealers' (user_id=1, override_intent=ANALYTICS)
+2026-07-16 16:15:03,014 - nlp.pipeline - INFO - NLPProcessor starting to parse query: '
+give me a pie chart on top 10 dealers'
+2026-07-16 16:15:03,015 - nlp.pipeline - INFO - spaCy model loaded or verified.
+2026-07-16 16:15:03,015 - nlp.pipeline - INFO - Query classified with intent 'ANALYTICS' (score: 1.0)
+2026-07-16 16:15:03,095 - nlp.pipeline - INFO - Extracted entities: {'TROUBLE_CODE': [], 'PRODUCT_MODEL': [], 'SALES_MODEL': ['PIE', 'TOP'], 'COUNTRY': [], 'VIN': [], 'FTIR_NO': []}
+2026-07-16 16:15:03,098 - nlp.pipeline - INFO - Extracted filters: {'limit': 10}
+2026-07-16 16:15:03,099 - core.router - INFO - Routed Query: '
+give me a pie chart on top 10 dealers' | Selected Intent: ANALYTICS (has_col_ref=True)
+2026-07-16 16:15:03,100 - core.router - INFO - Routing query to handler for intent: ANALYTICS
+2026-07-16 16:15:03,108 - analytics.engine - INFO - AnalyticsEngine starting query_via_llm for: '
+give me a pie chart on top 10 dealers'
+2026-07-16 16:15:03,114 - analytics.engine - INFO - Extracting intents via intent_engine for SQL generation.
+2026-07-16 16:15:03,115 - core.decorators - INFO - Starting build_intent_prompt
+2026-07-16 16:15:03,116 - core.decorators - INFO - Starting extract_hybrid
+2026-07-16 16:15:04,027 - core.decorators - INFO - Starting extract_with_rules
+2026-07-16 16:15:04,028 - core.decorators - INFO - Completed extract_with_rules successfully.
+2026-07-16 16:15:04,053 - core.decorators - INFO - Completed extract_hybrid successfully.
+2026-07-16 16:15:04,054 - analytics.intent_classifier - INFO - Hybrid Extraction Results:
+--- HYBRID EXTRACTION ---
+Intents: ['ranking']
+KPIs: []
+Filters: []
+Aggregations: ['group by reported_company']
+Confidence Score: 0.5
+
+2026-07-16 16:15:04,054 - analytics.intent_classifier - INFO - Hybrid confidence (0.5) below threshold (0.8). Running LLM extraction.
+2026-07-16 16:15:04,055 - core.decorators - INFO - Starting extract_with_llm
+2026-07-16 16:15:04,055 - core.decorators - INFO - Starting load_model
+2026-07-16 16:15:04,056 - core.decorators - INFO - Completed load_model successfully.
+2026-07-16 16:15:04,057 - core.decorators - INFO - Starting __call__
+2026-07-16 16:15:09,387 - core.decorators - INFO - Completed __call__ successfully.
+2026-07-16 16:15:09,388 - core.decorators - INFO - Completed extract_with_llm successfully.
+2026-07-16 16:15:09,388 - analytics.intent_classifier - INFO - LLM Extraction Results:
+--- LLM EXTRACTION ---
+Intents: ['ranking']
+KPIs: []
+Filters: []
+Aggregations: ['dealer']
+Confidence Score: 0.5
+
+2026-07-16 16:15:09,389 - analytics.intent_classifier - INFO - Intent classification complete with merged final confidence 0.5
+2026-07-16 16:15:09,389 - core.decorators - INFO - Completed build_intent_prompt successfully.
+2026-07-16 16:15:09,390 - core.decorators - INFO - Starting load_model
+2026-07-16 16:15:09,390 - core.decorators - INFO - Completed load_model successfully.
+2026-07-16 16:15:09,393 - analytics.engine - INFO - Invoking LLM for SQL generation (Attempt 1)
+2026-07-16 16:15:09,394 - core.decorators - INFO - Starting __call__
+2026-07-16 16:15:32,389 - core.decorators - INFO - Completed __call__ successfully.
+2026-07-16 16:15:32,390 - analytics.engine - INFO - Generated and parsed Dynamic LLM SQL query (Attempt 1):
+SELECT reported_company, COUNT(*) as count FROM records GROUP BY reported_company ORDER BY count DESC LIMIT 10
+2026-07-16 16:15:32,535 - analytics.engine - INFO - Successfully executed LLM SQL query.
+2026-07-16 16:15:32,544 - core.router - INFO - Successfully executed LLM-generated SQL query from AnalyticsEngine.
+2026-07-16 16:15:32,585 - core.decorators - INFO - Starting select_chart_type
+2026-07-16 16:15:32,587 - core.decorators - INFO - Completed select_chart_type successfully.
+2026-07-16 16:15:32,659 - core.router - INFO - Query processing completed successfully.
+2026-07-16 16:15:32,856 - core.decorators - INFO - Starting generator generate_insight
+2026-07-16 16:15:32,886 - core.decorators - INFO - Starting generator generate_chat_stream
+2026-07-16 16:16:05,274 - core.decorators - INFO - Completed generator generate_chat_stream successfully.
+2026-07-16 16:16:05,274 - core.decorators - INFO - Completed generator generate_insight successfully.
+2026-07-16 16:16:05,608 - __main__ - INFO - Application Started
+2026-07-16 16:16:12,688 - __main__ - INFO - Application Started
+2026-07-16 16:16:16,393 - __main__ - INFO - Application Started
+2026-07-16 16:16:51,582 - __main__ - INFO - Application Started
+2026-07-16 16:16:51,889 - core.router - INFO - QueryRouter dispatching query: 'give me a pie chart for all the issues related to noise and engine based on different departments' (user_id=1, override_intent=SEARCH)
+2026-07-16 16:16:51,890 - nlp.pipeline - INFO - NLPProcessor starting to parse query: 'give me a pie chart for all the issues related to noise and engine based on different departments'
+2026-07-16 16:16:51,891 - nlp.pipeline - INFO - spaCy model loaded or verified.
+2026-07-16 16:16:51,892 - nlp.pipeline - INFO - Query classified with intent 'ANALYTICS' (score: 1.0)
+2026-07-16 16:16:51,995 - nlp.pipeline - INFO - Extracted entities: {'TROUBLE_CODE': [], 'PRODUCT_MODEL': [], 'SALES_MODEL': ['PIE', 'FOR', 'ALL', 'THE', 'AND'], 'COUNTRY': [], 'VIN': [], 'FTIR_NO': []}
+2026-07-16 16:16:51,998 - nlp.pipeline - INFO - Extracted filters: {'limit': 5, 'segmentation': 'Engine'}
+2026-07-16 16:16:51,998 - core.router - INFO - Routed Query: 'give me a pie chart for all the issues related to noise and engine based on different departments' | Selected Intent: SEARCH (has_col_ref=True)
+2026-07-16 16:16:51,999 - core.router - INFO - Routing query to handler for intent: SEARCH
+2026-07-16 16:16:52,051 - core.decorators - INFO - Starting load_embeddings
+2026-07-16 16:16:52,072 - core.decorators - INFO - Completed load_embeddings successfully.
+2026-07-16 16:16:52,073 - core.decorators - INFO - Starting retrieve
+2026-07-16 16:16:52,282 - core.decorators - INFO - Starting get_embeddings
+2026-07-16 16:16:52,283 - core.decorators - INFO - Completed get_embeddings successfully.
+2026-07-16 16:16:52,326 - core.decorators - INFO - Starting encode
+2026-07-16 16:17:27,895 - core.decorators - INFO - Completed encode successfully.
+2026-07-16 16:17:27,905 - core.decorators - INFO - Starting compute_cosine_similarity
+2026-07-16 16:17:27,908 - core.decorators - INFO - Completed compute_cosine_similarity successfully.
+2026-07-16 16:17:28,028 - core.decorators - INFO - Completed retrieve successfully.
+2026-07-16 16:17:28,291 - core.decorators - INFO - Starting select_chart_type
+2026-07-16 16:17:28,293 - core.decorators - INFO - Completed select_chart_type successfully.
+2026-07-16 16:17:28,293 - analytics.engine - INFO - AnalyticsEngine starting query_via_llm for: 'give me a pie chart for all the issues related to noise and engine based on different departments'
+2026-07-16 16:17:28,294 - analytics.engine - INFO - Extracting intents via intent_engine for SQL generation.
+2026-07-16 16:17:28,294 - core.decorators - INFO - Starting build_intent_prompt
+2026-07-16 16:17:28,295 - core.decorators - INFO - Starting extract_hybrid
+2026-07-16 16:17:29,922 - core.decorators - INFO - Starting extract_with_rules
+2026-07-16 16:17:29,923 - core.decorators - INFO - Completed extract_with_rules successfully.
+2026-07-16 16:17:29,951 - core.decorators - INFO - Completed extract_hybrid successfully.
+2026-07-16 16:17:29,951 - analytics.intent_classifier - INFO - Hybrid Extraction Results:
+--- HYBRID EXTRACTION ---
+Intents: []
+KPIs: []
+Filters: []
+Aggregations: []
+Confidence Score: 0
+
+2026-07-16 16:17:29,952 - analytics.intent_classifier - INFO - Hybrid confidence (0) below threshold (0.8). Running LLM extraction.
+2026-07-16 16:17:29,953 - core.decorators - INFO - Starting extract_with_llm
+2026-07-16 16:17:29,953 - core.decorators - INFO - Starting load_model
+2026-07-16 16:17:29,954 - core.decorators - INFO - Completed load_model successfully.
+2026-07-16 16:17:29,954 - core.decorators - INFO - Starting __call__
+2026-07-16 16:17:37,734 - core.decorators - INFO - Completed __call__ successfully.
+2026-07-16 16:17:37,734 - core.decorators - INFO - Completed extract_with_llm successfully.
+2026-07-16 16:17:37,735 - analytics.intent_classifier - INFO - LLM Extraction Results:
+--- LLM EXTRACTION ---
+Intents: ['distribution']
+KPIs: []
+Filters: ["subject LIKE '%noise%'", "subject LIKE '%engine%'"]
+Aggregations: ['department']
+Confidence Score: 0.7
+
+2026-07-16 16:17:37,735 - analytics.intent_classifier - INFO - Intent classification complete with merged final confidence 0.7
+2026-07-16 16:17:37,736 - core.decorators - INFO - Completed build_intent_prompt successfully.
+2026-07-16 16:17:37,736 - core.decorators - INFO - Starting load_model
+2026-07-16 16:17:37,736 - core.decorators - INFO - Completed load_model successfully.
+2026-07-16 16:17:37,737 - analytics.engine - INFO - Invoking LLM for SQL generation (Attempt 1)
+2026-07-16 16:17:37,737 - core.decorators - INFO - Starting __call__
+2026-07-16 16:18:05,571 - core.decorators - INFO - Completed __call__ successfully.
+2026-07-16 16:18:05,572 - analytics.engine - INFO - Generated and parsed Dynamic LLM SQL query (Attempt 1):
+SELECT dept_of_action_judgement, COUNT(*) as count FROM records WHERE LOWER(subject) LIKE '%noise%' OR LOWER(subject) LIKE '%engine%' GROUP BY dept_of_action_judgement
+2026-07-16 16:18:05,637 - analytics.engine - INFO - Successfully executed LLM SQL query.
+2026-07-16 16:18:05,651 - core.decorators - INFO - Starting select_chart_type
+2026-07-16 16:18:05,651 - core.decorators - INFO - Completed select_chart_type successfully.
+2026-07-16 16:18:05,654 - core.router - INFO - Query processing completed successfully.
+2026-07-16 16:18:05,774 - core.decorators - INFO - Starting generator generate_insight
+2026-07-16 16:18:05,780 - core.decorators - INFO - Starting generator generate_chat_stream
+2026-07-16 16:18:23,354 - core.decorators - INFO - Completed generator generate_chat_stream successfully.
+2026-07-16 16:18:23,355 - core.decorators - INFO - Completed generator generate_insight successfully.
+2026-07-16 16:18:23,953 - __main__ - INFO - Application Started
+2026-07-16 16:20:56,897 - __main__ - INFO - Application Started
+2026-07-16 16:21:01,964 - __main__ - INFO - Application Started
+2026-07-16 16:21:22,157 - __main__ - INFO - Application Started
+2026-07-16 16:21:22,542 - core.router - INFO - QueryRouter dispatching query: 'give me monthly trend in nepal' (user_id=1, override_intent=ANALYTICS)
+2026-07-16 16:21:22,543 - nlp.pipeline - INFO - NLPProcessor starting to parse query: 'give me monthly trend in nepal'
+2026-07-16 16:21:22,543 - nlp.pipeline - INFO - spaCy model loaded or verified.
+2026-07-16 16:21:22,544 - nlp.pipeline - INFO - Query classified with intent 'ANALYTICS' (score: 1.0)
+2026-07-16 16:21:22,624 - nlp.pipeline - INFO - Extracted entities: {'TROUBLE_CODE': [], 'PRODUCT_MODEL': [], 'SALES_MODEL': [], 'COUNTRY': ['Nepal'], 'VIN': [], 'FTIR_NO': []}
+2026-07-16 16:21:22,627 - nlp.pipeline - INFO - Extracted filters: {'limit': 5}
+2026-07-16 16:21:22,627 - core.router - INFO - Routed Query: 'give me monthly trend in nepal' | Selected Intent: ANALYTICS (has_col_ref=True)
+2026-07-16 16:21:22,628 - core.router - INFO - Routing query to handler for intent: ANALYTICS
+2026-07-16 16:21:22,638 - analytics.engine - INFO - AnalyticsEngine starting query_via_llm for: 'give me monthly trend in nepal'
+2026-07-16 16:21:22,638 - analytics.engine - INFO - Extracting intents via intent_engine for SQL generation.
+2026-07-16 16:21:22,639 - core.decorators - INFO - Starting build_intent_prompt
+2026-07-16 16:21:22,640 - core.decorators - INFO - Starting extract_hybrid
+2026-07-16 16:21:23,558 - core.decorators - INFO - Starting extract_with_rules
+2026-07-16 16:21:23,560 - core.decorators - INFO - Completed extract_with_rules successfully.
+2026-07-16 16:21:23,571 - core.decorators - INFO - Completed extract_hybrid successfully.
+2026-07-16 16:21:23,571 - analytics.intent_classifier - INFO - Hybrid Extraction Results:
+--- HYBRID EXTRACTION ---
+Intents: ['trend']
+KPIs: []
+Filters: ["outbreak_country = 'Nepal'"]
+Aggregations: ['group by report_month']
+Confidence Score: 0.7
+
+2026-07-16 16:21:23,572 - analytics.intent_classifier - INFO - Hybrid confidence (0.7) below threshold (0.8). Running LLM extraction.
+2026-07-16 16:21:23,572 - core.decorators - INFO - Starting extract_with_llm
+2026-07-16 16:21:23,573 - core.decorators - INFO - Starting load_model
+2026-07-16 16:21:23,573 - core.decorators - INFO - Completed load_model successfully.
+2026-07-16 16:21:23,574 - core.decorators - INFO - Starting __call__
+2026-07-16 16:21:31,434 - core.decorators - INFO - Completed __call__ successfully.
+2026-07-16 16:21:31,434 - core.decorators - INFO - Completed extract_with_llm successfully.
+2026-07-16 16:21:31,435 - analytics.intent_classifier - INFO - LLM Extraction Results:
+--- LLM EXTRACTION ---
+Intents: ['trend']
+KPIs: ['resolution']
+Filters: ["country = 'Nepal'"]
+Aggregations: ['MONTH']
+Confidence Score: 1.0
+
+2026-07-16 16:21:31,435 - analytics.intent_classifier - INFO - Intent classification complete with merged final confidence 1.0
+2026-07-16 16:21:31,436 - core.decorators - INFO - Completed build_intent_prompt successfully.
+2026-07-16 16:21:31,436 - core.decorators - INFO - Starting load_model
+2026-07-16 16:21:31,436 - core.decorators - INFO - Completed load_model successfully.
+2026-07-16 16:21:31,439 - analytics.engine - INFO - Invoking LLM for SQL generation (Attempt 1)
+2026-07-16 16:21:31,439 - core.decorators - INFO - Starting __call__
+2026-07-16 16:21:57,480 - core.decorators - INFO - Completed __call__ successfully.
+2026-07-16 16:21:57,481 - analytics.engine - INFO - Generated and parsed Dynamic LLM SQL query (Attempt 1):
+SELECT report_month, COUNT(*) AS count FROM records WHERE LOWER(outbreak_country) LIKE '%nepal%' GROUP BY report_month ORDER BY report_month
+2026-07-16 16:21:57,633 - analytics.engine - INFO - Successfully executed LLM SQL query.
+2026-07-16 16:21:57,640 - core.router - INFO - Successfully executed LLM-generated SQL query from AnalyticsEngine.
+2026-07-16 16:21:57,664 - core.decorators - INFO - Starting select_chart_type
+2026-07-16 16:21:57,666 - core.decorators - INFO - Completed select_chart_type successfully.
+2026-07-16 16:21:57,675 - core.router - INFO - Query processing completed successfully.
+2026-07-16 16:21:57,788 - core.decorators - INFO - Starting generator generate_insight
+2026-07-16 16:21:57,796 - core.decorators - INFO - Starting generator generate_chat_stream
+2026-07-16 16:22:18,268 - core.decorators - INFO - Completed generator generate_chat_stream successfully.
+2026-07-16 16:22:18,268 - core.decorators - INFO - Completed generator generate_insight successfully.
+2026-07-16 16:22:18,866 - __main__ - INFO - Application Started
+2026-07-16 16:30:17,050 - __main__ - INFO - Application Started
+2026-07-16 16:30:17,366 - __main__ - INFO - Application Started
+2026-07-16 16:30:56,374 - __main__ - INFO - Application Started
+2026-07-16 16:30:56,405 - core.router - INFO - QueryRouter dispatching query: 'give me a pie chart for count of different departments' (user_id=1, override_intent=ANALYTICS)
+2026-07-16 16:30:56,405 - nlp.pipeline - INFO - NLPProcessor starting to parse query: 'give me a pie chart for count of different departments'
+2026-07-16 16:30:56,405 - nlp.pipeline - INFO - spaCy model loaded or verified.
+2026-07-16 16:30:56,405 - nlp.pipeline - INFO - Query classified with intent 'ANALYTICS' (score: 1.0)
+2026-07-16 16:30:56,440 - nlp.pipeline - INFO - Extracted entities: {'TROUBLE_CODE': [], 'PRODUCT_MODEL': [], 'SALES_MODEL': ['PIE', 'FOR'], 'COUNTRY': [], 'VIN': [], 'FTIR_NO': []}
+2026-07-16 16:30:56,442 - nlp.pipeline - INFO - Extracted filters: {'limit': 5}
+2026-07-16 16:30:56,442 - core.router - INFO - Routed Query: 'give me a pie chart for count of different departments' | Selected Intent: ANALYTICS (has_col_ref=True)
+2026-07-16 16:30:56,442 - core.router - INFO - Routing query to handler for intent: ANALYTICS
+2026-07-16 16:30:56,446 - analytics.engine - INFO - AnalyticsEngine starting query_via_llm for: 'give me a pie chart for count of different departments'
+2026-07-16 16:30:56,447 - analytics.engine - INFO - Extracting intents via intent_engine for SQL generation.
+2026-07-16 16:30:56,447 - core.decorators - INFO - Starting build_intent_prompt
+2026-07-16 16:30:56,447 - core.decorators - INFO - Starting extract_hybrid
+2026-07-16 16:30:56,875 - core.decorators - INFO - Starting extract_with_rules
+2026-07-16 16:30:56,875 - core.decorators - INFO - Completed extract_with_rules successfully.
+2026-07-16 16:30:56,883 - core.decorators - INFO - Completed extract_hybrid successfully.
+2026-07-16 16:30:56,883 - analytics.intent_classifier - INFO - Hybrid Extraction Results:
+--- HYBRID EXTRACTION ---
+Intents: ['summary']
+KPIs: ['count']
+Filters: []
+Aggregations: []
+Confidence Score: 0.6
+
+2026-07-16 16:30:56,883 - analytics.intent_classifier - INFO - Hybrid confidence (0.6) below threshold (0.8). Running LLM extraction.
+2026-07-16 16:30:56,883 - core.decorators - INFO - Starting extract_with_llm
+2026-07-16 16:30:56,884 - core.decorators - INFO - Starting load_model
+2026-07-16 16:30:56,884 - core.decorators - INFO - Completed load_model successfully.
+2026-07-16 16:30:56,884 - core.decorators - INFO - Starting __call__
+2026-07-16 16:31:03,330 - core.decorators - INFO - Completed __call__ successfully.
+2026-07-16 16:31:03,330 - core.decorators - INFO - Completed extract_with_llm successfully.
+2026-07-16 16:31:03,330 - analytics.intent_classifier - INFO - LLM Extraction Results:
+--- LLM EXTRACTION ---
+Intents: ['distribution']
+KPIs: ['count']
+Filters: []
+Aggregations: ['department']
+Confidence Score: 0.8
+
+2026-07-16 16:31:03,331 - analytics.intent_classifier - INFO - Intent classification complete with merged final confidence 0.8
+2026-07-16 16:31:03,331 - core.decorators - INFO - Completed build_intent_prompt successfully.
+2026-07-16 16:31:03,331 - core.decorators - INFO - Starting load_model
+2026-07-16 16:31:03,331 - core.decorators - INFO - Completed load_model successfully.
+2026-07-16 16:31:03,332 - analytics.engine - INFO - Invoking LLM for SQL generation (Attempt 1)
+2026-07-16 16:31:03,333 - core.decorators - INFO - Starting __call__
+2026-07-16 16:31:26,333 - core.decorators - INFO - Completed __call__ successfully.
+2026-07-16 16:31:26,333 - analytics.engine - INFO - Generated and parsed Dynamic LLM SQL query (Attempt 1):
+SELECT dept_of_action_judgement, COUNT(*) as count FROM records GROUP BY dept_of_action_judgement
+2026-07-16 16:31:26,357 - analytics.engine - INFO - Successfully executed LLM SQL query.
+2026-07-16 16:31:26,360 - core.router - INFO - Successfully executed LLM-generated SQL query from AnalyticsEngine.
+2026-07-16 16:31:26,372 - core.decorators - INFO - Starting select_chart_type
+2026-07-16 16:31:26,373 - core.decorators - INFO - Completed select_chart_type successfully.
+2026-07-16 16:31:26,376 - core.router - INFO - Query processing completed successfully.
+2026-07-16 16:31:26,411 - core.decorators - INFO - Starting generator generate_insight
+2026-07-16 16:31:26,414 - core.decorators - INFO - Starting generator generate_chat_stream
+2026-07-16 16:31:53,121 - core.decorators - INFO - Completed generator generate_chat_stream successfully.
+2026-07-16 16:31:53,121 - core.decorators - INFO - Completed generator generate_insight successfully.
+2026-07-16 16:31:53,431 - __main__ - INFO - Application Started
+2026-07-16 16:39:06,100 - __main__ - INFO - Application Started
+2026-07-16 16:39:06,173 - core.router - INFO - QueryRouter dispatching query: 'give me all complaint whose dept is MQ7' (user_id=1, override_intent=ANALYTICS)
+2026-07-16 16:39:06,173 - nlp.pipeline - INFO - NLPProcessor starting to parse query: 'give me all complaint whose dept is MQ7'
+2026-07-16 16:39:06,173 - nlp.pipeline - INFO - spaCy model loaded or verified.
+2026-07-16 16:39:06,174 - nlp.pipeline - INFO - Query classified with intent 'ANALYTICS' (score: 1.0)
+2026-07-16 16:39:06,207 - nlp.pipeline - INFO - Extracted entities: {'TROUBLE_CODE': [], 'PRODUCT_MODEL': [], 'SALES_MODEL': ['ALL'], 'COUNTRY': [], 'VIN': [], 'FTIR_NO': []}
+2026-07-16 16:39:06,209 - nlp.pipeline - INFO - Extracted filters: {'limit': 5}
+2026-07-16 16:39:06,209 - core.router - INFO - Routed Query: 'give me all complaint whose dept is MQ7' | Selected Intent: ANALYTICS (has_col_ref=True)
+2026-07-16 16:39:06,209 - core.router - INFO - Routing query to handler for intent: ANALYTICS
+2026-07-16 16:39:06,215 - analytics.engine - INFO - AnalyticsEngine starting query_via_llm for: 'give me all complaint whose dept is MQ7'
+2026-07-16 16:39:06,215 - analytics.engine - INFO - Extracting intents via intent_engine for SQL generation.
+2026-07-16 16:39:06,218 - core.decorators - INFO - Starting build_intent_prompt
+2026-07-16 16:39:06,219 - core.decorators - INFO - Starting extract_hybrid
+2026-07-16 16:39:06,849 - core.decorators - INFO - Starting extract_with_rules
+2026-07-16 16:39:06,849 - core.decorators - INFO - Completed extract_with_rules successfully.
+2026-07-16 16:39:06,855 - core.decorators - INFO - Completed extract_hybrid successfully.
+2026-07-16 16:39:06,855 - analytics.intent_classifier - INFO - Hybrid Extraction Results:
+--- HYBRID EXTRACTION ---
+Intents: []
+KPIs: []
+Filters: ["dept_of_action_judgement = 'Quality Assurance Market Quality-7'"]
+Aggregations: []
+Confidence Score: 0.2
+
+2026-07-16 16:39:06,855 - analytics.intent_classifier - INFO - Hybrid confidence (0.2) below threshold (0.8). Running LLM extraction.
+2026-07-16 16:39:06,856 - core.decorators - INFO - Starting extract_with_llm
+2026-07-16 16:39:06,856 - core.decorators - INFO - Starting load_model
+2026-07-16 16:39:06,856 - core.decorators - INFO - Completed load_model successfully.
+2026-07-16 16:39:06,856 - core.decorators - INFO - Starting __call__
+2026-07-16 16:39:13,679 - core.decorators - INFO - Completed __call__ successfully.
+2026-07-16 16:39:13,679 - core.decorators - INFO - Completed extract_with_llm successfully.
+2026-07-16 16:39:13,679 - analytics.intent_classifier - INFO - LLM Extraction Results:
+--- LLM EXTRACTION ---
+Intents: ['summary']
+KPIs: []
+Filters: ["dept = 'MQ7'"]
+Aggregations: []
+Confidence Score: 0.5
+
+2026-07-16 16:39:13,679 - analytics.intent_classifier - INFO - Intent classification complete with merged final confidence 0.5
+2026-07-16 16:39:13,680 - core.decorators - INFO - Completed build_intent_prompt successfully.
+2026-07-16 16:39:13,680 - core.decorators - INFO - Starting load_model
+2026-07-16 16:39:13,680 - core.decorators - INFO - Completed load_model successfully.
+2026-07-16 16:39:13,681 - analytics.engine - INFO - Invoking LLM for SQL generation (Attempt 1)
+2026-07-16 16:39:13,682 - core.decorators - INFO - Starting __call__
+2026-07-16 16:39:40,832 - core.decorators - INFO - Completed __call__ successfully.
+2026-07-16 16:39:40,832 - analytics.engine - INFO - Generated and parsed Dynamic LLM SQL query (Attempt 1):
+SELECT * FROM records WHERE LOWER(dept_of_action_judgement) = 'quality assurance market quality-7' AND LOWER(customer_complaint) LIKE '%complaint%'
+2026-07-16 16:39:40,941 - analytics.engine - INFO - Successfully executed LLM SQL query.
+2026-07-16 16:39:40,944 - core.router - INFO - Successfully executed LLM-generated SQL query from AnalyticsEngine.
+2026-07-16 16:39:41,045 - core.decorators - INFO - Starting select_chart_type
+2026-07-16 16:39:41,045 - core.decorators - INFO - Completed select_chart_type successfully.
+2026-07-16 16:39:41,049 - core.router - INFO - Query processing completed successfully.
+2026-07-16 16:39:41,057 - core.decorators - INFO - Starting generator generate_insight
+2026-07-16 16:39:41,058 - core.decorators - INFO - Starting extract_metrics
+2026-07-16 16:39:41,237 - core.decorators - INFO - Completed extract_metrics successfully.
+2026-07-16 16:39:41,238 - core.decorators - INFO - Starting build
+2026-07-16 16:39:41,238 - core.decorators - INFO - Completed build successfully.
+2026-07-16 16:39:41,238 - core.decorators - INFO - Starting generator generate_chat_stream
+2026-07-16 16:40:36,394 - core.decorators - INFO - Completed generator generate_chat_stream successfully.
+2026-07-16 16:40:36,395 - core.decorators - INFO - Completed generator generate_insight successfully.
+2026-07-16 16:40:36,689 - __main__ - INFO - Application Started
+2026-07-16 16:40:44,586 - __main__ - INFO - Application Started
+2026-07-16 16:40:44,905 - __main__ - INFO - Application Started
+2026-07-16 16:40:52,414 - __main__ - INFO - Application Started
+2026-07-16 16:40:52,479 - core.router - INFO - QueryRouter dispatching query: 'give me all ftir whose dept is MQ7' (user_id=1, override_intent=ANALYTICS)
+2026-07-16 16:40:52,479 - nlp.pipeline - INFO - NLPProcessor starting to parse query: 'give me all ftir whose dept is MQ7'
+2026-07-16 16:40:52,479 - nlp.pipeline - INFO - spaCy model loaded or verified.
+2026-07-16 16:40:52,479 - nlp.pipeline - INFO - Query classified with intent 'ANALYTICS' (score: 1.0)
+2026-07-16 16:40:52,511 - nlp.pipeline - INFO - Extracted entities: {'TROUBLE_CODE': [], 'PRODUCT_MODEL': [], 'SALES_MODEL': ['ALL'], 'COUNTRY': [], 'VIN': [], 'FTIR_NO': []}
+2026-07-16 16:40:52,513 - nlp.pipeline - INFO - Extracted filters: {'limit': 5}
+2026-07-16 16:40:52,513 - core.router - INFO - Routed Query: 'give me all ftir whose dept is MQ7' | Selected Intent: ANALYTICS (has_col_ref=True)
+2026-07-16 16:40:52,513 - core.router - INFO - Routing query to handler for intent: ANALYTICS
+2026-07-16 16:40:52,518 - analytics.engine - INFO - AnalyticsEngine starting query_via_llm for: 'give me all ftir whose dept is MQ7'
+2026-07-16 16:40:52,518 - analytics.engine - INFO - Extracting intents via intent_engine for SQL generation.
+2026-07-16 16:40:52,519 - core.decorators - INFO - Starting build_intent_prompt
+2026-07-16 16:40:52,519 - core.decorators - INFO - Starting extract_hybrid
+2026-07-16 16:40:52,886 - core.decorators - INFO - Starting extract_with_rules
+2026-07-16 16:40:52,887 - core.decorators - INFO - Completed extract_with_rules successfully.
+2026-07-16 16:40:52,892 - core.decorators - INFO - Completed extract_hybrid successfully.
+2026-07-16 16:40:52,893 - analytics.intent_classifier - INFO - Hybrid Extraction Results:
+--- HYBRID EXTRACTION ---
+Intents: []
+KPIs: []
+Filters: ["dept_of_action_judgement = 'Quality Assurance Market Quality-7'"]
+Aggregations: []
+Confidence Score: 0.2
+
+2026-07-16 16:40:52,893 - analytics.intent_classifier - INFO - Hybrid confidence (0.2) below threshold (0.8). Running LLM extraction.
+2026-07-16 16:40:52,893 - core.decorators - INFO - Starting extract_with_llm
+2026-07-16 16:40:52,893 - core.decorators - INFO - Starting load_model
+2026-07-16 16:40:52,893 - core.decorators - INFO - Completed load_model successfully.
+2026-07-16 16:40:52,894 - core.decorators - INFO - Starting __call__
+2026-07-16 16:40:56,652 - core.decorators - INFO - Completed __call__ successfully.
+2026-07-16 16:40:56,653 - core.decorators - INFO - Completed extract_with_llm successfully.
+2026-07-16 16:40:56,653 - core.decorators - ERROR - Error in build_intent_prompt: 'intents'
+2026-07-16 16:40:56,653 - core.router - WARNING - LLM-generated SQL failed or was invalid: Error in C:\Users\maury\OneDrive\Documents\Internship\RAG\automotive_qa\core\decorators.py, line 28 : 'intents'
+2026-07-16 16:40:56,655 - core.decorators - INFO - Starting generate_summary
+2026-07-16 16:41:01,322 - core.decorators - INFO - Completed generate_summary successfully.
+2026-07-16 16:41:01,322 - core.router - INFO - Query processing completed successfully.
+2026-07-16 16:41:01,618 - __main__ - INFO - Application Started
+2026-07-16 16:42:52,668 - __main__ - INFO - Application Started
+2026-07-16 16:42:53,020 - __main__ - INFO - Application Started
+2026-07-16 16:42:55,043 - __main__ - INFO - Application Started
+2026-07-16 16:42:55,338 - __main__ - INFO - Application Started
+2026-07-16 16:45:31,155 - __main__ - INFO - Application Started
+2026-07-16 16:45:32,057 - __main__ - INFO - Application Started
+2026-07-16 16:49:26,888 - __main__ - INFO - Application Started
+2026-07-16 17:08:15,208 - __main__ - INFO - Application Started
+2026-07-16 17:08:15,426 - core.router - INFO - QueryRouter dispatching query: 'give me monthly trend of nepal' (user_id=1, override_intent=None)
+2026-07-16 17:08:15,435 - core.router - INFO - Cache HIT for query: 'give me monthly trend of nepal'
+2026-07-16 17:08:15,436 - core.router - INFO - QueryRouter dispatching query: '
+give me a pie chart on top 10 dealers' (user_id=1, override_intent=None)
+2026-07-16 17:08:15,439 - core.router - INFO - Cache HIT for query: '
+give me a pie chart on top 10 dealers'
+2026-07-16 17:08:15,440 - core.router - INFO - QueryRouter dispatching query: 'give me a pie chart for all the issues related to noise and engine based on different departments' (user_id=1, override_intent=None)
+2026-07-16 17:08:15,491 - core.router - INFO - Cache HIT for query: 'give me a pie chart for all the issues related to noise and engine based on different departments'
+2026-07-16 17:08:15,492 - core.router - INFO - QueryRouter dispatching query: 'give me monthly trend in nepal' (user_id=1, override_intent=None)
+2026-07-16 17:08:15,495 - core.router - INFO - Cache HIT for query: 'give me monthly trend in nepal'
+2026-07-16 17:08:16,268 - __main__ - INFO - Application Started
+2026-07-16 17:08:23,782 - __main__ - INFO - Application Started
+2026-07-16 17:08:24,518 - __main__ - INFO - Application Started
+2026-07-16 17:08:56,565 - __main__ - INFO - Application Started
+2026-07-16 17:08:56,633 - core.router - INFO - QueryRouter dispatching query: 'give me a pie chart for ftir in diffrerent departments' (user_id=1, override_intent=None)
+2026-07-16 17:08:56,634 - nlp.pipeline - INFO - NLPProcessor starting to parse query: 'give me a pie chart for ftir in diffrerent departments'
+2026-07-16 17:08:56,635 - nlp.pipeline - INFO - spaCy model loaded or verified.
+2026-07-16 17:08:56,635 - nlp.pipeline - INFO - Query classified with intent 'ANALYTICS' (score: 1.0)
+2026-07-16 17:08:56,748 - nlp.pipeline - INFO - Extracted entities: {'TROUBLE_CODE': [], 'PRODUCT_MODEL': [], 'SALES_MODEL': ['PIE', 'FOR'], 'COUNTRY': [], 'VIN': [], 'FTIR_NO': []}
+2026-07-16 17:08:56,750 - nlp.pipeline - INFO - Extracted filters: {'limit': 5}
+2026-07-16 17:08:56,751 - core.router - INFO - Routed Query: 'give me a pie chart for ftir in diffrerent departments' | Selected Intent: ANALYTICS (has_col_ref=True)
+2026-07-16 17:08:56,751 - core.router - INFO - Routing query to handler for intent: ANALYTICS
+2026-07-16 17:08:56,761 - analytics.engine - INFO - AnalyticsEngine starting query_via_llm for: 'give me a pie chart for ftir in diffrerent departments'
+2026-07-16 17:08:56,762 - analytics.engine - INFO - Extracting intents via intent_engine for SQL generation.
+2026-07-16 17:08:56,763 - core.decorators - INFO - Starting build_intent_prompt
+2026-07-16 17:08:56,763 - core.decorators - INFO - Starting extract_hybrid
+2026-07-16 17:08:57,981 - core.decorators - INFO - Starting extract_with_rules
+2026-07-16 17:08:57,982 - core.decorators - INFO - Completed extract_with_rules successfully.
+2026-07-16 17:08:58,000 - core.decorators - INFO - Completed extract_hybrid successfully.
+2026-07-16 17:08:58,001 - analytics.intent_classifier - INFO - Hybrid Extraction Results:
+--- HYBRID EXTRACTION ---
+Intents: []
+KPIs: []
+Filters: []
+Aggregations: []
+Confidence Score: 0
+
+2026-07-16 17:08:58,001 - analytics.intent_classifier - INFO - Hybrid confidence (0) below threshold (0.8). Running LLM extraction.
+2026-07-16 17:08:58,002 - core.decorators - INFO - Starting extract_with_llm
+2026-07-16 17:08:58,002 - core.decorators - INFO - Starting load_model
+2026-07-16 17:08:58,003 - core.decorators - INFO - Completed load_model successfully.
+2026-07-16 17:08:58,003 - core.decorators - INFO - Starting __call__
+2026-07-16 17:09:11,736 - core.decorators - INFO - Completed __call__ successfully.
+2026-07-16 17:09:11,737 - core.decorators - INFO - Completed extract_with_llm successfully.
+2026-07-16 17:09:11,737 - analytics.intent_classifier - INFO - LLM Extraction Results:
+--- LLM EXTRACTION ---
+Intents: ['distribution']
+KPIs: []
+Filters: ['department']
+Aggregations: ['department']
+Confidence Score: 0.7
+
+2026-07-16 17:09:11,738 - analytics.intent_classifier - INFO - Intent classification complete with merged final confidence 0.7
+2026-07-16 17:09:11,738 - core.decorators - INFO - Completed build_intent_prompt successfully.
+2026-07-16 17:09:11,738 - core.decorators - INFO - Starting load_model
+2026-07-16 17:09:11,739 - core.decorators - INFO - Completed load_model successfully.
+2026-07-16 17:09:11,742 - analytics.engine - INFO - Invoking LLM for SQL generation (Attempt 1)
+2026-07-16 17:09:11,742 - core.decorators - INFO - Starting __call__
+2026-07-16 17:09:35,548 - core.decorators - INFO - Completed __call__ successfully.
+2026-07-16 17:09:35,548 - analytics.engine - INFO - Generated and parsed Dynamic LLM SQL query (Attempt 1):
+SELECT dept_of_action_judgement, COUNT(*) as count FROM records GROUP BY dept_of_action_judgement
+2026-07-16 17:09:35,600 - analytics.engine - INFO - Successfully executed LLM SQL query.
+2026-07-16 17:09:35,607 - core.router - INFO - Successfully executed LLM-generated SQL query from AnalyticsEngine.
+2026-07-16 17:09:35,644 - core.decorators - INFO - Starting select_chart_type
+2026-07-16 17:09:35,645 - core.decorators - INFO - Completed select_chart_type successfully.
+2026-07-16 17:09:35,653 - core.router - INFO - Query processing completed successfully.
+2026-07-16 17:09:35,775 - core.decorators - INFO - Starting generator generate_insight
+2026-07-16 17:09:35,782 - core.decorators - INFO - Starting generator generate_chat_stream
+2026-07-16 17:10:11,519 - core.decorators - INFO - Completed generator generate_chat_stream successfully.
+2026-07-16 17:10:11,520 - core.decorators - INFO - Completed generator generate_insight successfully.
+2026-07-16 17:10:12,197 - __main__ - INFO - Application Started
+2026-07-16 17:11:48,442 - __main__ - INFO - Application Started
+2026-07-16 17:11:48,625 - core.router - INFO - QueryRouter dispatching query: 'give me a ftir reporting trend according to month' (user_id=1, override_intent=ANALYTICS)
+2026-07-16 17:11:48,625 - nlp.pipeline - INFO - NLPProcessor starting to parse query: 'give me a ftir reporting trend according to month'
+2026-07-16 17:11:48,626 - nlp.pipeline - INFO - spaCy model loaded or verified.
+2026-07-16 17:11:48,626 - nlp.pipeline - INFO - Query classified with intent 'ANALYTICS' (score: 1.0)
+2026-07-16 17:11:48,741 - nlp.pipeline - INFO - Extracted entities: {'TROUBLE_CODE': [], 'PRODUCT_MODEL': [], 'SALES_MODEL': [], 'COUNTRY': [], 'VIN': [], 'FTIR_NO': []}
+2026-07-16 17:11:48,744 - nlp.pipeline - INFO - Extracted filters: {'limit': 5}
+2026-07-16 17:11:48,745 - core.router - INFO - Routed Query: 'give me a ftir reporting trend according to month' | Selected Intent: ANALYTICS (has_col_ref=True)
+2026-07-16 17:11:48,745 - core.router - INFO - Routing query to handler for intent: ANALYTICS
+2026-07-16 17:11:48,754 - analytics.engine - INFO - AnalyticsEngine starting query_via_llm for: 'give me a ftir reporting trend according to month'
+2026-07-16 17:11:48,755 - analytics.engine - INFO - Extracting intents via intent_engine for SQL generation.
+2026-07-16 17:11:48,755 - core.decorators - INFO - Starting build_intent_prompt
+2026-07-16 17:11:48,756 - core.decorators - INFO - Starting extract_hybrid
+2026-07-16 17:11:49,677 - core.decorators - INFO - Starting extract_with_rules
+2026-07-16 17:11:49,678 - core.decorators - INFO - Completed extract_with_rules successfully.
+2026-07-16 17:11:49,693 - core.decorators - INFO - Completed extract_hybrid successfully.
+2026-07-16 17:11:49,693 - analytics.intent_classifier - INFO - Hybrid Extraction Results:
+--- HYBRID EXTRACTION ---
+Intents: ['trend']
+KPIs: []
+Filters: []
+Aggregations: ['group by report_month']
+Confidence Score: 0.5
+
+2026-07-16 17:11:49,694 - analytics.intent_classifier - INFO - Hybrid confidence (0.5) below threshold (0.8). Running LLM extraction.
+2026-07-16 17:11:49,694 - core.decorators - INFO - Starting extract_with_llm
+2026-07-16 17:11:49,695 - core.decorators - INFO - Starting load_model
+2026-07-16 17:11:49,695 - core.decorators - INFO - Completed load_model successfully.
+2026-07-16 17:11:49,695 - core.decorators - INFO - Starting __call__
+2026-07-16 17:11:56,994 - core.decorators - INFO - Completed __call__ successfully.
+2026-07-16 17:11:56,995 - core.decorators - INFO - Completed extract_with_llm successfully.
+2026-07-16 17:11:56,995 - analytics.intent_classifier - INFO - LLM Extraction Results:
+--- LLM EXTRACTION ---
+Intents: ['trend']
+KPIs: ['resolution']
+Filters: ['month']
+Aggregations: ['month']
+Confidence Score: 1.0
+
+2026-07-16 17:11:56,996 - analytics.intent_classifier - INFO - Intent classification complete with merged final confidence 1.0
+2026-07-16 17:11:56,996 - core.decorators - INFO - Completed build_intent_prompt successfully.
+2026-07-16 17:11:56,996 - core.decorators - INFO - Starting load_model
+2026-07-16 17:11:56,997 - core.decorators - INFO - Completed load_model successfully.
+2026-07-16 17:11:57,000 - analytics.engine - INFO - Invoking LLM for SQL generation (Attempt 1)
+2026-07-16 17:11:57,001 - core.decorators - INFO - Starting __call__
+2026-07-16 17:12:19,528 - core.decorators - INFO - Completed __call__ successfully.
+2026-07-16 17:12:19,528 - analytics.engine - INFO - Generated and parsed Dynamic LLM SQL query (Attempt 1):
+SELECT report_month, COUNT(*) AS trend FROM records GROUP BY report_month ORDER BY report_month
+2026-07-16 17:12:19,579 - analytics.engine - INFO - Successfully executed LLM SQL query.
+2026-07-16 17:12:19,586 - core.router - INFO - Successfully executed LLM-generated SQL query from AnalyticsEngine.
+2026-07-16 17:12:19,604 - core.decorators - INFO - Starting select_chart_type
+2026-07-16 17:12:19,606 - core.decorators - INFO - Completed select_chart_type successfully.
+2026-07-16 17:12:19,614 - core.router - INFO - Query processing completed successfully.
+2026-07-16 17:12:19,759 - core.decorators - INFO - Starting generator generate_insight
+2026-07-16 17:12:19,784 - core.decorators - INFO - Starting generator generate_chat_stream
+2026-07-16 17:12:40,683 - core.decorators - INFO - Completed generator generate_chat_stream successfully.
+2026-07-16 17:12:40,683 - core.decorators - INFO - Completed generator generate_insight successfully.
+2026-07-16 17:12:41,338 - __main__ - INFO - Application Started
+2026-07-16 17:13:48,969 - __main__ - INFO - Application Started
+2026-07-16 17:13:49,235 - core.router - INFO - QueryRouter dispatching query: 'give me root cause for issues related to noise ' (user_id=1, override_intent=ANALYTICS)
+2026-07-16 17:13:49,236 - nlp.pipeline - INFO - NLPProcessor starting to parse query: 'give me root cause for issues related to noise '
+2026-07-16 17:13:49,236 - nlp.pipeline - INFO - spaCy model loaded or verified.
+2026-07-16 17:13:49,237 - nlp.pipeline - INFO - Query classified with intent 'ANALYTICS' (score: 1.0)
+2026-07-16 17:13:49,332 - nlp.pipeline - INFO - Extracted entities: {'TROUBLE_CODE': [], 'PRODUCT_MODEL': [], 'SALES_MODEL': ['FOR'], 'COUNTRY': [], 'VIN': [], 'FTIR_NO': []}
+2026-07-16 17:13:49,335 - nlp.pipeline - INFO - Extracted filters: {'limit': 5}
+2026-07-16 17:13:49,335 - core.router - INFO - Routed Query: 'give me root cause for issues related to noise ' | Selected Intent: ANALYTICS (has_col_ref=False)
+2026-07-16 17:13:49,335 - core.router - INFO - Routing query to handler for intent: ANALYTICS
+2026-07-16 17:13:49,343 - analytics.engine - INFO - AnalyticsEngine starting query_via_llm for: 'give me root cause for issues related to noise '
+2026-07-16 17:13:49,344 - analytics.engine - INFO - Extracting intents via intent_engine for SQL generation.
+2026-07-16 17:13:49,345 - core.decorators - INFO - Starting build_intent_prompt
+2026-07-16 17:13:49,346 - core.decorators - INFO - Starting extract_hybrid
+2026-07-16 17:13:50,215 - core.decorators - INFO - Starting extract_with_rules
+2026-07-16 17:13:50,216 - core.decorators - INFO - Completed extract_with_rules successfully.
+2026-07-16 17:13:50,230 - core.decorators - INFO - Completed extract_hybrid successfully.
+2026-07-16 17:13:50,230 - analytics.intent_classifier - INFO - Hybrid Extraction Results:
+--- HYBRID EXTRACTION ---
+Intents: []
+KPIs: []
+Filters: []
+Aggregations: []
+Confidence Score: 0
+
+2026-07-16 17:13:50,231 - analytics.intent_classifier - INFO - Hybrid confidence (0) below threshold (0.8). Running LLM extraction.
+2026-07-16 17:13:50,231 - core.decorators - INFO - Starting extract_with_llm
+2026-07-16 17:13:50,232 - core.decorators - INFO - Starting load_model
+2026-07-16 17:13:50,232 - core.decorators - INFO - Completed load_model successfully.
+2026-07-16 17:13:50,233 - core.decorators - INFO - Starting __call__
+2026-07-16 17:13:57,416 - core.decorators - INFO - Completed __call__ successfully.
+2026-07-16 17:13:57,416 - core.decorators - INFO - Completed extract_with_llm successfully.
+2026-07-16 17:13:57,417 - analytics.intent_classifier - INFO - LLM Extraction Results:
+--- LLM EXTRACTION ---
+Intents: ['summary']
+KPIs: []
+Filters: ["subject LIKE '%noise%'"]
+Aggregations: []
+Confidence Score: 0.5
+
+2026-07-16 17:13:57,417 - analytics.intent_classifier - INFO - Intent classification complete with merged final confidence 0.5
+2026-07-16 17:13:57,417 - core.decorators - INFO - Completed build_intent_prompt successfully.
+2026-07-16 17:13:57,418 - core.decorators - INFO - Starting load_model
+2026-07-16 17:13:57,418 - core.decorators - INFO - Completed load_model successfully.
+2026-07-16 17:13:57,421 - analytics.engine - INFO - Invoking LLM for SQL generation (Attempt 1)
+2026-07-16 17:13:57,422 - core.decorators - INFO - Starting __call__
+2026-07-16 17:14:18,764 - core.decorators - INFO - Completed __call__ successfully.
+2026-07-16 17:14:18,765 - analytics.engine - INFO - Generated and parsed Dynamic LLM SQL query (Attempt 1):
+SELECT root_cause FROM records WHERE LOWER(subject) LIKE '%noise%'
+2026-07-16 17:14:18,848 - analytics.engine - INFO - Successfully executed LLM SQL query.
+2026-07-16 17:14:18,855 - core.router - INFO - Successfully executed LLM-generated SQL query from AnalyticsEngine.
+2026-07-16 17:14:18,890 - core.decorators - INFO - Starting select_chart_type
+2026-07-16 17:14:18,892 - core.decorators - INFO - Completed select_chart_type successfully.
+2026-07-16 17:14:18,899 - core.router - INFO - Query processing completed successfully.
+2026-07-16 17:14:18,908 - core.decorators - INFO - Starting generator generate_insight
+2026-07-16 17:14:18,909 - core.decorators - INFO - Starting extract_metrics
+2026-07-16 17:14:18,935 - core.decorators - INFO - Completed extract_metrics successfully.
+2026-07-16 17:14:18,936 - core.decorators - INFO - Starting build
+2026-07-16 17:14:18,937 - core.decorators - INFO - Completed build successfully.
+2026-07-16 17:14:18,937 - core.decorators - INFO - Starting generator generate_chat_stream
+2026-07-16 17:14:36,617 - core.decorators - INFO - Completed generator generate_chat_stream successfully.
+2026-07-16 17:14:36,617 - core.decorators - INFO - Completed generator generate_insight successfully.
+2026-07-16 17:14:37,329 - __main__ - INFO - Application Started
+2026-07-16 17:15:10,647 - __main__ - INFO - Application Started
+2026-07-16 17:37:08,484 - __main__ - INFO - Application Started

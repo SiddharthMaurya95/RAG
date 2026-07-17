@@ -11,6 +11,7 @@ from docx import Document
 from docx.shared import Inches, Pt, RGBColor
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from core.paths import get_db_path
+from core.decorators import with_logging_and_exceptions
 
 class NumberedCanvas(canvas.Canvas):
     """Custom canvas that computes total page count dynamically and draws headers/footers."""
@@ -141,6 +142,7 @@ class ReportEngine:
         text = text.replace('\n', '<br/>')
         return text
 
+    @with_logging_and_exceptions
     def generate_pdf_report(self, year, month, output_path):
         """Generates a professional PDF report using ReportLab with premium styling."""
         data = self._get_report_data(year, month)
@@ -303,6 +305,7 @@ class ReportEngine:
         doc.build(story, canvasmaker=NumberedCanvas)
         print(f"PDF report generated at: {output_path}")
 
+    @with_logging_and_exceptions
     def generate_docx_report(self, year, month, output_path):
         """Generates a professional DOCX report using python-docx with custom styles."""
         data = self._get_report_data(year, month)

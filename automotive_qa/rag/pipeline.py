@@ -1,8 +1,11 @@
 import os
+import logging
 from rag.preprocessor import preprocess_for_embedding
 from rag.embedding_service import EmbeddingService
 from core.paths import get_db_path, get_project_root
+from core.decorators import with_logging_and_exceptions
 
+@with_logging_and_exceptions
 def build_offline_embeddings(db_path: str = "data/automotive.db"):
     """
     Offline one-time preprocessing to build and persist embeddings.

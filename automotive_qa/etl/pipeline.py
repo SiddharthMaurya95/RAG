@@ -6,6 +6,7 @@ import datetime
 import pandas as pd
 import numpy as np
 from analytics.views import refresh_materialized_views
+from core.decorators import with_logging_and_exceptions
 
 def clean_km(val):
     """Cleans using time mileage string into an integer."""
@@ -113,6 +114,7 @@ def calculate_row_hash(row):
     concat_str = f"{ftir_no}|{subject}|{complaint}"
     return hashlib.md5(concat_str.encode('utf-8')).hexdigest()
 
+@with_logging_and_exceptions
 def ingest_excel(excel_path, db_path, llm_client=None):
     """
     Reads an Excel file, cleans columns, deduplicates, generates summaries,
@@ -128,7 +130,23 @@ def ingest_excel(excel_path, db_path, llm_client=None):
     
     # Strip whitespace from column names
     df.columns = df.columns.str.strip()
+
+    # Skip files that are not valid FTIR datasets (e.g. scorecards, custom dashboards)
+    if 'FTIR No.' not in df.columns and 'FTIR No' not in df.columns:
+        print(f"Skipping {excel_path} - not a valid FTIR dataset (missing FTIR No column).")
+        return []
     
+    # Handle both dash and slash variants of the mileage column to prevent duplicates
+    if 'Mileage - Using Time' in df.columns and 'Mileage / Using Time' in df.columns:
+        df['Mileage - Using Time'] = df['Mileage - Using Time'].fillna(df['Mileage / Using Time'])
+        df = df.drop(columns=['Mileage / Using Time'])
+        
+    # Filter out rows where FTIR No is null or empty before we do any processing
+    if 'FTIR No.' in df.columns:
+        df = df[df['FTIR No.'].notna() & (df['FTIR No.'].astype(str).str.strip() != '')]
+    elif 'FTIR No' in df.columns:
+        df = df[df['FTIR No'].notna() & (df['FTIR No'].astype(str).str.strip() != '')]
+        
     # Rename columns to normalize raw Excel sheets
     df = df.rename(columns={
         'SBPR No.': 'SBPR No',

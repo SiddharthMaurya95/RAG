@@ -4,6 +4,7 @@ import sys
 from core.paths import get_db_path
 from core.logger import get_logger
 from core.custom_exception import CustomException
+from core.decorators import with_logging_and_exceptions
 
 logger = get_logger(__name__)
 
@@ -16,6 +17,7 @@ class AnalyticsEngine:
         return get_engine(self.db_path).connect()
 
 
+    @with_logging_and_exceptions
     def get_top_dealers_or_countries(self, by="dealer", limit=10, year=None, country=None, model=None):
         """Returns top N dealers or countries with failure counts."""
         conn = self._get_connection()
@@ -59,6 +61,7 @@ class AnalyticsEngine:
         conn.close()
         return df, query.strip()
 
+    @with_logging_and_exceptions
     def get_trouble_code_frequency(self, limit=10, model=None, segmentation=None, year=None, country=None):
         """Returns failure counts for each trouble code."""
         conn = self._get_connection()
@@ -91,6 +94,7 @@ class AnalyticsEngine:
         conn.close()
         return df, query.strip()
 
+    @with_logging_and_exceptions
     def get_monthly_failure_trend(self, year=None, model=None, country=None):
         """Returns chronological monthly failure trends, applying Pandas resampling/ordering."""
         conn = self._get_connection()
@@ -122,6 +126,7 @@ class AnalyticsEngine:
             df['period'] = df.apply(lambda r: f"{int(r['report_year'])}--{int(r['report_month']):02d}", axis=1)
         return df, query.strip()
 
+    @with_logging_and_exceptions
     def get_model_comparison(self, year=None, country=None):
         """Computes comprehensive failure stats per product model."""
         conn = self._get_connection()
@@ -151,6 +156,7 @@ class AnalyticsEngine:
         conn.close()
         return df, query.strip()
 
+    @with_logging_and_exceptions
     def get_using_km_distribution(self, model=None):
         """Returns the mileage values binned into intervals for histograms."""
         conn = self._get_connection()
@@ -165,6 +171,7 @@ class AnalyticsEngine:
         conn.close()
         return df, query.strip()
 
+    @with_logging_and_exceptions
     def get_quality_distribution(self, model=None, year=None, country=None):
         """Returns counts for each quality rating."""
         conn = self._get_connection()
@@ -191,6 +198,7 @@ class AnalyticsEngine:
         conn.close()
         return df, query.strip()
 
+    @with_logging_and_exceptions
     def get_repair_success_rate(self, year=None, model=None, country=None):
         """Returns resolution percentages grouped by trouble code."""
         conn = self._get_connection()
@@ -222,6 +230,7 @@ class AnalyticsEngine:
         conn.close()
         return df, query.strip()
 
+    @with_logging_and_exceptions
     def get_failed_parts_frequency(self, limit=10, model=None, segmentation=None, year=None, country=None):
         """Returns failure counts for each causal part name."""
         conn = self._get_connection()
@@ -254,6 +263,7 @@ class AnalyticsEngine:
         conn.close()
         return df, query.strip()
 
+    @with_logging_and_exceptions
     def get_overall_resolution_stats(self):
         """Returns overall counts of resolved vs unresolved records."""
         conn = self._get_connection()
@@ -548,6 +558,7 @@ Output: SELECT COUNT(*) as count FROM records WHERE LOWER(reported_company) LIKE
                     logger.error("All retries exhausted for LLM SQL query execution.")
                     raise CustomException(e, sys)
 
+    @with_logging_and_exceptions
     def get_distinct_models(self):
         """Returns a sorted list of distinct product model codes."""
         conn = self._get_connection()
@@ -561,6 +572,7 @@ Output: SELECT COUNT(*) as count FROM records WHERE LOWER(reported_company) LIKE
         conn.close()
         return df['product_model_code'].tolist()
 
+    @with_logging_and_exceptions
     def get_distinct_countries(self):
         """Returns a sorted list of distinct outbreak countries."""
         conn = self._get_connection()
@@ -574,6 +586,7 @@ Output: SELECT COUNT(*) as count FROM records WHERE LOWER(reported_company) LIKE
         conn.close()
         return df['outbreak_country'].tolist()
 
+    @with_logging_and_exceptions
     def get_distinct_years(self):
         """Returns a sorted list of distinct report years."""
         conn = self._get_connection()
@@ -587,6 +600,7 @@ Output: SELECT COUNT(*) as count FROM records WHERE LOWER(reported_company) LIKE
         conn.close()
         return df['report_year'].tolist()
 
+    @with_logging_and_exceptions
     def get_avg_resolution_mileage(self, year=None, model=None, country=None):
         """Returns average mileage of resolved records."""
         from sqlalchemy import text

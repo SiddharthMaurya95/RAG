@@ -1,9 +1,15 @@
 import pandas as pd
 import numpy as np
+import logging
+
+from core.decorators import with_logging_and_exceptions
+
+logger = logging.getLogger(__name__)
 
 class InsightEngine:
     """Extracts useful analytics from Pandas DataFrame for Business Summary generation."""
     
+    @with_logging_and_exceptions
     def extract_metrics(self, df: pd.DataFrame) -> dict:
         if df is None or df.empty:
             return {}
@@ -35,8 +41,11 @@ class InsightEngine:
             }
         elif 'report_year' in df.columns and 'report_month' in df.columns:
             try:
-                # simple proxy for date range if both exist
-                df_dates = df.dropna(subset=['report_year', 'report_month'])
+                df_dates = df.dropna(subset=['report_year', 'report_month']).copy()
+                df_dates['report_year'] = pd.to_numeric(df_dates['report_year'], errors='coerce')
+                df_dates['report_month'] = pd.to_numeric(df_dates['report_month'], errors='coerce')
+                df_dates = df_dates.dropna(subset=['report_year', 'report_month'])
+                
                 if not df_dates.empty:
                     min_row = df_dates.sort_values(['report_year', 'report_month']).iloc[0]
                     max_row = df_dates.sort_values(['report_year', 'report_month']).iloc[-1]
@@ -44,8 +53,8 @@ class InsightEngine:
                         "start": f"{int(min_row['report_year'])}-{int(min_row['report_month']):02d}",
                         "end": f"{int(max_row['report_year'])}-{int(max_row['report_month']):02d}"
                     }
-            except:
-                pass
+            except Exception as e:
+                logger.warning(f"Failed to parse date range from year/month columns: {e}")
             
         return {
             "total_records": total_records,
@@ -110,12 +119,15 @@ class InsightEngine:
                 monthly = s.groupby(s.dt.to_period('M')).size()
         elif "report_year" in df.columns and "report_month" in df.columns:
             df_valid = df.dropna(subset=['report_year', 'report_month']).copy()
+            df_valid['report_year'] = pd.to_numeric(df_valid['report_year'], errors='coerce')
+            df_valid['report_month'] = pd.to_numeric(df_valid['report_month'], errors='coerce')
+            df_valid = df_valid.dropna(subset=['report_year', 'report_month'])
             if not df_valid.empty:
                 try:
                     df_valid['period'] = df_valid['report_year'].astype(int).astype(str) + "-" + df_valid['report_month'].astype(int).astype(str).str.zfill(2)
-                    monthly = df_valid.groupby('period').size()
-                except Exception:
-                    pass
+                    monthly = df_valid.groupby('period').size().sort_index()
+                except Exception as e:
+                    logger.warning(f"Failed to calculate monthly trends: {e}")
                     
         if len(monthly) < 2:
             return {}

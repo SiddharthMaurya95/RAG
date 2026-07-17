@@ -3,6 +3,7 @@ import json
 import numpy as np
 import pandas as pd
 from typing import List, Tuple, Union
+from core.decorators import with_logging_and_exceptions
 
 class EmbeddingService:
     def __init__(self, model_name="all-MiniLM-L6-v2", cache_dir="data"):
@@ -28,6 +29,7 @@ class EmbeddingService:
             self.model = SentenceTransformer(self.model_name, device="cpu")
         return self.model
 
+    @with_logging_and_exceptions
     def encode(self, texts: Union[str, List[str]]) -> np.ndarray:
         """
         Generates normalized embeddings for a single text or a list of texts.
@@ -50,6 +52,7 @@ class EmbeddingService:
             return normalized_embeddings[0]
         return normalized_embeddings
 
+    @with_logging_and_exceptions
     def generate_and_save_embeddings(self, df: pd.DataFrame, text_column: str = "clean_summary", id_column: str = "id"):
         """
         Generates embeddings for the dataframe and persists them to disk.
@@ -76,6 +79,7 @@ class EmbeddingService:
         self.ids = ids
         print("Embeddings generated and saved successfully.")
 
+    @with_logging_and_exceptions
     def load_embeddings(self) -> bool:
         """
         Loads embeddings and IDs from disk into memory.
@@ -92,6 +96,7 @@ class EmbeddingService:
                 return False
         return False
 
+    @with_logging_and_exceptions
     def get_embeddings(self) -> Tuple[np.ndarray, List[int]]:
         """
         Returns the embeddings matrix and the corresponding list of IDs.

@@ -1,3 +1,6 @@
+from core.decorators import with_logging_and_exceptions
+
+@with_logging_and_exceptions
 def select_chart_type(intent, df, query_text):
     """
     Infers the most appropriate chart type and title based on the NLP intent,

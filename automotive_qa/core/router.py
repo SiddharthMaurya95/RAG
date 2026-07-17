@@ -321,24 +321,15 @@ class QueryRouter:
                 "outbreak_country": rec["outbreak_country"]
             })
             
-        # Call the new InsightGenerator to produce Business Summary insights from the retrieved dataframe
-        from insight.generator import InsightGenerator
-        insight_gen = InsightGenerator()
-        
-        # We pass the flagged_df which contains the retrieved records
-        messages = insight_gen.generate_insight(query_text, retrieval_res["flagged_df"])
-        
-        score_range = f"{min(scores):.3f} - {max(scores):.3f}" if scores else "0.000 - 0.000"
-        
-        display_cols = ['causal_parts_name', 'subject', 'root_cause', 'similarity', 'flag']
-        display_cols = [c for c in display_cols if c in retrieval_res["flagged_df"].columns]
-        
-        # Check if the user asked for a chart
+        # Determine chart selection and run analytics SQL if needed FIRST
         chart_type = "empty"
         chart_title = None
+        sql_query_used = None
+        aggregated_df = None
+        
+        display_cols = list(retrieval_res["flagged_df"].columns)
         final_df = retrieval_res["flagged_df"][display_cols].copy()
         final_df = _clean_df_for_streamlit(final_df)
-        sql_query_used = None
         
         try:
             from analytics.graph_selector import select_chart_type
@@ -346,19 +337,29 @@ class QueryRouter:
             chart_type, chart_title = select_chart_type(intent, final_df, query_text)
             
             # If a chart is requested in Search intent, run the analytics engine on the flagged rows!
-            aggregated_df = None
             if chart_type != "empty":
                 aggregated_df, sql_query_used = self.analytics_engine.query_via_llm(query_text, target_df=retrieval_res["flagged_df"])
-                aggregated_df = _clean_df_for_streamlit(aggregated_df)
-                chart_type, chart_title = select_chart_type(intent, aggregated_df, query_text) # Re-evaluate chart on aggregated df
+                if aggregated_df is not None and not aggregated_df.empty:
+                    aggregated_df = _clean_df_for_streamlit(aggregated_df)
+                    chart_type, chart_title = select_chart_type(intent, aggregated_df, query_text) # Re-evaluate chart on aggregated df
         except Exception as e:
             logger.warning(f"Failed to run analytics on flagged_df: {e}")
             pass
+
+        # Call the new InsightGenerator to produce Business Summary insights from the retrieved/aggregated dataframe
+        from insight.generator import InsightGenerator
+        insight_gen = InsightGenerator()
+        
+        # Use the SQL-generated/aggregated columns if available, otherwise fall back to search results
+        insight_target_df = aggregated_df if (aggregated_df is not None and not aggregated_df.empty) else retrieval_res["flagged_df"]
+        messages = insight_gen.generate_insight(query_text, insight_target_df)
+        
+        score_range = f"{min(scores):.3f} - {max(scores):.3f}" if scores else "0.000 - 0.000"
         
         result.update({
             "type": "table_stream",
             "data": {
-                "df": final_df, # Keep original search results for the table!
+                "df": final_df, # Keep original search results for the table
                 "messages": messages
             },
             "citations": citations,
@@ -368,7 +369,7 @@ class QueryRouter:
             "scores_list": scores,
             "chart_type": chart_type,
             "chart_title": chart_title,
-            "chart_data": aggregated_df if 'aggregated_df' in locals() else None,
+            "chart_data": aggregated_df,
             "sql_query": sql_query_used
         })
 
