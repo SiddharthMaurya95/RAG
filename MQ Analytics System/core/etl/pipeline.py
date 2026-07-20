@@ -310,9 +310,9 @@ def ingest_excel(excel_path, db_path, llm_client=None):
                 collection_request_date=row['Collection Request Date'],
                 parts_retrieved_date=row['Parts Retrieved Date'],
                 person_of_action_judgement=row['Person of Action Judgement'],
-                dept_of_action_judgement=row['Dept of Action Judgement'],
+                department_of_action_judgement=row['Dept of Action Judgement'],
                 judgement_date=row['Judgement Date'],
-                reason_not_sbpr=row['Reason Not SBPR'],
+                reason_of_not_to_file_as_an_sbpr=row['Reason Not SBPR'],
                 approval_judgement_date=row['Approval Judgement Date'],
                 # ── Computed / metadata ─────────────────────────────────────────────
                 row_hash=row['row_hash'],
@@ -321,8 +321,7 @@ def ingest_excel(excel_path, db_path, llm_client=None):
                 report_month=row['report_month'],
                 is_resolved=row['is_resolved'],
                 has_sbpr=row['has_sbpr'],
-                summary=summary,
-                root_cause=root_cause
+                summary=summary
             )
             session.add(record)
             session.flush()  # Populate record.id

@@ -844,7 +844,7 @@ def render_chat_page(router):
                         pdf_path = os.path.join(reports_dir, f"QA_Report_{ryear}_{rmonth}.pdf")
                         docx_path = os.path.join(reports_dir, f"QA_Report_{ryear}_{rmonth}.docx")
                         if not (os.path.exists(pdf_path) and os.path.exists(docx_path)):
-                            from reports.engine import ReportEngine
+                            from core.utils.report_engine import ReportEngine
                             os.makedirs(reports_dir, exist_ok=True)
                             engine = ReportEngine()
                             engine.generate_pdf_report(ryear, rmonth, pdf_path)
@@ -1062,7 +1062,7 @@ def render_chat_page(router):
                 year = router_res["data"]["year"]
                 month = router_res["data"]["month"]
                 
-                from reports.engine import ReportEngine
+                from core.utils.report_engine import ReportEngine
                 reports_dir = os.path.join(get_project_root(), "reports_cache")
                 os.makedirs(reports_dir, exist_ok=True)
                 pdf_path = os.path.join(reports_dir, f"QA_Report_{year}_{month}.pdf")
@@ -1567,7 +1567,7 @@ def render_reports_page():
         generate_btn = st.button("Generate Reports", type="primary", width="stretch")
 
     if generate_btn:
-        from reports.engine import ReportEngine
+        from core.utils.report_engine import ReportEngine
         reports_dir = os.path.join(get_project_root(), "reports_cache")
         os.makedirs(reports_dir, exist_ok=True)
         pdf_path = os.path.join(reports_dir, f"QA_Report_{year}_{month}.pdf")

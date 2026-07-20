@@ -47,6 +47,7 @@ def run_initial_etl(excel_source, db_path, project_root):
     
     from core.etl.pipeline import ingest_excel
     from core.rag.document_builder import build_document_text
+    from core.rag.rag_embedder import VectorEmbedder
     from core.rag.embedding_service import EmbeddingService
     
     # 1. Ingest Excel rows into database
@@ -102,14 +103,20 @@ def run_initial_etl(excel_source, db_path, project_root):
             'segment': row[10]
         })
         
-    embedder = EmbeddingService()
-    # Build and train FAISS index on 384-dimensional cosine metrics
-    embedder.build_index(record_ids, texts, metadatas, nlist=100)
+    embedder = VectorEmbedder()
+    # Build and train FAISS index
+    embedder.build_index(record_ids, texts, metadatas)
     
     # Also generate the embeddings.npy & embedding_ids.json for the Retriever
     print("Building Retriever embeddings (embeddings.npy)...")
-    from rag.pipeline import build_offline_embeddings
-    build_offline_embeddings(db_path)
+    import numpy as np
+    import json
+    
+    emb_service = EmbeddingService(cache_dir=os.path.join(project_root, "data"))
+    embeddings = emb_service.encode(texts)
+    np.save(emb_service.embeddings_path, embeddings)
+    with open(emb_service.ids_path, "w") as f:
+        json.dump(record_ids, f)
     
     print("Initial ETL, FAISS index, and Retriever embeddings setup complete.")
 
