@@ -128,54 +128,36 @@ def ingest_excel(excel_path, db_path, llm_client=None):
         print(f"Error: {excel_path} does not exist.")
         return []
     
-    # Read Excel
-    df = pd.read_excel(excel_path, sheet_name=0)
+    # Read CSV or Excel
+    if excel_path.endswith('.csv'):
+        df = pd.read_csv(excel_path)
+    else:
+        df = pd.read_excel(excel_path, sheet_name=0)
     
     # Strip whitespace from column names
     df.columns = df.columns.str.strip()
 
-    # Skip files that are not valid FTIR datasets (e.g. scorecards, custom dashboards)
-    if 'FTIR No.' not in df.columns and 'FTIR No' not in df.columns:
-        print(f"Skipping {excel_path} - not a valid FTIR dataset (missing FTIR No column).")
-        return []
-    
-    # Handle both dash and slash variants of the mileage column to prevent duplicates
-    if 'Mileage - Using Time' in df.columns and 'Mileage / Using Time' in df.columns:
-        df['Mileage - Using Time'] = df['Mileage - Using Time'].fillna(df['Mileage / Using Time'])
-        df = df.drop(columns=['Mileage / Using Time'])
-        
-    # Filter out rows where FTIR No is null or empty before we do any processing
-    if 'FTIR No.' in df.columns:
-        df = df[df['FTIR No.'].notna() & (df['FTIR No.'].astype(str).str.strip() != '')]
-    elif 'FTIR No' in df.columns:
-        df = df[df['FTIR No'].notna() & (df['FTIR No'].astype(str).str.strip() != '')]
-        
-    # Rename columns to normalize raw Excel sheets
+    # Normalize/rename known variations safely before validating
     df = df.rename(columns={
         'SBPR No.': 'SBPR No',
         "C'measure": 'C Measure',
         'FTIR No.': 'FTIR No',
         'Product Model Code': 'Product MODEL Code',
         'Subject (English)': 'Subject',
-        # Keep Reported Country as its own field; do NOT alias to Outbreak Country
         'Report Company': 'Reported Company',
         'Causal Parts Name (English)': 'Causal Parts Name',
-        # Handle both dash and slash variants of the mileage column
         'Mileage - Using Time': 'Using Time (km)',
         'Mileage / Using Time': 'Using Time (km)',
         'Causal Parts No.': 'Causal Parts No (Drawing Parts No)',
-        # New column renames
         'Department of Action Judgement': 'Dept of Action Judgement',
         'Reason of "Not to File as an SBPR"': 'Reason Not SBPR',
     })
-    
-    print(f"Loaded {len(df)} rows from Excel.")
-    
-    # Normalize all string values and handle NaNs using a lambda expression
-    clean_val = lambda x: str(x).strip() if not pd.isna(x) else None
-    for col in df.columns:
-        df[col] = df[col].apply(clean_val)
-        
+
+    # Skip files that are not valid FTIR datasets (e.g. scorecards, custom dashboards)
+    if 'FTIR No' not in df.columns:
+        print(f"Skipping {excel_path} - not a valid FTIR dataset (missing FTIR No column).")
+        return []
+
     # Ensure all required database fields exist in the DataFrame (initialize missing ones to None)
     required_cols = [
         'SBPR No', 'FTIR No', 'FTIR Report Date', 'Reply Date', 'Status', 'FC-OK',
@@ -188,7 +170,6 @@ def ingest_excel(excel_path, db_path, llm_client=None):
         'Action Judgement', 'Causal Parts No (Drawing Parts No)', 'Causal Parts Name',
         'Supplier of Causal Parts', 'Production Base', 'Parts Availability',
         'File Name', 'Quality',
-        # ── New columns ─────────────────────────────────────────────────
         'Rank', 'Days Used', 'FPCR No.', 'Sales Dealer', 'Service Dealer',
         'Spec on Destination', 'Collection Request Date', 'Parts Retrieved Date',
         'Person of Action Judgement', 'Dept of Action Judgement',
@@ -197,6 +178,21 @@ def ingest_excel(excel_path, db_path, llm_client=None):
     for col in required_cols:
         if col not in df.columns:
             df[col] = None
+
+    # Handle both dash and slash variants of the mileage column to prevent duplicates
+    if 'Mileage - Using Time' in df.columns and 'Mileage / Using Time' in df.columns:
+        df['Using Time (km)'] = df['Mileage - Using Time'].fillna(df['Mileage / Using Time'])
+        df = df.drop(columns=['Mileage / Using Time', 'Mileage - Using Time'], errors='ignore')
+        
+    # Filter out rows where FTIR No is null or empty before we do any processing
+    df = df[df['FTIR No'].notna() & (df['FTIR No'].astype(str).str.strip() != '')]
+    
+    print(f"Loaded {len(df)} rows from Excel.")
+    
+    # Normalize all string values and handle NaNs using a lambda expression
+    clean_val = lambda x: str(x).strip() if not pd.isna(x) else None
+    for col in df.columns:
+        df[col] = df[col].apply(clean_val)
 
     # Handle fallbacks for missing customer complaints using lambda
     df['Customer Complaint'] = df.apply(
@@ -297,14 +293,11 @@ def ingest_excel(excel_path, db_path, llm_client=None):
                 checked_results=row['Checked Results'],
                 repair_status=row['Repair Status'],
                 repair_contents=row['Repair Contents'],
-                problem_solved=row['Problem Solved'],
                 action_judgement=row['Action Judgement'],
                 causal_parts_no=row['Causal Parts No (Drawing Parts No)'],
                 causal_parts_name=row['Causal Parts Name'],
-                supplier_of_causal_parts=row['Supplier of Causal Parts'],
                 production_base=row['Production Base'],
                 parts_availability=row['Parts Availability'],
-                file_name=row['File Name'],
                 quality=row['Quality'],
                 # ── New fields ─────────────────────────────────────────────────────
                 rank=row['Rank'],

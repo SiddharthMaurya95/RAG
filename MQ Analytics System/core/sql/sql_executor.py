@@ -134,9 +134,10 @@ class AnalyticsEngine:
         df = pd.read_sql_query(query, conn, params=tuple(params))
         conn.close()
         
-        # Post-process with Pandas to format dates neatly for plotting (e.g. '2024-05')
+        # Post-process with Pandas to format dates neatly for plotting (e.g. 'Jan 2024')
         if not df.empty:
-            df['period'] = df.apply(lambda r: f"{int(r['report_year'])}--{int(r['report_month']):02d}", axis=1)
+            months_map = {1: "Jan", 2: "Feb", 3: "Mar", 4: "Apr", 5: "May", 6: "Jun", 7: "Jul", 8: "Aug", 9: "Sep", 10: "Oct", 11: "Nov", 12: "Dec"}
+            df['period'] = df.apply(lambda r: f"{months_map.get(int(r['report_month']), 'UNK')} {int(r['report_year'])}", axis=1)
         return df, query.strip()
 
     @with_logging_and_exceptions

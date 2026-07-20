@@ -83,6 +83,11 @@ class LocalLLMClient:
                 stop=stop_tokens,
                 echo=False
             )
+            usage = response.get("usage", {})
+            prompt_tokens = usage.get("prompt_tokens", 0)
+            completion_tokens = usage.get("completion_tokens", 0)
+            logger.info(f"LLM Summary Generation - Input tokens: {prompt_tokens}, Output tokens: {completion_tokens}")
+            
             text = response["choices"][0]["text"].strip()
             return text
         except Exception as e:
@@ -152,6 +157,13 @@ class LocalLLMClient:
 
             # Call the raw completion endpoint with streaming
             stop_tokens = ["<|im_end|>", "<|im_start|>"] if is_qwen else ["<|end|>", "<|user|>", "<|system|>"]
+            
+            # Calculate exact input token count
+            try:
+                input_tokens = len(self.llm.tokenize(prompt.encode('utf-8')))
+            except Exception:
+                input_tokens = len(prompt) // 4  # fallback estimate
+
             chat_completion = self.llm(
                 prompt,
                 max_tokens=512,
@@ -160,10 +172,23 @@ class LocalLLMClient:
                 stop=stop_tokens
             )
 
+            accumulated_response = []
             for chunk in chat_completion:
                 choice = chunk["choices"][0]
                 if "text" in choice:
-                    yield choice["text"]
+                    text_chunk = choice["text"]
+                    accumulated_response.append(text_chunk)
+                    yield text_chunk
+
+            # Calculate exact output token count
+            full_response = "".join(accumulated_response)
+            try:
+                output_tokens = len(self.llm.tokenize(full_response.encode('utf-8')))
+            except Exception:
+                output_tokens = len(full_response) // 4  # fallback estimate
+
+            logger.info(f"LLM Chat Generation - Input tokens: {input_tokens}, Output tokens: {output_tokens}")
+
         except Exception as e:
             logger.error(f"Local LLM chat stream generation failed: {e}")
             raise CustomException(e, sys)

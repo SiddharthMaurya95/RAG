@@ -468,6 +468,15 @@ def inject_custom_styles():
 
 # Main App Entry
 def main():
+    # Start the background Inbox Watcher once per Python process session
+    if "watcher_started" not in st.session_state:
+        st.session_state.watcher_started = True
+        try:
+            from core.etl.watcher import start_inbox_watcher
+            start_inbox_watcher()
+        except Exception:
+            pass
+
     # Inject styles only once per browser session to avoid re-injecting the large
     # CSS block on every Streamlit rerun (keystroke, token stream, etc.)
     if "styles_injected" not in st.session_state:
@@ -499,6 +508,14 @@ def main():
 
     # Render the AI warning at the bottom on every rerun when logged in
     st.markdown('<div class="ai-warning">This system uses AI and can make mistakes.</div>', unsafe_allow_html=True)
+
+    # Check for background auto-ingestion events
+    tracker = get_ingestion_tracker()
+    if tracker.last_ingest_time > 0.0:
+        last_check = st.session_state.get("last_ingest_check_time", 0.0)
+        if tracker.last_ingest_time > last_check:
+            st.session_state.last_ingest_check_time = tracker.last_ingest_time
+            st.toast(f"📥 Automatically ingested `{tracker.new_records_count}` records from inbox file: `{tracker.last_ingested_file}`", icon="✅")
 
     # Load core singletons.
     db_path = get_db_connection()
